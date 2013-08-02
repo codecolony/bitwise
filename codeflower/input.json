@@ -1,0 +1,85 @@
+{
+    "name": "System",
+    "children": [
+        {
+            "name": "Instance 1",
+            "children": [
+                {
+                    "name": "Host 1",
+                    "children": [
+                        {
+                            "name": "Availability",
+                            "children": [
+                                {
+                                    "name": "HTTP Availability",
+                                    "size": 100
+                                },
+                                {
+                                    "name": "RFC Ping Availability",
+                                    "size": 100
+                                }
+                            ],
+                            "size": 200
+                        },
+                        {
+                            "name": "Performance",
+                            "size": 200,
+                            "language": "Javascript"
+                        }
+                    ],
+                    "size": 400
+                },
+                {
+                    "name": "api",
+                    "children": [
+                        {
+                            "name": "routes",
+                            "children": [
+                                {
+                                    "name": "check.js",
+                                    "size": 95,
+                                    "language": "Javascript"
+                                },
+                                {
+                                    "name": "ping.js",
+                                    "size": 68,
+                                    "language": "Javascript"
+                                },
+                                {
+                                    "name": "tag.js",
+                                    "size": 64,
+                                    "language": "Javascript"
+                                }
+                            ],
+                            "size": 227
+                        },
+                        {
+                            "name": "app.js",
+                            "size": 59,
+                            "language": "Javascript"
+                        }
+                    ],
+                    "size": 286
+                }
+            ],
+            "size": 800
+        },
+        {
+            "name": "Instance 2",
+            "size": 800
+        },
+        {
+            "name": "Instance 3",
+            "size": 800
+        },
+        {
+            "name": "Instance 4",
+            "size": 800
+        },
+        {
+            "name": "DB Instance",
+            "size": 800
+        }
+    ],
+    "size": 1600
+}

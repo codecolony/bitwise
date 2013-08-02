@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+        <head>
+            <meta charset="utf-8">
+            <title>System Monitoring Hierarchy</title>
+            <!-- <link type="text/css" rel="stylesheet" href="js/d3.js">
+            <link type="text/css" rel="stylesheet" href="js/CodeFlower.js"> -->
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <link type="text/css" rel="stylesheet" href="css/bootstrap.min.css"/>
+    		<link href="css/bootstrap-responsive.min.css" rel="stylesheet">
+    		<script type="text/javascript" src="js/startup-code-jquery.js"></script>
+            <script type="text/javascript" src="js/d3.js"></script>
+            <script type="text/javascript" src="js/d3.min.js"></script>
+            <script type="text/javascript" src="js/CodeFlower.js"></script>
+            <script type="text/javascript" src="js/dataConverter.js"></script>
+            <style type="text/css">
+              circle.node {
+			  cursor: pointer;
+			  stroke: #000;
+			  stroke-width: .5px;
+			}
+
+			circle.node.directory {
+			  stroke: #9ecae1;
+			  stroke-width: 2px;
+			}
+
+			circle.node.collapsed {
+			  stroke: #555;
+			}	
+
+			.nodetext {
+			  fill: #252929;
+			  font-weight: bold;
+			  text-shadow: 0 0 0.2em white;
+			}
+
+			line.link {
+			  fill: none;
+			  stroke: #9ecae1;
+			  stroke-width: 1.5px;
+			}
+            </style>
+        </head>
+        <body>
+        	<div id="hierarchy"></div>
+        	<script type="text/javascript">
+    //     		var myFlower = new CodeFlower("#hierarchy", 300, 300);
+				// myflower.update(jsonData);
+				$.getJSON('input.json', function(data) {
+				  var myFlower = new CodeFlower("#hierarchy", 300, 300);
+				  myflower.update(data);
+				});
+        	</script>
+        </body>
+</html>
