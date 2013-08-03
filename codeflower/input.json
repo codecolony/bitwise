@@ -28,38 +28,6 @@
                         }
                     ],
                     "size": 400
-                },
-                {
-                    "name": "api",
-                    "children": [
-                        {
-                            "name": "routes",
-                            "children": [
-                                {
-                                    "name": "check.js",
-                                    "size": 95,
-                                    "language": "Javascript"
-                                },
-                                {
-                                    "name": "ping.js",
-                                    "size": 68,
-                                    "language": "Javascript"
-                                },
-                                {
-                                    "name": "tag.js",
-                                    "size": 64,
-                                    "language": "Javascript"
-                                }
-                            ],
-                            "size": 227
-                        },
-                        {
-                            "name": "app.js",
-                            "size": 59,
-                            "language": "Javascript"
-                        }
-                    ],
-                    "size": 286
                 }
             ],
             "size": 800
