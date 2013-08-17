@@ -1,0 +1,40 @@
+<!DOCTYPE html/>
+<html lang="en">
+        <head>
+                <meta charset="utf-8">
+                <title>Get XML</title>
+                <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+       </head>
+
+ 	<body>
+ 		<script type="text/javascript">
+	 	// 	var myXML = ""
+			// var request = new XMLHttpRequest();
+			// request.open("GET", "https://ldcidp7.wdf.sap.corp:44370/sap/opu/odata/sap/ZSM_SYS_MON_DEMO1_SRV/Overview?search=SD7~ABAP|DP7~ABAP", true);
+			// request.onreadystatechange = function(){
+			//     if (request.readyState == 4) {
+			//         if (request.status == 200 || request.status == 0) {
+			//             myXML = request.responseXML;
+			//             alert(myXML);
+			//         }
+			//     }
+			// }
+			// request.send();
+
+			$.ajax({
+			    type :"GET",
+			    url : "https://ldcidp7.wdf.sap.corp:44370/sap/opu/odata/sap/ZSM_SYS_MON_DEMO1_SRV/Overview?$format=json&search=SD7~ABAP|DP7~ABAP",
+			    crossDomain: true,
+    			dataType: 'jsonp',
+			    success : function(dataXML){
+			        //dataXML will have the complete xml..
+			        alert(dataXML);
+			    },
+			    error : function(){
+			    	alert('failure');
+			        //error handler..
+			    }
+			});
+		</script>
+    </body>
+</html>

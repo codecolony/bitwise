@@ -1,0 +1,66 @@
+{
+    "d": {
+        "results": [
+            {
+                "__metadata": {
+                    "uri": "https://ldcidp7.wdf.sap.corp:44370/sap/opu/odata/sap/ZSM_SYS_MON_DEMO1_SRV/Overview(ContextID='0050569B00811EE19FB67BCA06E8ADEB',Extsid='SQ7~JAVA')",
+                    "type": "ZSM_SYS_MON_DEMO1_SRV.Overview"
+                },
+                "ContextID": "0050569B00811EE19FB67BCA06E8ADEB",
+                "CurWkmode": "",
+                "NumAlrts": "1",
+                "ExcpStatus": 0,
+                "ConfStatus": 0,
+                "PerfStatus": 0,
+                "AvailStatus": 3,
+                "SystemDesc": "",
+                "SystemName": "SQ7~JAVA",
+                "PartnerID": "",
+                "CustomerID": "",
+                "SysType": "T_SYSTEM",
+                "Extsid": "SQ7~JAVA",
+                "ArchType": "JAVA"
+            },
+            {
+                "__metadata": {
+                    "uri": "https://ldcidp7.wdf.sap.corp:44370/sap/opu/odata/sap/ZSM_SYS_MON_DEMO1_SRV/Overview(ContextID='0050569B00811EE19FF7A45FEC113FB6',Extsid='DP7~ABAP')",
+                    "type": "ZSM_SYS_MON_DEMO1_SRV.Overview"
+                },
+                "ContextID": "0050569B00811EE19FF7A45FEC113FB6",
+                "CurWkmode": "",
+                "NumAlrts": "5",
+                "ExcpStatus": 3,
+                "ConfStatus": 3,
+                "PerfStatus": 3,
+                "AvailStatus": 1,
+                "SystemDesc": "",
+                "SystemName": "DP7~ABAP",
+                "PartnerID": "Felix Roth +49 (6227) 7-45264 felix.roth",
+                "CustomerID": "",
+                "SysType": "T_SYSTEM",
+                "Extsid": "DP7~ABAP",
+                "ArchType": "ABAP"
+            },
+            {
+                "__metadata": {
+                    "uri": "https://ldcidp7.wdf.sap.corp:44370/sap/opu/odata/sap/ZSM_SYS_MON_DEMO1_SRV/Overview(ContextID='0050569B00811EE19FB62549752ECDCF',Extsid='SD7~ABAP')",
+                    "type": "ZSM_SYS_MON_DEMO1_SRV.Overview"
+                },
+                "ContextID": "0050569B00811EE19FB62549752ECDCF",
+                "CurWkmode": "",
+                "NumAlrts": "2",
+                "ExcpStatus": 1,
+                "ConfStatus": 1,
+                "PerfStatus": 1,
+                "AvailStatus": 0,
+                "SystemDesc": "",
+                "SystemName": "SD7~ABAP",
+                "PartnerID": "Andreas Loebel +49 (6227) 7-66088 andrea",
+                "CustomerID": "",
+                "SysType": "T_SYSTEM",
+                "Extsid": "SD7~ABAP",
+                "ArchType": "ABAP"
+            }
+        ]
+    }
+}

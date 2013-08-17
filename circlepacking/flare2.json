@@ -1,0 +1,36 @@
+{
+    "name": "SID",
+    "children": [
+        {
+            "name": "cluster",
+            "children": [
+                {
+                    "name": "SD7~ABAP",
+                    "size": 2000
+                },
+                {
+                    "name": "DP7~ABAP",
+                    "size": 2000
+                },
+                {
+                    "name": "QP7~ABAP",
+                    "size": 2000
+                }
+            ]
+        },
+        {
+            "name": "cluster2",
+            "children": [
+                
+                {
+                    "name": "DP7~ABAP",
+                    "size": 2000
+                },
+                {
+                    "name": "QP7~ABAP",
+                    "size": 2000
+                }
+            ]
+        }
+    ]
+}

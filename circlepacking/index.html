@@ -47,6 +47,10 @@ circle.child {
     <script type="text/javascript" src="js/d3.layout.js"></script>
     <script type="text/javascript">
 
+//to be used later
+//var url = "https://ldcidp7.wdf.sap.corp:44370/sap/opu/odata/sap/ZSM_SYS_MON_DEMO1_SRV/Overview?$format=json&search=SD7~ABAP|DP7~ABAP";
+//d3.xhr(url[, mimeType][, callback])
+
 var w = 1280,
     h = 800,
     r = 720,
@@ -65,10 +69,90 @@ var vis = d3.select("body").insert("svg:svg", "h2")
   .append("svg:g")
     .attr("transform", "translate(" + (w - r) / 2 + "," + (h - r) / 2 + ")");
 
-d3.json("flare.json", function(data) {
-  node = root = data;
+d3.json("service.json", function(data) {
+  //node = root = data;
+  node = root = data.d.results;
+  //console.log(root);
 
-  var nodes = pack.nodes(root);
+  //sorting by type for testing
+  node.sort(function(a, b){
+     var nameA=a.ArchType.toLowerCase(), nameB=b.ArchType.toLowerCase()
+     if (nameA < nameB) //sort string ascending
+      return -1 
+     if (nameA > nameB)
+      return 1
+     return 0 //default return value (no sorting)
+  });
+
+  //console.log(node);
+
+  //d3 nesting?
+  var newData = {"name":"root", "children":[{"name":"systems", "children":[]}]};
+  var count = 0;
+
+  node.forEach(function(d){
+
+        if (newData.children[0].children[count] == undefined ) {
+
+            if (count !== 0) {
+              if (newData.children[0].children[count - 1].name !== d.ArchType) {
+                  newData.children[0].children.push({"name":d.ArchType, "children":[]})
+                  count = count + 1;
+              }
+            }
+            else{
+              //create a new children first
+              newData.children[0].children.push({"name":d.ArchType, "children":[]})
+              count = count + 1;
+            }
+        }
+
+        if (newData.children[0].children[count - 1].name !== d.ArchType) {
+              newData.children[0].children[count - 1].children = [{"name": d.SystemName,  "size":4000}]
+        }
+        else{
+          newData.children[0].children[count - 1].children.push({"name":d.SystemName, "size":4000})
+        }
+  })
+
+  // var count = 0;
+
+  //   node.forEach(function(d){
+    
+  //       //d["size"] = 1000;
+  //       //d["name"] = d.SystemName;
+  //       //delete d.__metadata;
+  //       //alert(newData.children["children"]);
+  //       count = count + 1;
+  //       if (newData.children[0].children == undefined) {
+  //         newData.children[0].children = [{"name": d.SystemName,  "size":4000}]
+  //       }
+  //       else{
+  //         newData.children[0].children.push({"name":d.SystemName, "size":4000})
+  //       }
+  //   })
+
+  //   node.forEach(function(d){
+    
+  //       if (newData.children[1] == undefined) {
+  //         //newData.children[1].children = {"name": d.SystemName,  "size":4000}
+  //         //create a new children first
+  //         newData.children.push({"name":"systems2", "children":[]})
+  //       }
+
+  //       if (newData.children[1].children == undefined){
+  //         newData.children[1].children = [{"name": d.SystemName,  "size":4000}]
+  //       }
+  //       else{
+  //         newData.children[1].children.push({"name":d.SystemName, "size":4000})
+  //       }
+  //       count = count + 1;
+  //   })
+  //console.log(newData);
+  node = root = newData;
+  //alert(JSON.stringify(newData));
+
+  var nodes = pack.nodes(newData);
 
   vis.selectAll("circle")
       .data(nodes)
@@ -84,8 +168,8 @@ d3.json("flare.json", function(data) {
     .enter().append("svg:text")
       .attr("class", function(d) { return d.children ? "parent" : "child"; })
       .attr("x", function(d) { return d.x; })
-      .attr("y", function(d) { return d.y; })
-      .attr("dy", ".35em")
+      .attr("y", function(d) { return d.children ? d.y - d.r*4/5 : d.y; })
+      .attr("dy", ".45em")
       .attr("text-anchor", "middle")
       .style("opacity", function(d) { return d.r > 20 ? 1 : 0; })
       .text(function(d) { return d.name; });
@@ -108,7 +192,7 @@ function zoom(d, i) {
 
   t.selectAll("text")
       .attr("x", function(d) { return x(d.x); })
-      .attr("y", function(d) { return y(d.y); })
+      .attr("y", function(d) { return d.children ? y(d.y - d.r*4/5) : y(d.y); })
       .style("opacity", function(d) { return k * d.r > 20 ? 1 : 0; });
 
   node = d;
