@@ -74,9 +74,53 @@ d3.json("service.json", function(data) {
   node = root = data.d.results;
   //console.log(root);
 
+  //d3 nesting?
+  var newData = {"name":"root", "children":[{"name":"Systems", "children":[]}]};
+  var count = 0;
+
+// ===============TYPE SORTING =================
+  //sorting by type for testing
+  // node.sort(function(a, b){
+  //    var nameA=a.ArchType.toLowerCase(), nameB=b.ArchType.toLowerCase()
+  //    if (nameA < nameB) //sort string ascending
+  //     return -1 
+  //    if (nameA > nameB)
+  //     return 1
+  //    return 0 //default return value (no sorting)
+  // });
+
+  // //System Type grouping
+  // node.forEach(function(d){
+
+  //       if (newData.children[0].children[count] == undefined ) {
+
+  //           if (count !== 0) {
+  //             if (newData.children[0].children[count - 1].name !== d.ArchType) {
+  //                 newData.children[0].children.push({"name":d.ArchType, "children":[]})
+  //                 count = count + 1;
+  //             }
+  //           }
+  //           else{
+  //             //create a new children first
+  //             newData.children[0].children.push({"name":d.ArchType, "children":[]})
+  //             count = count + 1;
+  //           }
+  //       }
+
+  //       if (newData.children[0].children[count - 1].name !== d.ArchType) {
+  //             newData.children[0].children[count - 1].children = [{"name": d.SystemName,  "size":4000}]
+  //       }
+  //       else{
+  //         newData.children[0].children[count - 1].children.push({"name":d.SystemName, "size":4000})
+  //       }
+  // })
+
+// ===============TYPE SORTING =================
+
+// ===============SYSTEM NAME SORTING =================
   //sorting by type for testing
   node.sort(function(a, b){
-     var nameA=a.ArchType.toLowerCase(), nameB=b.ArchType.toLowerCase()
+     var nameA=a.Extsid.toLowerCase(), nameB=b.Extsid.toLowerCase()
      if (nameA < nameB) //sort string ascending
       return -1 
      if (nameA > nameB)
@@ -84,30 +128,25 @@ d3.json("service.json", function(data) {
      return 0 //default return value (no sorting)
   });
 
-  //console.log(node);
-
-  //d3 nesting?
-  var newData = {"name":"root", "children":[{"name":"systems", "children":[]}]};
-  var count = 0;
-
+  //System Type grouping
   node.forEach(function(d){
 
         if (newData.children[0].children[count] == undefined ) {
 
             if (count !== 0) {
-              if (newData.children[0].children[count - 1].name !== d.ArchType) {
-                  newData.children[0].children.push({"name":d.ArchType, "children":[]})
+              if (newData.children[0].children[count - 1].name.charAt(0) !== d.Extsid.charAt(0)) {
+                  newData.children[0].children.push({"name":d.Extsid.charAt(0), "children":[]})
                   count = count + 1;
               }
             }
             else{
               //create a new children first
-              newData.children[0].children.push({"name":d.ArchType, "children":[]})
+              newData.children[0].children.push({"name":d.Extsid.charAt(0), "children":[]})
               count = count + 1;
             }
         }
 
-        if (newData.children[0].children[count - 1].name !== d.ArchType) {
+        if (newData.children[0].children[count - 1].name.charAt(0) !== d.Extsid.charAt(0)) {
               newData.children[0].children[count - 1].children = [{"name": d.SystemName,  "size":4000}]
         }
         else{
@@ -115,6 +154,9 @@ d3.json("service.json", function(data) {
         }
   })
 
+// ===============SYSTEM NAME SORTING =================
+
+// ===============BETA TESTING=================
   // var count = 0;
 
   //   node.forEach(function(d){
@@ -148,7 +190,8 @@ d3.json("service.json", function(data) {
   //       }
   //       count = count + 1;
   //   })
-  //console.log(newData);
+  // ===============BETA TESTING =================
+
   node = root = newData;
   //alert(JSON.stringify(newData));
 
@@ -167,12 +210,13 @@ d3.json("service.json", function(data) {
       .data(nodes)
     .enter().append("svg:text")
       .attr("class", function(d) { return d.children ? "parent" : "child"; })
-      .attr("x", function(d) { return d.x; })
+      .attr("x", function(d) { return d.children ? d.x - d.r*1/2 : d.x; })
       .attr("y", function(d) { return d.children ? d.y - d.r*4/5 : d.y; })
-      .attr("dy", ".45em")
+      .attr("dy", "1em")
       .attr("text-anchor", "middle")
+      //.attr("font-size", "200%")
       .style("opacity", function(d) { return d.r > 20 ? 1 : 0; })
-      .text(function(d) { return d.name; });
+      .text(function(d) { return (node==d) ? "" : d.name; });
 
   d3.select(window).on("click", function() { zoom(root); });
 });
@@ -191,7 +235,7 @@ function zoom(d, i) {
       .attr("r", function(d) { return k * d.r; });
 
   t.selectAll("text")
-      .attr("x", function(d) { return x(d.x); })
+      .attr("x", function(d) { return d.children ? x(d.x - d.r*1/2): x(d.x); })
       .attr("y", function(d) { return d.children ? y(d.y - d.r*4/5) : y(d.y); })
       .style("opacity", function(d) { return k * d.r > 20 ? 1 : 0; });
 

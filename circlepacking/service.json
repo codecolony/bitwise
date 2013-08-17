@@ -60,6 +60,46 @@
                 "SysType": "T_SYSTEM",
                 "Extsid": "SD7~ABAP",
                 "ArchType": "ABAP"
+            },
+            {
+                "__metadata": {
+                    "uri": "https://ldcidp7.wdf.sap.corp:44370/sap/opu/odata/sap/ZSM_SYS_MON_DEMO1_SRV/Overview(ContextID='0050569B00811EE19FB62549752ECDCF',Extsid='SD7~ABAP')",
+                    "type": "ZSM_SYS_MON_DEMO1_SRV.Overview"
+                },
+                "ContextID": "0050569B00811EE19FB62549752ECDCF",
+                "CurWkmode": "",
+                "NumAlrts": "2",
+                "ExcpStatus": 1,
+                "ConfStatus": 1,
+                "PerfStatus": 1,
+                "AvailStatus": 0,
+                "SystemDesc": "",
+                "SystemName": "QP7~IIS",
+                "PartnerID": "Andreas Loebel +49 (6227) 7-66088 andrea",
+                "CustomerID": "",
+                "SysType": "T_SYSTEM",
+                "Extsid": "QP7~IIS",
+                "ArchType": "IIS"
+            },
+            {
+                "__metadata": {
+                    "uri": "https://ldcidp7.wdf.sap.corp:44370/sap/opu/odata/sap/ZSM_SYS_MON_DEMO1_SRV/Overview(ContextID='0050569B00811EE19FB62549752ECDCF',Extsid='SD7~ABAP')",
+                    "type": "ZSM_SYS_MON_DEMO1_SRV.Overview"
+                },
+                "ContextID": "0050569B00811EE19FB62549752ECDCF",
+                "CurWkmode": "",
+                "NumAlrts": "2",
+                "ExcpStatus": 1,
+                "ConfStatus": 1,
+                "PerfStatus": 1,
+                "AvailStatus": 0,
+                "SystemDesc": "",
+                "SystemName": "XXX~ABAP",
+                "PartnerID": "Andreas Loebel +49 (6227) 7-66088 andrea",
+                "CustomerID": "",
+                "SysType": "T_SYSTEM",
+                "Extsid": "XXX~ABAP",
+                "ArchType": "ABAP"
             }
         ]
     }

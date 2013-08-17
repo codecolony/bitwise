@@ -1,7 +1,7 @@
 {
   "nodes": [
-    {"atom": "C", "size": 12},
-    {"atom": "C", "size": 12},
+    {"atom": "C", "size": 12, "status":"red"},
+    {"atom": "C", "size": 82," status":"red"}, 
     {"atom": "C", "size": 12},
     {"atom": "N", "size": 14},
     {"atom": "H", "size": 1},
@@ -26,6 +26,7 @@
     {"source": 0, "target": 7,  "bond": 1},
     {"source": 0, "target": 8,  "bond": 1},
     {"source": 0, "target": 9,  "bond": 1},
+    {"source": 5, "target": 6,  "bond": 1},
     {"source": 5, "target": 12, "bond": 1}
   ]
 }

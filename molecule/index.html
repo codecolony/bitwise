@@ -67,9 +67,23 @@ d3.json("graph.json", function(graph) {
       .attr("class", "node")
       .call(force.drag);
 
+  //     var tooltip = d3.select("body")
+  // .append("div")
+  // .style("position", "absolute")
+  // .style("z-index", "10")
+  // .style("visibility", "hidden")
+  // .text("a simple tooltip");
+
   node.append("circle")
       .attr("r", function(d) { return radius(d.size); })
-      .style("fill", function(d) { return color(d.atom); });
+      .style("fill", function(d) { return color(d.atom); })
+      .append("svg:title")
+          .text(function(d, i) { return d.atom; });
+   //fill our metric status colour, just use d.status!
+      // .on("mouseover", function(){return tooltip.style("visibility", "visible");})
+      // .on("mousemove", function(){return tooltip.style("top", (event.pageY-10)+"px").style("left",(event.pageX+10)+"px");})
+      // .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
+
 
   node.append("text")
       .attr("dy", ".35em")
