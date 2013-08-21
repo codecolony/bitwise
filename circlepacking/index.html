@@ -15,7 +15,7 @@
 }
 
 text {
-  font-size: 11px;
+  font-size: 18px;
   pointer-events: none;
 }
 
@@ -56,13 +56,31 @@ circle.child {
       <option value="4">Group Systems by Performance</option>
       <option value="5">Group Systems by Configuration</option>
       <option value="6">Group Systems by Exception</option>
+      <option value="7">Group Systems by Activation</option>
       </select>
     </form>
+    <!-- <form>
+       <fieldset>
+         <legend>Selecting elements</legend>
+         
+           <label>Check boxes</label>
+             <input type = "checkbox"
+                 id = "chkEggs"
+                 value = "greenEggs" />
+             <label for = "chkEggs">Green Eggs</label>
+           
+             <input type = "checkbox"
+                 id = "chkHam"
+                 value = "ham" />
+             <label for = "chkHam">Ham</label>
+         
+       </fieldset>
+    </form> -->
     </div>
-    <h2>
+    <!-- <h2>
       Flare code size<br>
       circle packing
-    </h2>
+    </h2> -->
     <script type="text/javascript" src="js/d3.js"></script>
     <script type="text/javascript" src="js/d3.layout.js"></script>
     <script type="text/javascript">
@@ -129,7 +147,7 @@ vis = d3.select("body").insert("svg:svg", "h2")
 // ===============TYPE SORTING =================
   //sorting by type for testing
   node.sort(function(a, b){
-     var nameA=a.ArchType.toLowerCase(), nameB=b.ArchType.toLowerCase()
+     var nameA=a.CurWkmode.toLowerCase(), nameB=b.CurWkmode.toLowerCase()
      if (nameA < nameB) //sort string ascending
       return -1 
      if (nameA > nameB)
@@ -143,19 +161,68 @@ vis = d3.select("body").insert("svg:svg", "h2")
         if (newData.children[0].children[count] == undefined ) {
 
             if (count !== 0) {
-              if (newData.children[0].children[count - 1].name !== d.ArchType) {
-                  newData.children[0].children.push({"name":d.ArchType, "children":[]})
+              if (newData.children[0].children[count - 1].name !== d.CurWkmode) {
+                  newData.children[0].children.push({"name":d.CurWkmode, "children":[]})
                   count = count + 1;
               }
             }
             else{
               //create a new children first
-              newData.children[0].children.push({"name":d.ArchType, "children":[]})
+              newData.children[0].children.push({"name":d.CurWkmode, "children":[]})
               count = count + 1;
             }
         }
 
-        if (newData.children[0].children[count - 1].name !== d.ArchType) {
+        if (newData.children[0].children[count - 1].name !== d.CurWkmode) {
+              newData.children[0].children[count - 1].children = [{"name": d.SystemName,  "size":4000}]
+        }
+        else{
+          newData.children[0].children[count - 1].children.push({"name":d.SystemName, "size":4000})
+        }
+  })
+
+// ===============TYPE SORTING =================
+}
+
+else if (option_selected == 6) {
+// ===============Activation SORTING =================
+  //sorting by type for testing
+  node.sort(function(a, b){
+     var nameA=a.SystemDesc.toLowerCase(), nameB=b.SystemDesc.toLowerCase()
+     if (nameA < nameB) //sort string ascending
+      return -1 
+     if (nameA > nameB)
+      return 1
+     return 0 //default return value (no sorting)
+  });
+
+  //monitoring status grouping
+  node.forEach(function(d){
+
+    var monStat;
+    if(d.SystemDesc == "0")
+      d.SystemDesc = "Not Configured";
+    if(d.SystemDesc == "1")
+      d.SystemDesc = "Configured";
+    if(d.SystemDesc == "2")
+      d.SystemDesc = "Warnings";
+
+        if (newData.children[0].children[count] == undefined ) {
+
+            if (count !== 0) {
+              if (newData.children[0].children[count - 1].name !== d.SystemDesc) {
+                  newData.children[0].children.push({"name":d.SystemDesc, "children":[]})
+                  count = count + 1;
+              }
+            }
+            else{
+              //create a new children first
+              newData.children[0].children.push({"name":d.SystemDesc, "children":[]})
+              count = count + 1;
+            }
+        }
+
+        if (newData.children[0].children[count - 1].name !== d.SystemDesc) {
               newData.children[0].children[count - 1].children = [{"name": d.SystemName,  "size":4000}]
         }
         else{
@@ -207,7 +274,7 @@ else if(option_selected == 0){
 // ===============SYSTEM NAME SORTING =================
 }
 
-else if(option_selected == 2 || option_selected == 3 || option_selected == 4 || option_selected == 5){  //availability grouping
+else if(option_selected == 2 || option_selected == 3 || option_selected == 4 || option_selected == 5){  //category grouping
 
   node.sort(function(a, b){
      // var nameA=a.AvailStatus.toLowerCase(), nameB=b.AvailStatus.toLowerCase()
@@ -238,6 +305,15 @@ else if(option_selected == 2 || option_selected == 3 || option_selected == 4 || 
       groupname = d.ConfStatus;
     if(option_selected == 5)
       groupname = d.ExcpStatus;
+
+    if(groupname == 0)
+      groupname = "Grey";
+    if(groupname == 1)
+      groupname = "Green";
+    if(groupname == 2)
+      groupname = "Yellow";
+    if(groupname == 3)
+      groupname = "Red";
 
         if (newData.children[0].children[count] == undefined ) {
 
@@ -311,6 +387,16 @@ else if(option_selected == 2 || option_selected == 3 || option_selected == 4 || 
       .attr("cx", function(d) { return d.x; })
       .attr("cy", function(d) { return d.y; })
       .attr("r", function(d) { return d.r; })
+      .style("fill", function(d) {  //experimental status coloring
+          // if (d.status == 0) return "grey";
+          // else if (d.status == 1) return "green";
+          // else if (d.status == 2) return "yellow";
+          // else if (d.status == 3) return "red" ;
+          if(option_selected == 2 || option_selected == 3 || option_selected == 4 || option_selected == 5){
+            if(d.name !== "root" && d.name!== "Systems")
+            return d.name;
+          }
+           })
       .on("click", function(d) { return zoom(node == d ? root : d); });
 
   vis.selectAll("text")
