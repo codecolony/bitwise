@@ -23,11 +23,11 @@
 
 </style>
 <body>
-<script src="http://d3js.org/d3.v2.min.js?2.9.6"></script>
+<script src="js/d3.v2.min.js"></script>
 <script>
 
 var width = 960,
-    height = 800;
+    height = 500;
 
 var color = d3.scale.category20();
 
@@ -43,39 +43,7 @@ var force = d3.layout.force()
     .charge(-400)
     .linkDistance(function(d) { return radius(d.source.size) + radius(d.target.size) + 20; });
 
-d3.json("details.json", function(graph) {
-
-  //do the data manipulation here
-  graph = graph.d.results;
-  var tmpgraph = {"nodes":[],"links":[]}; //groomed graph to be used later
-
-  graph.forEach(function(d){
-    var nds=d.WorkmodeCode.split("|");
-    var nd_objs = toObject(nds);
-
-    var lnks=d.WorkmodeDescr.split("|");
-    var lnks_objs = toObject(lnks);
-
-    tmpgraph.nodes = nd_objs;
-    tmpgraph.links = lnks_objs;
-  })
-
-  graph = tmpgraph;
-
-  function toObject(arr) {
-    var rv = {};
-    var newarr = [];
-    for (var i = 0; i < arr.length; ++i)
-    {
-        rv = arr[i];
-        if (rv !== ""){
-          rv = JSON.parse(rv);
-          newarr.push(rv);
-        }
-      }
-    return newarr;
-  }
-
+d3.json("graph.json", function(graph) {
   force
       .nodes(graph.nodes)
       .links(graph.links)
@@ -108,14 +76,10 @@ d3.json("details.json", function(graph) {
 
   node.append("circle")
       .attr("r", function(d) { return radius(d.size); })
-      .style("fill", function(d) { 
-          if (d.status == 0) return "grey";
-          else if (d.status == 1) return "green";
-          else if (d.status == 2) return "yellow";
-          else if (d.status == 3) return "red" ; }) //fill our metric status colour, just use d.status!
+      .style("fill", function(d) { return color(d.atom); })
       .append("svg:title")
           .text(function(d, i) { return d.atom; });
-   
+   //fill our metric status colour, just use d.status!
       // .on("mouseover", function(){return tooltip.style("visibility", "visible");})
       // .on("mousemove", function(){return tooltip.style("top", (event.pageY-10)+"px").style("left",(event.pageX+10)+"px");})
       // .on("mouseout", function(){return tooltip.style("visibility", "hidden");});

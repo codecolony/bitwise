@@ -6,6 +6,14 @@
     <link type="text/css" rel="stylesheet" href="css/style.css"/>
     <style type="text/css">
 
+    #drop
+{
+    position:absolute;
+    left:0px;
+    top:0px;
+    z-index:2;
+}
+
 text {
   font-size: 11px;
   pointer-events: none;
@@ -39,6 +47,18 @@ circle.child {
     </style>
   </head>
   <body>
+    <div id="drop">
+    <form method="POST" action="">
+      <select name="cars" required="required" onchange='OnChange(this.form.cars);'>
+      <option value="1" selected="selected">Group Systems by Name</option>
+      <option value="2">Group Systems by Type</option>
+      <option value="3">Group Systems by Availability</option>
+      <option value="4">Group Systems by Performance</option>
+      <option value="5">Group Systems by Configuration</option>
+      <option value="6">Group Systems by Exception</option>
+      </select>
+    </form>
+    </div>
     <h2>
       Flare code size<br>
       circle packing
@@ -47,9 +67,24 @@ circle.child {
     <script type="text/javascript" src="js/d3.layout.js"></script>
     <script type="text/javascript">
 
+
+var xml;
+var option_selected = 0;
+
 //to be used later
 //var url = "https://ldcidp7.wdf.sap.corp:44370/sap/opu/odata/sap/ZSM_SYS_MON_DEMO1_SRV/Overview?$format=json&search=SD7~ABAP|DP7~ABAP";
-//d3.xhr(url[, mimeType][, callback])
+// d3.xhr("https://ldcidp7.wdf.sap.corp:44370/sap/opu/odata/sap/ZSM_SYS_MON_DEMO1_SRV/Overview?$format=json&search=SD7~ABAP|DP7~ABAP", function(data2){
+//   console.log(data2);
+// })
+
+function OnChange(dropdown)
+{
+    var myindex  = dropdown.selectedIndex;
+    option_selected = myindex;
+    init();
+    //return true;
+};
+
 
 var w = 1280,
     h = 800,
@@ -58,6 +93,12 @@ var w = 1280,
     y = d3.scale.linear().range([0, r]),
     node,
     root;
+
+ init();
+function init(){
+
+  d3.select("svg")
+       .remove();
 
 var pack = d3.layout.pack()
     .size([r, r])
@@ -69,7 +110,10 @@ var vis = d3.select("body").insert("svg:svg", "h2")
   .append("svg:g")
     .attr("transform", "translate(" + (w - r) / 2 + "," + (h - r) / 2 + ")");
 
-d3.json("service.json", function(data) {
+
+
+    //d3.json("https://ldcidp7.wdf.sap.corp:44370/sap/opu/odata/sap/ZSM_SYS_MON_DEMO1_SRV/Overview?$format=json&search=SD7~ABAP|DP7~ABAP", function(data) {
+  d3.json("service.json", function(data) {
   //node = root = data;
   node = root = data.d.results;
   //console.log(root);
@@ -78,44 +122,47 @@ d3.json("service.json", function(data) {
   var newData = {"name":"root", "children":[{"name":"Systems", "children":[]}]};
   var count = 0;
 
+  if (option_selected == 1) {
 // ===============TYPE SORTING =================
   //sorting by type for testing
-  // node.sort(function(a, b){
-  //    var nameA=a.ArchType.toLowerCase(), nameB=b.ArchType.toLowerCase()
-  //    if (nameA < nameB) //sort string ascending
-  //     return -1 
-  //    if (nameA > nameB)
-  //     return 1
-  //    return 0 //default return value (no sorting)
-  // });
+  node.sort(function(a, b){
+     var nameA=a.ArchType.toLowerCase(), nameB=b.ArchType.toLowerCase()
+     if (nameA < nameB) //sort string ascending
+      return -1 
+     if (nameA > nameB)
+      return 1
+     return 0 //default return value (no sorting)
+  });
 
-  // //System Type grouping
-  // node.forEach(function(d){
+  //System Type grouping
+  node.forEach(function(d){
 
-  //       if (newData.children[0].children[count] == undefined ) {
+        if (newData.children[0].children[count] == undefined ) {
 
-  //           if (count !== 0) {
-  //             if (newData.children[0].children[count - 1].name !== d.ArchType) {
-  //                 newData.children[0].children.push({"name":d.ArchType, "children":[]})
-  //                 count = count + 1;
-  //             }
-  //           }
-  //           else{
-  //             //create a new children first
-  //             newData.children[0].children.push({"name":d.ArchType, "children":[]})
-  //             count = count + 1;
-  //           }
-  //       }
+            if (count !== 0) {
+              if (newData.children[0].children[count - 1].name !== d.ArchType) {
+                  newData.children[0].children.push({"name":d.ArchType, "children":[]})
+                  count = count + 1;
+              }
+            }
+            else{
+              //create a new children first
+              newData.children[0].children.push({"name":d.ArchType, "children":[]})
+              count = count + 1;
+            }
+        }
 
-  //       if (newData.children[0].children[count - 1].name !== d.ArchType) {
-  //             newData.children[0].children[count - 1].children = [{"name": d.SystemName,  "size":4000}]
-  //       }
-  //       else{
-  //         newData.children[0].children[count - 1].children.push({"name":d.SystemName, "size":4000})
-  //       }
-  // })
+        if (newData.children[0].children[count - 1].name !== d.ArchType) {
+              newData.children[0].children[count - 1].children = [{"name": d.SystemName,  "size":4000}]
+        }
+        else{
+          newData.children[0].children[count - 1].children.push({"name":d.SystemName, "size":4000})
+        }
+  })
 
 // ===============TYPE SORTING =================
+}
+else if(option_selected == 0){
 
 // ===============SYSTEM NAME SORTING =================
   //sorting by type for testing
@@ -155,7 +202,7 @@ d3.json("service.json", function(data) {
   })
 
 // ===============SYSTEM NAME SORTING =================
-
+};
 // ===============BETA TESTING=================
   // var count = 0;
 
@@ -220,6 +267,7 @@ d3.json("service.json", function(data) {
 
   d3.select(window).on("click", function() { zoom(root); });
 });
+};
 
 function zoom(d, i) {
   var k = r / d.r / 2;
@@ -244,5 +292,6 @@ function zoom(d, i) {
 }
 
     </script>
+    
   </body>
 </html>

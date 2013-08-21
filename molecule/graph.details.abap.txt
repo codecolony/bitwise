@@ -1,0 +1,96 @@
+method DETAILS_GET_ENTITYSET.
+
+DATA lo_datamanager TYPE REF TO if_TMON_DATA_MANAGER.
+DATA lt_context TYPE ACT_CONTEXTid.
+*DATA ls_context LIKE LINE OF ACT_CONTEXTid.
+DATA lt_contextname TYPE ACT_CONTEXTname.
+DATA ls_contextname TYPE ACs_CONTEXTname.
+DATA lt_result TYPE STANDARD TABLE OF tmon_s_mon_object.
+DATA ls_result TYPE tmon_s_mon_object.
+DATA ls_res TYPE tmon_s_mon_object.
+  data es_entity LIKE LINE OF et_entityset.
+  DATA lv_cxt_name TYPE acs_contextname VALUE 'DP7~ABAP'.
+
+ls_contextname-context_name = 'DP7~ABAP'.
+APPEND ls_contextname TO lt_contextname.
+
+TRY.
+
+lo_datamanager = CL_TMON_DATA_MANAGER_FACTORY=>GET_DATA_MANAGER( ).
+
+lo_datamanager->GET_DETAILS_FOR_MON_OBJECT(
+  exporting
+    IP_CONTEXT_NAME                =   lv_cxt_name  " Context name; pass either context name or context ID
+*    IP_CONTEXT_ID                  =     " Context ID; pass either context name or context ID
+*    IP_MONITORING_TYPE             = 'SYS_MONITORING'    " Selected monitoring type; default system monitoring
+  importing
+    ET_MON_OBJECT_DETAILS          = lt_result    " View Fields for Monitored Object in Technical Monitoring
+*    ET_OBJS_WITH_NO_DEF_EVENTS     =     " Objects for which no events are defined in the directory
+*    ET_OBJS_WITH_NO_DEF_EVENT_HIER =     " Objects for which no event hierarchy is defined in directory
+).
+  catch CX_TMON_DATA_EXCEPTION.    " Exception class for Technical Monitoring
+ENDTRY.
+
+DATA lv_tmp TYPE string.
+TYPES: BEGIN OF ts_hash,
+   pos TYPE int4,
+   node TYPE string,
+  END OF ts_hash.
+
+  DATA ls_hash TYPE ts_hash.
+  DATA lt_hash TYPE TABLE OF ts_hash.
+  DATA lv_idx TYPE int4 VALUE 0.
+
+*  Nodes
+LOOP AT lt_result INTO ls_result.
+*  MOVE-CORRESPONDING ls_result TO es_entity.
+
+
+  IF ls_result-OBJECT_TYPE = 'T_SYSTEM'.
+    CONCATENATE lv_tmp '{"atom":"' ls_result-NAME '","size":100, "status":0}|' INTO lv_tmp.
+    ls_hash-NODE = ls_result-name.
+
+  ELSEIF ls_result-OBJECT_TYPE = 'INSTANCE'.
+    CONCATENATE lv_tmp '{"atom":"' ls_result-NAME '","size":50, "status":1}|' INTO lv_tmp.
+    ls_hash-NODE = ls_result-name.
+  ELSEIF ls_result-OBJECT_TYPE = 'DBMS'.
+    CONCATENATE lv_tmp '{"atom":"' ls_result-NAME '","size":50, "status":1}|' INTO lv_tmp.
+    ls_hash-NODE = ls_result-name.
+  ELSEIF ls_result-OBJECT_TYPE = 'HOST'.
+    CONCATENATE lv_tmp '{"atom":"' ls_result-NAME '","size":30, "status":1}|' INTO lv_tmp.
+    ls_hash-NODE = ls_result-name.
+  ENDIF.
+
+  ls_hash-POS = lv_idx.
+  APPEND ls_hash TO lt_hash.
+  lv_idx = lv_idx + 1.
+
+ENDLOOP.
+es_entity-WORKMODE_CODE = lv_tmp.
+
+*  Links
+CLEAR lv_tmp.
+
+DATA lv_curr_node TYPE c.
+DATA lv_conn_node TYPE c.
+
+LOOP AT lt_result INTO ls_result.
+
+  READ TABLE lt_hash INTO ls_hash WITH KEY node = ls_result-name.
+  lv_curr_node = ls_hash-pos.
+*  WRITE ls_hash-pos TO lv_curr_node.
+
+    LOOP AT lt_result INTO ls_res WHERE PARENT_CONTEXTID = ls_result-CONTEXTID.
+      READ TABLE lt_hash INTO ls_hash WITH KEY node = ls_res-name.
+      lv_conn_node = ls_hash-pos.
+      CONCATENATE lv_tmp '{"source":' lv_curr_node ',"target":' lv_conn_node ',"bond":1}|' INTO lv_tmp.
+
+    ENDLOOP.
+
+
+ENDLOOP.
+
+es_entity-WORKMODE_DESCR = lv_tmp.
+APPEND es_entity TO et_entityset.
+
+endmethod.
