@@ -94,17 +94,20 @@ var w = 1280,
     node,
     root;
 
+    var vis;
+    var pack;
+
  init();
 function init(){
 
   d3.select("svg")
        .remove();
 
-var pack = d3.layout.pack()
+pack = d3.layout.pack()
     .size([r, r])
     .value(function(d) { return d.size; })
 
-var vis = d3.select("body").insert("svg:svg", "h2")
+vis = d3.select("body").insert("svg:svg", "h2")
     .attr("width", w)
     .attr("height", h)
   .append("svg:g")
@@ -202,6 +205,63 @@ else if(option_selected == 0){
   })
 
 // ===============SYSTEM NAME SORTING =================
+}
+
+else if(option_selected == 2 || option_selected == 3 || option_selected == 4 || option_selected == 5){  //availability grouping
+
+  node.sort(function(a, b){
+     // var nameA=a.AvailStatus.toLowerCase(), nameB=b.AvailStatus.toLowerCase()
+     // if (nameA < nameB) //sort string ascending
+     //  return -1 
+     // if (nameA > nameB)
+     //  return 1
+     // return 0 //default return value (no sorting)
+     if(option_selected == 2)
+      return (a.AvailStatus - b.AvailStatus)
+    if(option_selected == 3)
+      return (a.PerfStatus - b.PerfStatus)
+    if(option_selected == 4)
+      return (a.ConfStatus - b.ConfStatus)
+    if(option_selected == 5)
+      return (a.ExcpStatus - b.ExcpStatus)
+  });
+
+  //System Type grouping
+  node.forEach(function(d){
+  var groupname;
+
+    if(option_selected == 2)
+      groupname = d.AvailStatus;
+    if(option_selected == 3)
+      groupname = d.PerfStatus;
+    if(option_selected == 4)
+      groupname = d.ConfStatus;
+    if(option_selected == 5)
+      groupname = d.ExcpStatus;
+
+        if (newData.children[0].children[count] == undefined ) {
+
+            if (count !== 0) {
+              if (newData.children[0].children[count - 1].name !== groupname) {
+                  newData.children[0].children.push({"name":groupname, "children":[]})
+                  count = count + 1;
+              }
+            }
+            else{
+              //create a new children first
+              newData.children[0].children.push({"name":groupname, "children":[]})
+              count = count + 1;
+            }
+        }
+
+        if (newData.children[0].children[count - 1].name !== groupname) {
+              newData.children[0].children[count - 1].children = [{"name": d.SystemName,  "size":4000}]
+        }
+        else{
+          newData.children[0].children[count - 1].children.push({"name":d.SystemName, "size":4000})
+        }
+  })
+
 };
 // ===============BETA TESTING=================
   // var count = 0;
