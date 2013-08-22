@@ -1,0 +1,79 @@
+method OVERVIEW_GET_ENTITYSET.
+
+
+data es_entity LIKE LINE OF et_entityset.
+
+DATA lo_datamanager TYPE REF TO if_TMON_DATA_MANAGER.
+DATA lt_context TYPE ACT_CONTEXTid.
+*DATA ls_context LIKE LINE OF ACT_CONTEXTid.
+DATA lt_contextname TYPE ACT_CONTEXTname.
+DATA ls_contextname TYPE ACs_CONTEXTname.
+DATA lt_result TYPE STANDARD TABLE OF tmon_s_mon_object.
+DATA ls_result TYPE tmon_s_mon_object.
+DATA lt_strings TYPE string_table.
+DATA lv_string TYPE string.
+
+SPLIT iv_search_string AT '|' INTO TABLE lt_strings.
+
+LOOP AT lt_strings INTO lv_string.
+  ls_contextname-context_name = lv_string.
+  APPEND ls_contextname TO lt_contextname.
+ENDLOOP.
+
+
+
+TRY.
+
+lo_datamanager = CL_TMON_DATA_MANAGER_FACTORY=>GET_DATA_MANAGER( ).
+
+lo_datamanager->GET_OVERVIEW_FOR_MON_OBJECTS(
+  exporting
+    IT_MONITORED_OBJECT_NAMES  =  lt_contextname   " Context names of selected monitored objects
+*    IT_MONITORED_OBJECTS       =     " Context IDs
+*    IP_DEEP_RETRIVAL           = ABAP_TRUE    " True: Aggregated Alerts False:Monitored Object related.
+  importing
+    ET_MON_OBJECT_OVERVIEW     =  lt_result   " View Fields for Monitored Object in Technical Monitoring
+*    ET_FAILED_CTX_ID_LOOKUP    =     " Context IDs for which directory lookup failed
+*    ET_FAILED_CTX_NAME_LOOKUP  =     " Context names for which directory lookup failed
+*    ET_OBJS_WITH_NO_DEF_EVENTS =     " Objects for which no events are defined in the directory
+).
+  catch CX_TMON_DATA_EXCEPTION.    " Exception class for Technical Monitoring
+ENDTRY.
+
+DATA ls_category TYPE TMON_S_CATEGORY.
+
+LOOP AT lt_result INTO ls_result.
+ es_entity-EXTSID = ls_result-NAME.
+es_entity-SYS_TYPE = ls_result-OBJECT_TYPE.
+
+es_entity-SYSTEM_NAME = ls_result-NAME.
+es_entity-SYSTEM_DESC = ls_result-CONFIGURATION_STATUS.
+
+
+*es_entity-CUR_WKMODE = ls_result-WORKMODE_CODE.
+es_entity-CONTEXT_ID = ls_result-CONTEXTID.
+
+SPLIT ls_result-name AT '~' INTO es_entity-PARTNER_ID es_entity-CUR_WKMODE .
+*es_entity-CUSTOMER_ID = 'dumy'.
+es_entity-PARTNER_ID = ls_result-BUPA_OVERVIEW.
+
+READ TABLE ls_result-CATEGORIES INTO ls_category WITH KEY category = 'AVAIL'.
+es_entity-AVAIL_STATUS = ls_category-STATUS.
+READ TABLE ls_result-CATEGORIES INTO ls_category WITH KEY category = 'PERFORM'.
+es_entity-PERF_STATUS = ls_category-STATUS.
+READ TABLE ls_result-CATEGORIES INTO ls_category WITH KEY category = 'CONFIG'.
+es_entity-CONF_STATUS = ls_category-STATUS.
+READ TABLE ls_result-CATEGORIES INTO ls_category WITH KEY category = 'EXCEPTION'.
+es_entity-EXCP_STATUS = ls_category-STATUS.
+
+es_entity-NUM_ALRTS = ls_result-NO_OF_ALERTS.
+
+*es_entity-CUR_WKMODE = ls_result-WORKMODE_DESCR.
+
+*es_entity-SYSTEM_DESC = ls_result-
+
+APPEND es_entity TO et_entityset.
+
+ENDLOOP.
+
+endmethod.

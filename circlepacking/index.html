@@ -31,6 +31,7 @@ circle {
 
 circle.parent {
   fill: #1f77b4;
+  //fill: #ffffff;
   fill-opacity: .1;
   stroke: steelblue;
 }
@@ -163,24 +164,51 @@ vis = d3.select("body").insert("svg:svg", "h2")
             if (count !== 0) {
               if (newData.children[0].children[count - 1].name !== d.CurWkmode) {
                   newData.children[0].children.push({"name":d.CurWkmode, "children":[]})
+                  //prevnode = newData.children[0].children[count-1];
                   count = count + 1;
               }
+                  
             }
             else{
               //create a new children first
               newData.children[0].children.push({"name":d.CurWkmode, "children":[]})
               count = count + 1;
+
             }
         }
 
         if (newData.children[0].children[count - 1].name !== d.CurWkmode) {
+
+          
               newData.children[0].children[count - 1].children = [{"name": d.SystemName,  "size":4000}]
+    
         }
         else{
           newData.children[0].children[count - 1].children.push({"name":d.SystemName, "size":4000})
+
         }
   })
 
+    var c = 0;
+    var idx = 0;
+    var prevc = "";
+  node.forEach(function(d){
+
+    
+    
+      if(d.CurWkmode == prevc || prevc == ""){
+        c = c+1;
+        prevc = d.CurWkmode;
+      }
+      else{
+        newData.children[0].children[idx].name = newData.children[0].children[idx].name +'(' +c + ')';
+        //alert(newData.children[0].children[idx].name);
+        idx = idx + 1;
+        prevc = d.CurWkmode;
+        c = 1;
+      }
+  })
+newData.children[0].children[idx].name = newData.children[0].children[idx].name +'(' +c + ')';
 // ===============TYPE SORTING =================
 }
 
@@ -230,6 +258,26 @@ else if (option_selected == 6) {
         }
   })
 
+    var c = 0;
+    var idx = 0;
+    var prevc = "";
+   node.forEach(function(d){
+
+    
+    
+      if(d.SystemDesc == prevc || prevc == ""){
+        c = c+1;
+        prevc = d.SystemDesc;
+      }
+      else{
+        newData.children[0].children[idx].name = newData.children[0].children[idx].name +'(' +c + ')';
+        //alert(newData.children[0].children[idx].name);
+        idx = idx + 1;
+        prevc = d.SystemDesc;
+        c = 1;
+      }
+  })
+  newData.children[0].children[idx].name = newData.children[0].children[idx].name +'(' +c + ')';
 // ===============TYPE SORTING =================
 }
 else if(option_selected == 0){
@@ -271,6 +319,28 @@ else if(option_selected == 0){
         }
   })
 
+     var c = 0;
+    var idx = 0;
+    var prevc = "";
+   node.forEach(function(d){
+
+    
+    
+      if(d.Extsid.charAt(0) == prevc || prevc == ""){
+        c = c+1;
+        prevc = d.Extsid.charAt(0);
+      }
+      else{
+        newData.children[0].children[idx].name = newData.children[0].children[idx].name +'(' +c + ')';
+        //alert(newData.children[0].children[idx].name);
+        idx = idx + 1;
+        prevc = d.Extsid.charAt(0);
+        c = 1;
+      }
+  })
+  newData.children[0].children[idx].name = newData.children[0].children[idx].name +'(' +c + ')';
+
+
 // ===============SYSTEM NAME SORTING =================
 }
 
@@ -283,6 +353,22 @@ else if(option_selected == 2 || option_selected == 3 || option_selected == 4 || 
      // if (nameA > nameB)
      //  return 1
      // return 0 //default return value (no sorting)
+
+     if(a.SystemDesc == "0")
+      {
+      a.AvailStatus = 4;
+      a.PerfStatus = 4;
+      a.ConfStatus = 4;
+      a.ExcpStatus = 4;
+      }
+      if(b.SystemDesc == "0")
+      {
+      b.AvailStatus = 4;
+      b.PerfStatus = 4;
+      b.ConfStatus = 4;
+      b.ExcpStatus = 4;
+      }
+
      if(option_selected == 2)
       return (a.AvailStatus - b.AvailStatus)
     if(option_selected == 3)
@@ -306,14 +392,17 @@ else if(option_selected == 2 || option_selected == 3 || option_selected == 4 || 
     if(option_selected == 5)
       groupname = d.ExcpStatus;
 
-    if(groupname == 0)
-      groupname = "Grey";
-    if(groupname == 1)
-      groupname = "Green";
-    if(groupname == 2)
-      groupname = "Yellow";
-    if(groupname == 3)
-      groupname = "Red";
+    if(groupname == "0")
+      groupname = "GREY";
+    if(groupname == "1")
+      groupname = "GREEN";
+    if(groupname == "2")
+      groupname = "YELLOW";
+    if(groupname == "3")
+      groupname = "RED";
+
+    if(d.SystemDesc == "0")
+      groupname = "UNKNOWN";
 
         if (newData.children[0].children[count] == undefined ) {
 
@@ -337,6 +426,50 @@ else if(option_selected == 2 || option_selected == 3 || option_selected == 4 || 
           newData.children[0].children[count - 1].children.push({"name":d.SystemName, "size":4000})
         }
   })
+
+    var c = 0;
+    var idx = 0;
+    var prevc = "";
+   node.forEach(function(d){
+
+    if(option_selected == 2)
+      groupname = d.AvailStatus;
+    if(option_selected == 3)
+      groupname = d.PerfStatus;
+    if(option_selected == 4)
+      groupname = d.ConfStatus;
+    if(option_selected == 5)
+      groupname = d.ExcpStatus;
+
+    if(groupname === 0)
+      groupname = "GREY";
+    if(groupname === 1)
+      groupname = "GREEN";
+    if(groupname === 2)
+      groupname = "YELLOW";
+    if(groupname === 3)
+      groupname = "RED";
+    if(groupname == "4")
+      groupname = "UNKNOWN";
+
+    if(d.SystemDesc == "0")
+      groupname = "UNKNOWN";
+
+    
+    
+      if(groupname == prevc || prevc == ""){
+        c = c+1;
+        prevc = groupname;
+      }
+      else{
+        newData.children[0].children[idx].name = newData.children[0].children[idx].name +'(' +c + ')';
+        //alert(newData.children[0].children[idx].name);
+        idx = idx + 1;
+        prevc = groupname;
+        c = 1;
+      }
+  })
+  newData.children[0].children[idx].name = newData.children[0].children[idx].name +'(' +c + ')';
 
 };
 // ===============BETA TESTING=================
@@ -394,9 +527,28 @@ else if(option_selected == 2 || option_selected == 3 || option_selected == 4 || 
           // else if (d.status == 3) return "red" ;
           if(option_selected == 2 || option_selected == 3 || option_selected == 4 || option_selected == 5){
             if(d.name !== "root" && d.name!== "Systems")
+            {
+
+           //  if (!d.children){
+           //   if (d.name == "GREY") return "grey"; //grey
+           // else if (d.name == "GREEN") return "green"; //green
+           // else if (d.name == "YELLOW") return "yellow"; //yellow
+           // else if (d.name == "RED") return "red" ; //red
+           // else if (d.name == "UNKNOWN") return "white" ; //red
+           // //return d.name;
+           //  }
             return d.name;
           }
+        }
            })
+      // .style("stroke", function(d){
+      //   if (!d.children){
+      //     return d.name;
+      //   }
+      //   else{
+      //     return "steelblue";
+      //   }
+      // })
       .on("click", function(d) { return zoom(node == d ? root : d); });
 
   vis.selectAll("text")
