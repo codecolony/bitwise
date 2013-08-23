@@ -17,33 +17,85 @@
 }
 
 .node text {
-  font: 10px sans-serif;
+  font: 12px sans-serif;
   pointer-events: none;
+}
+
+#drop
+{
+    position:absolute;
+    left:20px;
+    top:20px;
+    z-index:2;
 }
 
 </style>
 <body>
-<script src="http://d3js.org/d3.v2.min.js?2.9.6"></script>
+<div id="drop">
+    <form method="POST" action="">
+      <select name="cars" required="required" onchange='OnChange(this.form.cars);'>
+      <option value="0" selected="selected">Availability</option>
+      <option value="1">Performance</option>
+      <option value="2">Configuration</option>
+      <option value="3">Exception</option>
+      </select>
+    </form>
+</div>
+<!-- <script src="http://d3js.org/d3.v2.min.js?2.9.6"></script> -->
+<script src="js/d3.v2.min.js"></script>
 <script>
+var option_selected = -1;
+var json_file;
 
-var width = 960,
+function OnChange(dropdown)
+{
+    var myindex  = dropdown.selectedIndex;
+    option_selected = myindex;
+    init();
+    //return true;
+};
+
+if (option_selected == -1){
+  option_selected = 0;
+  init();
+}
+
+
+
+var svg;
+var force;
+var width;
+var height;
+var color;
+var radius;
+
+function init(){
+d3.select("svg")
+       .remove();
+
+   width = 1160;
     height = 800;
 
-var color = d3.scale.category20();
+ color = d3.scale.category20();
 
-var radius = d3.scale.sqrt()
+ radius = d3.scale.sqrt()
     .range([0, 6]);
 
-var svg = d3.select("body").append("svg")
+ svg = d3.select("body").append("svg")
     .attr("width", width)
     .attr("height", height);
 
-var force = d3.layout.force()
+ force = d3.layout.force()
     .size([width, height])
     .charge(-400)
     .linkDistance(function(d) { return radius(d.source.size) + radius(d.target.size) + 20; });
 
-d3.json("details.json", function(graph) {
+if (option_selected == 0) { json_file = "details_avail.json"; }
+else if (option_selected == 1) { json_file = "details.json"; }
+else if (option_selected == 3) { json_file = "details_except.json"; }
+else if (option_selected == 2) { json_file = "details_config.json"; }
+
+d3.json(json_file, function(graph) {
 
   //do the data manipulation here
   graph = graph.d.results;
@@ -112,7 +164,8 @@ d3.json("details.json", function(graph) {
           if (d.status == 0) return "grey";
           else if (d.status == 1) return "green";
           else if (d.status == 2) return "yellow";
-          else if (d.status == 3) return "red" ; }) //fill our metric status colour, just use d.status!
+          else if (d.status == 3) return "red" ;
+          else if (d.status == 4) return "steelblue" ; }) //fill our metric status colour, just use d.status!
       .append("svg:title")
           .text(function(d, i) { return d.atom; });
    
@@ -136,4 +189,5 @@ d3.json("details.json", function(graph) {
     node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
   }
 });
+}
 </script>

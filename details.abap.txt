@@ -13,6 +13,9 @@ data es_entity LIKE LINE OF et_entityset.
  DATA lt_cats TYPE TMON_T_CATEGORY.
  DATA ls_cat LIKE LINE OF lt_cats.
 
+ DATA lt_events TYPE TMON_T_EVENT_DETAILS.
+ DATA ls_event LIKE LINE OF lt_events.
+
 ls_contextname-context_name = 'DP7~ABAP'.
 APPEND ls_contextname TO lt_contextname.
 
@@ -50,7 +53,7 @@ LOOP AT lt_result INTO ls_result.
 
 
   IF ls_result-OBJECT_TYPE = 'T_SYSTEM'.
-    CONCATENATE lv_tmp '{"atom":"' ls_result-NAME '","size":100, "status":0}|' INTO lv_tmp.
+    CONCATENATE lv_tmp '{"atom":"' ls_result-NAME '","size":100, "status":4}|' INTO lv_tmp.
     ls_hash-NODE = ls_result-name.
     ls_hash-POS = lv_idx.
     ls_hash-type = ls_result-OBJECT_TYPE.
@@ -64,32 +67,32 @@ LOOP AT lt_result INTO ls_result.
 *          EV_NODE_JSON = lv_tmp
 *      ).
 *    CONCATENATE lv_tmp '{"atom":"' ls_cat-EVENT_NAME '","size":10, "status":' lv_stat '}|' INTO lv_tmp.
-    LOOP AT ls_result-CATEGORIES INTO ls_cat.
-      lv_stat = ls_cat-status.
-      CONCATENATE lv_tmp '{"atom":"' ls_cat-EVENT_NAME '","size":10, "status":' lv_stat '}|' INTO lv_tmp.
-      ls_hash-NODE = ls_cat-event_name.
-      ls_hash-POS = lv_idx.
-      ls_hash-type = ls_cat-CATEGORY.
-      APPEND ls_hash TO gt_hash.
-      lv_idx = lv_idx + 1.
-    ENDLOOP.
+*    LOOP AT ls_result-CATEGORIES INTO ls_cat.
+*      lv_stat = ls_cat-status.
+*      CONCATENATE lv_tmp '{"atom":"' ls_cat-EVENT_NAME '","size":10, "status":' lv_stat '}|' INTO lv_tmp.
+*      ls_hash-NODE = ls_cat-event_name.
+*      ls_hash-POS = lv_idx.
+*      ls_hash-type = ls_cat-CATEGORY.
+*      APPEND ls_hash TO gt_hash.
+*      lv_idx = lv_idx + 1.
+*    ENDLOOP.
 
   ELSEIF ls_result-OBJECT_TYPE = 'INSTANCE'.
-    CONCATENATE lv_tmp '{"atom":"' ls_result-NAME '","size":50, "status":1}|' INTO lv_tmp.
+    CONCATENATE lv_tmp '{"atom":"' ls_result-NAME '","size":50, "status":4}|' INTO lv_tmp.
     ls_hash-NODE = ls_result-name.
     ls_hash-POS = lv_idx.
     ls_hash-type = ls_result-OBJECT_TYPE.
   APPEND ls_hash TO gt_hash.
   lv_idx = lv_idx + 1.
   ELSEIF ls_result-OBJECT_TYPE = 'DBMS'.
-    CONCATENATE lv_tmp '{"atom":"' ls_result-NAME '","size":50, "status":1}|' INTO lv_tmp.
+    CONCATENATE lv_tmp '{"atom":"' ls_result-NAME '","size":50, "status":4}|' INTO lv_tmp.
     ls_hash-NODE = ls_result-name.
     ls_hash-POS = lv_idx.
     ls_hash-type = ls_result-OBJECT_TYPE.
   APPEND ls_hash TO gt_hash.
   lv_idx = lv_idx + 1.
   ELSEIF ls_result-OBJECT_TYPE = 'HOST'.
-    CONCATENATE lv_tmp '{"atom":"' ls_result-NAME '","size":30, "status":1}|' INTO lv_tmp.
+    CONCATENATE lv_tmp '{"atom":"' ls_result-NAME '","size":30, "status":4}|' INTO lv_tmp.
     ls_hash-NODE = ls_result-name.
     ls_hash-POS = lv_idx.
     ls_hash-type = ls_result-OBJECT_TYPE.
@@ -102,42 +105,102 @@ LOOP AT lt_result INTO ls_result.
 *  lv_idx = lv_idx + 1.
 
 ENDLOOP.
+
+* categories extraction for nodes
+*LOOP AT lt_result INTO ls_result .
+LOOP AT lt_result INTO ls_result." WHERE OBJECT_TYPE = 'T_SYSTEM'.
+  LOOP AT ls_result-categories INTO ls_cat WHERE CATEGORY = 'CONFIGURE'.
+    lv_stat = ls_cat-STATUS.
+   CONCATENATE lv_tmp '{"atom":"' ls_cat-EVENT_NAME '","size":10, "status":' lv_stat '}|' INTO lv_tmp.
+    ls_hash-NODE = ls_cat-EVENT_NAME.
+    ls_hash-POS = lv_idx.
+    ls_hash-type = ls_cat-CATEGORY.
+    ls_hash-parent = ls_result-NAME.
+    APPEND ls_hash TO gt_hash.
+    lv_idx = lv_idx + 1.
+
+*    Can add another loop for events?
+      LOOP AT ls_cat-DETAILS INTO ls_event WHERE CATEGORY = 'CONFIGURE'.
+        lv_stat = ls_event-RATING.
+        CONCATENATE lv_tmp '{"atom":"' ls_event-EVENT_NAME '","size":5, "status":' lv_stat '}|' INTO lv_tmp.
+         ls_hash-NODE = ls_event-EVENT_NAME.
+         ls_hash-POS = lv_idx.
+         ls_hash-type = ls_event-CATEGORY.
+*         ls_hash-parent = ls_cat-EVENT_NAME.
+         ls_hash-parent = ls_result-NAME.
+         APPEND ls_hash TO gt_hash.
+         lv_idx = lv_idx + 1.
+      endloop.
+
+    ENDLOOP.
+ENDLOOP.
+
 es_entity-WORKMODE_CODE = lv_tmp.
 
 *  Links
 CLEAR lv_tmp.
 
-DATA lv_curr_node TYPE n.
-DATA lv_event_curr_node TYPE n.
-DATA lv_event_conn_node TYPE n.
-DATA lv_conn_node TYPE n.
+DATA lv_curr_node TYPE integer.
+DATA lv_event_curr_node TYPE integer.
+DATA lv_event_curr_str TYPE string.
+DATA lv_event_conn_node TYPE integer.
+DATA lv_event_conn_str TYPE string.
+DATA lv_conn_node TYPE integer.
+DATA lv_curr_str TYPE string.
+DATA lv_conn_str TYPE string.
 
 LOOP AT lt_result INTO ls_result .
 
   READ TABLE gt_hash INTO ls_hash WITH KEY node = ls_result-name type = ls_result-OBJECT_TYPE.
   lv_curr_node = ls_hash-pos.
+  lv_curr_str = lv_curr_node.
 *  WRITE ls_hash-pos TO lv_curr_node.
 
     LOOP AT lt_result INTO ls_res WHERE PARENT_CONTEXTID = ls_result-CONTEXTID .
       READ TABLE gt_hash INTO ls_hash WITH KEY node = ls_res-name type = ls_res-OBJECT_TYPE.
       if sy-subrc = 0.
       lv_conn_node = ls_hash-pos.
-      CONCATENATE lv_tmp '{"source":' lv_curr_node ',"target":' lv_conn_node ',"bond":1}|' INTO lv_tmp.
+      lv_conn_str = lv_conn_node.
+      CONCATENATE lv_tmp '{"source":' lv_curr_str ',"target":' lv_conn_str ',"bond":1}|' INTO lv_tmp.
       ENDIF.
-
+*    endloop.
 
     ENDLOOP.
 
-*    IF ls_res-OBJECT_TYPE = 'T_SYSTEM'.
-*        LOOP AT ls_res-CATEGORIES INTO ls_cat.
-*          READ TABLE gt_hash INTO ls_hash WITH KEY node = ls_cat-EVENT_NAME type = ls_cat-CATEGORY.
-*          if sy-subrc = 0.
-*          lv_event_curr_node = lv_conn_node. "be careful here
-*          lv_event_conn_node = ls_hash-pos.
-*          CONCATENATE lv_tmp '{"source":' lv_event_curr_node ',"target":' lv_event_conn_node ',"bond":1}|' INTO lv_tmp.
-*          endif.
-*        endloop.
-*      ENDIF.
+ENDLOOP.
+
+* category links
+LOOP AT lt_result INTO ls_result." WHERE OBJECT_TYPE = 'T_SYSTEM'.
+*LOOP AT lt_result INTO ls_result WHERE OBJECT_TYPE = 'INSTANCE'.
+
+  READ TABLE gt_hash INTO ls_hash WITH KEY node = ls_result-name type = ls_result-OBJECT_TYPE.
+  lv_curr_node = ls_hash-pos.
+  lv_curr_str = lv_curr_node.
+*  WRITE ls_hash-pos TO lv_curr_node.
+
+    LOOP AT ls_result-CATEGORIES INTO ls_cat WHERE CATEGORY = 'CONFIGURE'.
+      READ TABLE gt_hash INTO ls_hash WITH KEY node = ls_cat-EVENT_NAME type = ls_cat-CATEGORY parent = ls_result-NAME.
+      if sy-subrc = 0.
+      lv_conn_node = ls_hash-pos.
+      lv_conn_str = lv_conn_node.
+      LV_EVENT_CURR_NODE = lv_conn_node.
+      CONCATENATE lv_tmp '{"source":' lv_curr_str ',"target":' lv_conn_str ',"bond":1}|' INTO lv_tmp.
+      ENDIF.
+
+*    Try Linking events here
+      LOOP AT ls_cat-DETAILS INTO LS_EVENT WHERE CATEGORY = 'CONFIGURE'.
+         READ TABLE gt_hash INTO ls_hash WITH KEY node = LS_EVENT-EVENT_NAME type = LS_EVENT-CATEGORY parent = ls_result-NAME.
+         if sy-subrc = 0.
+         LV_EVENT_CURR_str =  LV_EVENT_CURR_NODE.
+         lv_event_conn_node = ls_hash-pos.
+         lv_event_conn_str = lv_event_conn_node.
+         CONCATENATE lv_tmp '{"source":' LV_EVENT_CURR_str ',"target":' lv_event_conn_str ',"bond":1}|' INTO lv_tmp.
+         ENDIF.
+      endloop.
+
+    ENDLOOP.
+
+
 
 ENDLOOP.
 

@@ -113,11 +113,22 @@ var w = 1280,
     node,
     root;
 
+//     pack = d3.layout.pack()
+//     .size([r, r])
+//     .value(function(d) { return d.size; })
+
+// vis = d3.select("body").insert("svg:svg", "h2")
+//     .attr("width", w)
+//     .attr("height", h)
+//   .append("svg:g")
+//     .attr("transform", "translate(" + (w - r) / 2 + "," + (h - r) / 2 + ")");
+
     var vis;
     var pack;
 
  init();
 function init(){
+
 
   d3.select("svg")
        .remove();
