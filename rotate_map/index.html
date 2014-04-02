@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<body>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://d3js.org/topojson.v1.min.js"></script>
+<script>
+
+var curx, cury, px, py, accx, accy;
+
+var width = 960,
+    height = 700;
+
+var projection = d3.geo.orthographic()
+    .scale(350)
+    .translate([width / 2, height / 2])
+    .clipAngle(90);
+
+var path = d3.geo.path()
+    .projection(projection);
+
+var λ = d3.scale.linear()
+    .domain([0, width])
+    .range([-180, 180]);
+
+var φ = d3.scale.linear()
+    .domain([0, height])
+    .range([90, -90]);
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+svg.on("mousemove", function() {
+  //
+    px = curx;
+    py = cury;
+  //}
+  var p = d3.mouse(this);
+
+  curx = λ(p[0]);
+  cury = φ(p[1]);
+  projection.rotate([λ(p[0]), φ(p[1])]);
+  svg.selectAll("path").attr("d", path);
+
+  if(px != undefined && py != undefined){
+    accx = px - curx;
+    accy = py - cury;
+  }
+
+  //console.log(curx, cury);
+}); 
+
+/*svg.on("mouseout", function() {
+  //var p = d3.mouse(this);
+  var reduction = 5;
+
+  while(reduction > 0) {
+    reduction = reduction - 0.1;
+    curx = curx + curx * 0.05;
+    cury = cury + cury * 0.05;
+    projection.rotate([curx , cury ]);
+    svg.selectAll("path").attr("d", path);
+  }
+
+});*/
+
+d3.json("world-110m.json", function(error, world) {
+
+  var backgroundCircle = svg.append("circle")
+            .attr('cx', width / 2)
+            .attr('cy', height / 2)
+            .attr('r', projection.scale())
+            .attr('class', 'globe')
+            //.attr("filter", "url(#glow)")
+            //.attr("fill", "url(#gradBlue)");
+            .attr("fill", "rgb(110,110,255)");
+
+  svg.append("path")
+      .datum(topojson.feature(world, world.objects.land))
+      .attr("class", "land")
+      .attr("d", path)
+      .attr("fill", "#03EE03");
+
+      var route = svg.append("path")
+               .datum({type: "LineString", coordinates: [[10,10], [50,50]]})
+               .attr("class", "route")
+               .attr("d", path)
+               .style("stroke", "rgb(255,0,0)")
+               .style("stroke-width", 4)
+               .style("stroke-opacity", 0.8);
+               //.style("fill", "none");
+
+               var route2 = svg.append("path")
+               .datum({type: "LineString", coordinates: [[-5,20], [-80,-5]]})
+               .attr("class", "route")
+               .attr("d", path)
+               .style("stroke", "rgb(255,0,0)")
+               .style("stroke-width", 4)
+               .attr("fill", "none");
+});
+
+
+
+</script>
