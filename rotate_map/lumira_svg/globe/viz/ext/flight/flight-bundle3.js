@@ -11,221 +11,219 @@
 	* @param {Object} dispatch - event dispatcher
 	*/
 
-    var can = "canvas { width: 100%; height: 100% }";
-    $('head').append("<style>" + can + "</style>");
+    var mystyle = ".sea { fill:#0303EE !important; }";
+    $('head').append("<style>" + mystyle + "</style>");
 
 	function render(data, vis, width, height, colorPalette, properties, dispatch) {
 		// This function is not used anymore - therefore the paint function is used.
+
+        // retrieve data - just like in the render function
+        var fdata = _util.toFlattenTable(data);
+        if (!fdata) {
+            return;
+        }
+
+        var dsName = _util.mapping.dses[0], //use first dimension set as data source of x axis
+        dims = fdata.meta[dsName] || [], msName = _util.mapping.mses[0], //use first measure set as data source of y axis
+        measure = fdata.meta[msName][0];
+        //convert data to 2-fields table: field 0 is combination of all dimensions, and field 1 is measure value
+        fdata = fdata.map(function(d) {
+            var val = parseFloat(d[msName][0]), //use data of first measure of first measure set
+            mems = d[dsName] || [];
+            val = isNaN(val) ? 0 : val;
+            return [mems.join(" / "), val];
+        });
+        
+        // Exceptionhandling - just in case
+        try {
+            // Minimize all svg elements to get the full canvas
+            //vis.attr("height", "1px").attr("width", "1px");
+            //$(".v-m-root").attr("height", "1px").attr("width", "1px");
+            //$(".datamap").attr("height", "1px").attr("width", "1px");
+            
+            // define require.js libs (based on the file location). If the file is used in the extensionfolder use a /sap/ui/ in front.
+            // else use the normal filepath. Please see the difference in the uncommented d3 call
+            require.config({
+                'paths': {
+                    'app': 'app',
+                    'jquery': 'jquery',
+                    //////'d3': '../bundles/schwarzm/viz/ext/geoworld/d3.v3', // when used in Extension
+                    //////'d3': '../sap/bi/bundles/schwarzm/viz/ext/geoworld/d3.v3',
+                    //'D3': '../sap/bi/bundles/globe/viz/ext/flight/d3.v3.min', // when used in myExtension
+                    'D3': '../globe/viz/ext/flight/d3.v3.min',
+                    //'topojson': '../sap/bi/bundles/globe/viz/ext/flight/topojson.v1.min',
+                    'topojson': '../globe/viz/ext/flight/topojson.v1.min',
+                    //'datamaps': '../sap/bi/bundles/globe/viz/ext/flight/world-110m',
+                    'datamaps': '../globe/viz/ext/flight/world-110m',
+                    /////'datamaps': '../sap/bi/bundles/globe/viz/ext/flight/datamaps_rw.min',
+                    'domReady': '../globe/viz/ext/flight/domReady',
+                    //'domReady': '../sap/bi/bundles/globe/viz/ext/flight/domReady',
+                },
+                shim: {
+                    D3: {
+                        exports: 'D3'
+                    },
+                    topojson: {
+                        deps: ['D3'],
+                        exports: 'topojson'
+                    },
+                    datamaps: {
+                        deps: ['D3', 'topojson'],
+                    },
+                }
+            });
+
+            // Define require.js module with all needed js libs
+            define("runtime", function(require) {
+                var $ = require('jquery');
+                var D3 = require('D3');
+                var topojson = require('topojson');
+                var Datamap = require('datamaps');
+                var domReady = require('domReady');
+                // return the required objects - can be used when module is used inside a require function
+                return {
+                    topojson: topojson,
+                    Datamap: Datamap,
+                    domReady: domReady,
+                    $:$,
+                    D3:D3
+                }
+            });
+            
+            // Exception handling for require.js In case of an error it alerts the message. For example if gmaps could not be loaded
+            require.onError = function (err) {
+                if (err.requireType === 'timeout') {
+                    alert("error: "+err);
+                } else {
+                    throw err;
+                }   
+            };
+            
+            // execute the real code to draw a map with the datamaps.js library
+            // https://github.com/markmarkoh/datamaps/blob/master/README.md#getting-started
+            require(["runtime"], function(runt) {
+                // set the div passed by the function parameter
+                //var Test = divExtension;
+                
+                // use domready to execute it after all of the dom is load
+                runt.domReady(function() {
+                    
+                    //+++ragha+++ this is where my code goes!
+                    var curx, cury, px, py, accx, accy;
+
+                    var width = 960,
+                        height = 500;
+
+                    var projection = runt.D3.geo.orthographic()
+                        .scale(250)
+                        .translate([width / 2, height / 2])
+                        .clipAngle(90);
+
+                    var path = runt.D3.geo.path()
+                        .projection(projection);
+
+                    var λ = runt.D3.scale.linear()
+                        .domain([0, width])
+                        .range([-360, 360]);
+
+                    var φ = runt.D3.scale.linear()
+                        .domain([0, height])
+                        .range([180, -180]);
+
+                    //var svg = d3.select("body").append("svg")
+                    //    .attr("width", width)
+                    //    .attr("height", height);
+
+                    
+
+                    //d3.json("world-110m.json", function(error, world) {
+
+                          var backgroundCircle = vis.append("circle")
+                                    .attr("cx", width / 2)
+                                    .attr("cy", height / 2)
+                                    .attr("r", projection.scale())
+                                    .attr("class", "sea")
+                                    .attr("id", "background")
+                                    //.attr("fill", "#0303EE");
+                                    
+                                    .attr("fill", "rgb(100,100,255) !important;");
+
+
+                           vis.append("path")
+                                  .datum(runt.topojson.feature(mapdata, mapdata.objects.land))
+                                  .attr("class", "land")
+                                  .attr("d", path)
+                                  .attr("fill", "#03EE03"); 
+
+
+                        var route = vis.append("path")
+                           .datum({type: "LineString", coordinates: [[10,10], [50,50]]})
+                           .attr("class", "route")
+                           .attr("d", path)
+                           .style("stroke", "rgb(255,0,0)")
+                           .style("stroke-width", 4)
+                           .style("stroke-opacity", 0.8);
+                           //.style("fill", "none");
+
+                       var route2 = vis.append("path")
+                           .datum({type: "LineString", coordinates: [[-5,20], [-80,-5]]})
+                           .attr("class", "route")
+                           .attr("d", path)
+                           .style("stroke", "rgb(255,0,0)")
+                           .style("stroke-width", 4)
+                           .attr("fill", "none");
+
+                    vis.on("mousedown", function(){
+                            vis.on("mousemove", function() {
+                              //
+                                px = curx;
+                                py = cury;
+                              //}
+                              //console.log(d3.event.target);
+                              var p = d3.mouse(this);
+
+
+                              curx = p[0];
+                              cury = p[1];
+                              projection.rotate([λ(p[0]), φ(p[1])]);
+                              vis.selectAll("path").attr("d", path);
+
+                              if(px != undefined && py != undefined){
+                                accx = px - curx;
+                                accy = py - cury;
+                              }
+
+                              //console.log(curx, cury);
+                            }); 
+
+                            /*vis.on("mouseout", function() {
+                                var reduction = 50;
+
+                                while(reduction > 0) {
+                                    if (curx < 0) {curx = curx - 0.01;} else {curx = curx + 0.01;}
+
+                                    //curx = curx + 0.05*curx;
+                                    //cury = cury + 0.05*cury;
+                                    if (cury < 0) {cury = cury - 0.01;} else {cury = cury + 0.01;}
+                                    reduction = reduction - 1;
+                                    projection.rotate([λ(curx), φ(cury)]);
+                                    vis.selectAll("path").attr("d", path);
+                                }
+                                //console.log(λ, φ);
+                            }); */
+                        });
+                                //}
+                }); //my code end
+
+            }); //domready end
+        } catch (Exception) {
+            alert("Error: " + Exception)
+        }
 	}
 
 	/* Function renders the datamaps map*/
 	function paint(divExtension, vis, data) { //, width, height, colorPalette, properties, dispatch) {
-		// retrieve data - just like in the render function
-		var fdata = _util.toFlattenTable(data);
-		if (!fdata) {
-		    return;
-		}
-
-		var dsName = _util.mapping.dses[0], //use first dimension set as data source of x axis
-		dims = fdata.meta[dsName] || [], msName = _util.mapping.mses[0], //use first measure set as data source of y axis
-		measure = fdata.meta[msName][0];
-		//convert data to 2-fields table: field 0 is combination of all dimensions, and field 1 is measure value
-		fdata = fdata.map(function(d) {
-		    var val = parseFloat(d[msName][0]), //use data of first measure of first measure set
-		    mems = d[dsName] || [];
-		    val = isNaN(val) ? 0 : val;
-		    return [mems.join(" / "), val];
-		});
 		
-		// Exceptionhandling - just in case
-		try {
-			// Minimize all svg elements to get the full canvas
-			//vis.attr("height", "1px").attr("width", "1px");
-			//$(".v-m-root").attr("height", "1px").attr("width", "1px");
-			//$(".datamap").attr("height", "1px").attr("width", "1px");
-			
-			// define require.js libs (based on the file location). If the file is used in the extensionfolder use a /sap/ui/ in front.
-			// else use the normal filepath. Please see the difference in the uncommented d3 call
-			require.config({
-				'paths': {
-					'app': 'app',
-					'jquery': 'jquery',
-					//'d3': '../bundles/schwarzm/viz/ext/geoworld/d3.v3', // when used in Extension
-					//'d3': '../sap/bi/bundles/schwarzm/viz/ext/geoworld/d3.v3',
-					//'D3': '../sap/bi/bundles/globe/viz/ext/flight/d3.v3.min', // when used in myExtension
-                    'D3': '../globe/viz/ext/flight/d3.v3.min',
-                    //'topojson': '../sap/bi/bundles/globe/viz/ext/flight/topojson.v1.min',
-					'topojson': '../globe/viz/ext/flight/topojson.v1.min',
-                    //'datamaps': '../sap/bi/bundles/globe/viz/ext/flight/world-110m',
-					'datamaps': '../globe/viz/ext/flight/world-110m',
-					//'datamaps': '../sap/bi/bundles/globe/viz/ext/flight/datamaps_rw.min',
-					'domReady': '../globe/viz/ext/flight/domReady',
-					//'domReady': '../sap/bi/bundles/globe/viz/ext/flight/domReady',
-
-                    'threejs' : 'https://rawgithub.com/mrdoob/three.js/master/build/three.js'
-				},
-				shim: {
-					D3: {
-						exports: 'D3'
-					},
-					topojson: {
-						deps: ['D3'],
-						exports: 'topojson'
-					},
-					datamaps: {
-						deps: ['D3', 'topojson'],
-					},
-                    threejs: {
-                        exports: 'threejs'
-                    },
-				}
-			});
-
-			// Define require.js module with all needed js libs
-			define("runtime", function(require) {
-				var $ = require('jquery');
-				var D3 = require('D3');
-				var topojson = require('topojson');
-				var Datamap = require('datamaps');
-				var domReady = require('domReady');
-                var Threejs = require('threejs');
-				// return the required objects - can be used when module is used inside a require function
-				return {
-					topojson: topojson,
-					Datamap: Datamap,
-					domReady: domReady,
-					$:$,
-					D3:D3,
-                    Threejs:Threejs
-				}
-			});
-			
-			// Exception handling for require.js In case of an error it alerts the message. For example if gmaps could not be loaded
-			require.onError = function (err) {
-				if (err.requireType === 'timeout') {
-					alert("error: "+err);
-				} else {
-					throw err;
-				}   
-			};
-			
-			// execute the real code to draw a map with the datamaps.js library
-			// https://github.com/markmarkoh/datamaps/blob/master/README.md#getting-started
-			require(["runtime"], function(runt) {
-				// set the div passed by the function parameter
-				var Test = divExtension;
-				
-				// use domready to execute it after all of the dom is load
-				runt.domReady(function() {
-
-                    var scene = new THREE.Scene();
-                    var camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.1, 10000 );
-                    var renderer = new THREE.WebGLRenderer();
-                    renderer.setSize( window.innerWidth, window.innerHeight );
-                    document.body.appendChild( renderer.domElement );
-
-                    var geometry = new THREE.CubeGeometry(100,100,100); 
-                    var material = new THREE.MeshBasicMaterial( { color:  0x1ec876 } );
-                    var cube = new THREE.Mesh( geometry, material ); 
-                    cube.rotation.y = Math.PI * 45 / 180;
-                    scene.add( cube );
-                    camera.position.z = 400;
-                    camera.position.y = 160;
-                    scene.add( camera );  
-                    camera.lookAt(cube.position);
-
-                    var skyboxGeometry = new THREE.CubeGeometry( 10000, 10000, 10000 );
-                    var skyboxMaterial = new THREE.MeshBasicMaterial({ color: 0x0000FF, side : THREE.BackSide });
-                    var skybox = new THREE.Mesh( skyboxGeometry, skyboxMaterial );
-                    scene.add(skybox);  
-
-                    var pointLight = new THREE.PointLight(0xffffff);
-
-                    THREE.P
-                    pointLight.position.set(0, 300, 200);
-
-                    scene.add(pointLight);
-                    
-                    //function render() { 
-                    //             requestAnimationFrame(render);
-                    //             renderer.render(scene, camera); 
-                    //             } 
-    
-                    //render();
-                    renderer.render(scene,camera);
-
-					
-				// 	//+++ragha+++ this is where my code goes!
-				// 	var curx, cury, px, py, accx, accy;
-
-				// 	var width = 960,
-    // 					height = 700;
-
-				// 	var projection = runt.D3.geo.orthographic()
-    // 					.scale(350)
-    // 					.translate([width / 2, height / 2])
-    // 					.clipAngle(90);
-
-				// 	var path = runt.D3.geo.path()
-    // 					.projection(projection);
-
-				// 	var λ = runt.D3.scale.linear()
-				// 	    .domain([0, width])
-				// 	    .range([-180, 180]);
-
-				// 	var φ = runt.D3.scale.linear()
-				// 	    .domain([0, height])
-				// 	    .range([90, -90]);
-
-				// 	//var svg = d3.select("body").append("svg")
-				// 	//    .attr("width", width)
-				// 	//    .attr("height", height);
-
-				// 	vis.on("mousemove", function() {
-				// 	  //
-				// 	    px = curx;
-				// 	    py = cury;
-				// 	  //}
-				// 	  var p = runt.D3.mouse(this);
-
-				// 	  curx = λ(p[0]);
-				// 	  cury = φ(p[1]);
-				// 	  projection.rotate([λ(p[0]), φ(p[1])]);
-				// 	  vis.selectAll("path").attr("d", path);
-
-				// 	  if(px != undefined && py != undefined){
-				// 	    accx = px - curx;
-				// 	    accy = py - cury;
-				// 	  }
-
-				// 	  //console.log(curx, cury);
-				// 	}); 
-
-				// 	//d3.json("world-110m.json", function(error, world) {
-
-				// 		  var backgroundCircle = vis.append("circle")
-				// 		            .attr("cx", width / 2)
-				// 		            .attr("cy", height / 2)
-				// 		            .attr("r", projection.scale())
-				// 		            .attr("class", "sea")
-    //                                 .attr("fill", "#0000EE");
-                                    
-				// 		            //.attr("fill", "rgb(10,10,255)");
-
-
-				// 		   vis.append("path")
-				// 			      .datum(runt.topojson.feature(mapdata, mapdata.objects.land))
-				// 			      .attr("class", "land")
-				// 			      .attr("d", path)
-				// 			      .attr("fill", "#03EE03"); 
-
-				// 		        //}
-				// }); //my code end
-
-			}); //domready end
-		} catch (Exception) {
-			alert("Error: " + Exception)
-		}
 	}
     /*------------------------------------------------------------------------*/
 
@@ -437,7 +435,7 @@
         moduleFunc.render = function(selection) {
 		//MASC
 		// read used div in the render function to be able to pass it to the paint function. (datamaps need a div and not a svg
-		var divExtension = $(selection.node().parentNode.parentNode).offsetParent()[0];
+		//var divExtension = $(selection.node().parentNode.parentNode).offsetParent()[0];
 		
 		//add xml ns for root svg element, so the image element can be exported to canvas
 		$(selection.node().parentNode.parentNode).attr("xmlns:xlink", "http://www.w3.org/1999/xlink");
@@ -451,10 +449,10 @@
 			var vis = d3.select(this).append('g').attr('class', 'vis').attr('width', _width).attr('height', _height);
 
 			//is not used anymore - could be commented
-			//render.call(this, _data, vis, _width, _height, _colorPalette, _properties, _dispatch);
+			render.call(this, _data, vis, _width, _height, _colorPalette, _properties, _dispatch);
 			//MASC 
 			// call paint instead of render ;)
-			paint(divExtension, vis, _data); //, _width, _height);
+			//paint(divExtension, vis, _data); //, _width, _height);
 		});
 		_dispatch.initialized({
 			name : "initialized"

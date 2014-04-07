@@ -125,24 +125,36 @@ var w = 1280,
 
     var vis;
     var pack;
+    var maincircle;
 
  init();
 function init(){
 
 
-  d3.select("svg")
-       .remove();
+  //d3.select("g")
+  //.transition()
+  //.delay(0)
+  //.duration(50)
+  //.remove();
+
+  d3.selectAll("#children")
+  .remove();
+  d3.selectAll("text")
+  .remove();
+
 
 pack = d3.layout.pack()
     .size([r, r])
     .value(function(d) { return d.size; })
+
+    if(vis == undefined){
 
 vis = d3.select("body").insert("svg:svg", "h2")
     .attr("width", w)
     .attr("height", h)
   .append("svg:g")
     .attr("transform", "translate(" + (w - r) / 2 + "," + (h - r) / 2 + ")");
-
+}
 
 
     //d3.json("https://ldcidp7.wdf.sap.corp:44370/sap/opu/odata/sap/ZSM_SYS_MON_DEMO1_SRV/Overview?$format=json&search=SD7~ABAP|DP7~ABAP", function(data) {
@@ -524,34 +536,46 @@ else if(option_selected == 2 || option_selected == 3 || option_selected == 4 || 
 
   var nodes = pack.nodes(newData);
 
-  vis.selectAll("circle")
-      .data(nodes)
-    .enter().append("svg:circle")
+  maincircle = vis.selectAll("circle")
+        .data(nodes);
+  //maincircle.data(nodes);
+
+
+  var two = maincircle.enter().append("svg:circle")
+  .transition()
+      .delay(100)
+      .duration(500)
       .attr("class", function(d) { return d.children ? "parent" : "child"; })
       .attr("cx", function(d) { return d.x; })
       .attr("cy", function(d) { return d.y; })
       .attr("r", function(d) { return d.r; })
-      .style("fill", function(d) {  //experimental status coloring
-          // if (d.status == 0) return "grey";
-          // else if (d.status == 1) return "green";
-          // else if (d.status == 2) return "yellow";
-          // else if (d.status == 3) return "red" ;
-          if(option_selected == 2 || option_selected == 3 || option_selected == 4 || option_selected == 5){
-            if(d.name !== "root" && d.name!== "Systems")
-            {
+      .attr("id", function(d) { if (d.name == "root" || d.children ) 
+                                { return "root";} 
+                               else 
+                                { return "children";}
+                            });
+      // .style("fill", function(d) {  //experimental status coloring
+      //     // if (d.status == 0) return "grey";
+      //     // else if (d.status == 1) return "green";
+      //     // else if (d.status == 2) return "yellow";
+      //     // else if (d.status == 3) return "red" ;
+      //     if(option_selected == 2 || option_selected == 3 || option_selected == 4 || option_selected == 5){
+      //       if(d.name !== "root" && d.name!== "Systems")
+      //       {
 
-           //  if (!d.children){
-           //   if (d.name == "GREY") return "grey"; //grey
-           // else if (d.name == "GREEN") return "green"; //green
-           // else if (d.name == "YELLOW") return "yellow"; //yellow
-           // else if (d.name == "RED") return "red" ; //red
-           // else if (d.name == "UNKNOWN") return "white" ; //red
-           // //return d.name;
-           //  }
-            return d.name;
-          }
-        }
-           })
+      //      //  if (!d.children){
+      //      //   if (d.name == "GREY") return "grey"; //grey
+      //      // else if (d.name == "GREEN") return "green"; //green
+      //      // else if (d.name == "YELLOW") return "yellow"; //yellow
+      //      // else if (d.name == "RED") return "red" ; //red
+      //      // else if (d.name == "UNKNOWN") return "white" ; //red
+      //      // //return d.name;
+      //      //  }
+
+      //       return d.name;
+      //     }
+      //   }
+      //      });
       // .style("stroke", function(d){
       //   if (!d.children){
       //     return d.name;
@@ -560,11 +584,15 @@ else if(option_selected == 2 || option_selected == 3 || option_selected == 4 || 
       //     return "steelblue";
       //   }
       // })
-      .on("click", function(d) { return zoom(node == d ? root : d); });
+
+      vis.selectAll("circle").on("click", function(d) { return zoom(node == d ? root : d); });
 
   vis.selectAll("text")
       .data(nodes)
     .enter().append("svg:text")
+    .transition()
+      .delay(100)
+      .duration(500)
       .attr("class", function(d) { return d.children ? "parent" : "child"; })
       .attr("x", function(d) { return d.children ? d.x - d.r*1/2 : d.x; })
       .attr("y", function(d) { return d.children ? d.y - d.r*4/5 : d.y; })

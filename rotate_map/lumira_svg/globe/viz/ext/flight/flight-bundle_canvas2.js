@@ -1,122 +1,122 @@
 (function() {
     /**
-	* This function is a drawing function; you should put all your drawing logic in it.
-	* it's called in moduleFunc.prototype.render
-	* @param {Object} data - data set passed in
-	* @param {SVG Group} vis - canvas which is an svg group element
-	* @param {float} width - width of canvas
-	* @param {float} height - height of canvas
-	* @param {Array of color string} colorPalette - color palette
-	* @param {Object} properties - properties of chart
-	* @param {Object} dispatch - event dispatcher
-	*/
+    * This function is a drawing function; you should put all your drawing logic in it.
+    * it's called in moduleFunc.prototype.render
+    * @param {Object} data - data set passed in
+    * @param {SVG Group} vis - canvas which is an svg group element
+    * @param {float} width - width of canvas
+    * @param {float} height - height of canvas
+    * @param {Array of color string} colorPalette - color palette
+    * @param {Object} properties - properties of chart
+    * @param {Object} dispatch - event dispatcher
+    */
 
     var can = "canvas { width: 100%; height: 100% }";
     $('head').append("<style>" + can + "</style>");
 
-	function render(data, vis, width, height, colorPalette, properties, dispatch) {
-		// This function is not used anymore - therefore the paint function is used.
-	}
+    function render(data, vis, width, height, colorPalette, properties, dispatch) {
+        // This function is not used anymore - therefore the paint function is used.
+    }
 
-	/* Function renders the datamaps map*/
-	function paint(divExtension, vis, data) { //, width, height, colorPalette, properties, dispatch) {
-		// retrieve data - just like in the render function
-		var fdata = _util.toFlattenTable(data);
-		if (!fdata) {
-		    return;
-		}
+    /* Function renders the datamaps map*/
+    function paint(divExtension, vis, data) { //, width, height, colorPalette, properties, dispatch) {
+        // retrieve data - just like in the render function
+        var fdata = _util.toFlattenTable(data);
+        if (!fdata) {
+            return;
+        }
 
-		var dsName = _util.mapping.dses[0], //use first dimension set as data source of x axis
-		dims = fdata.meta[dsName] || [], msName = _util.mapping.mses[0], //use first measure set as data source of y axis
-		measure = fdata.meta[msName][0];
-		//convert data to 2-fields table: field 0 is combination of all dimensions, and field 1 is measure value
-		fdata = fdata.map(function(d) {
-		    var val = parseFloat(d[msName][0]), //use data of first measure of first measure set
-		    mems = d[dsName] || [];
-		    val = isNaN(val) ? 0 : val;
-		    return [mems.join(" / "), val];
-		});
-		
-		// Exceptionhandling - just in case
-		try {
-			// Minimize all svg elements to get the full canvas
-			//vis.attr("height", "1px").attr("width", "1px");
-			//$(".v-m-root").attr("height", "1px").attr("width", "1px");
-			//$(".datamap").attr("height", "1px").attr("width", "1px");
-			
-			// define require.js libs (based on the file location). If the file is used in the extensionfolder use a /sap/ui/ in front.
-			// else use the normal filepath. Please see the difference in the uncommented d3 call
-			require.config({
-				'paths': {
-					'app': 'app',
-					'jquery': 'jquery',
-					//'d3': '../bundles/schwarzm/viz/ext/geoworld/d3.v3', // when used in Extension
-					//'d3': '../sap/bi/bundles/schwarzm/viz/ext/geoworld/d3.v3',
-					//'D3': '../sap/bi/bundles/globe/viz/ext/flight/d3.v3.min', // when used in myExtension
+        var dsName = _util.mapping.dses[0], //use first dimension set as data source of x axis
+        dims = fdata.meta[dsName] || [], msName = _util.mapping.mses[0], //use first measure set as data source of y axis
+        measure = fdata.meta[msName][0];
+        //convert data to 2-fields table: field 0 is combination of all dimensions, and field 1 is measure value
+        fdata = fdata.map(function(d) {
+            var val = parseFloat(d[msName][0]), //use data of first measure of first measure set
+            mems = d[dsName] || [];
+            val = isNaN(val) ? 0 : val;
+            return [mems.join(" / "), val];
+        });
+        
+        // Exceptionhandling - just in case
+        try {
+            // Minimize all svg elements to get the full canvas
+            //vis.attr("height", "1px").attr("width", "1px");
+            //$(".v-m-root").attr("height", "1px").attr("width", "1px");
+            //$(".datamap").attr("height", "1px").attr("width", "1px");
+            
+            // define require.js libs (based on the file location). If the file is used in the extensionfolder use a /sap/ui/ in front.
+            // else use the normal filepath. Please see the difference in the uncommented d3 call
+            require.config({
+                'paths': {
+                    'app': 'app',
+                    'jquery': 'jquery',
+                    //'d3': '../bundles/schwarzm/viz/ext/geoworld/d3.v3', // when used in Extension
+                    //'d3': '../sap/bi/bundles/schwarzm/viz/ext/geoworld/d3.v3',
+                    //'D3': '../sap/bi/bundles/globe/viz/ext/flight/d3.v3.min', // when used in myExtension
                     'D3': '../globe/viz/ext/flight/d3.v3.min',
                     //'topojson': '../sap/bi/bundles/globe/viz/ext/flight/topojson.v1.min',
-					'topojson': '../globe/viz/ext/flight/topojson.v1.min',
+                    'topojson': '../globe/viz/ext/flight/topojson.v1.min',
                     //'datamaps': '../sap/bi/bundles/globe/viz/ext/flight/world-110m',
-					'datamaps': '../globe/viz/ext/flight/world-110m',
-					//'datamaps': '../sap/bi/bundles/globe/viz/ext/flight/datamaps_rw.min',
-					'domReady': '../globe/viz/ext/flight/domReady',
-					//'domReady': '../sap/bi/bundles/globe/viz/ext/flight/domReady',
+                    'datamaps': '../globe/viz/ext/flight/world-110m',
+                    //'datamaps': '../sap/bi/bundles/globe/viz/ext/flight/datamaps_rw.min',
+                    'domReady': '../globe/viz/ext/flight/domReady',
+                    //'domReady': '../sap/bi/bundles/globe/viz/ext/flight/domReady',
 
-                    'threejs' : 'https://rawgithub.com/mrdoob/three.js/master/build/three.js'
-				},
-				shim: {
-					D3: {
-						exports: 'D3'
-					},
-					topojson: {
-						deps: ['D3'],
-						exports: 'topojson'
-					},
-					datamaps: {
-						deps: ['D3', 'topojson'],
-					},
+                    'threejs' : 'https://rawgithub.com/mrdoob/three.js/master/build/three'
+                },
+                shim: {
+                    D3: {
+                        exports: 'D3'
+                    },
+                    topojson: {
+                        deps: ['D3'],
+                        exports: 'topojson'
+                    },
+                    datamaps: {
+                        deps: ['D3', 'topojson'],
+                    },
                     threejs: {
                         exports: 'threejs'
                     },
-				}
-			});
+                }
+            });
 
-			// Define require.js module with all needed js libs
-			define("runtime", function(require) {
-				var $ = require('jquery');
-				var D3 = require('D3');
-				var topojson = require('topojson');
-				var Datamap = require('datamaps');
-				var domReady = require('domReady');
+            // Define require.js module with all needed js libs
+            define("runtime", function(require) {
+                var $ = require('jquery');
+                var D3 = require('D3');
+                var topojson = require('topojson');
+                var Datamap = require('datamaps');
+                var domReady = require('domReady');
                 var Threejs = require('threejs');
-				// return the required objects - can be used when module is used inside a require function
-				return {
-					topojson: topojson,
-					Datamap: Datamap,
-					domReady: domReady,
-					$:$,
-					D3:D3,
+                // return the required objects - can be used when module is used inside a require function
+                return {
+                    topojson: topojson,
+                    Datamap: Datamap,
+                    domReady: domReady,
+                    $:$,
+                    D3:D3,
                     Threejs:Threejs
-				}
-			});
-			
-			// Exception handling for require.js In case of an error it alerts the message. For example if gmaps could not be loaded
-			require.onError = function (err) {
-				if (err.requireType === 'timeout') {
-					alert("error: "+err);
-				} else {
-					throw err;
-				}   
-			};
-			
-			// execute the real code to draw a map with the datamaps.js library
-			// https://github.com/markmarkoh/datamaps/blob/master/README.md#getting-started
-			require(["runtime"], function(runt) {
-				// set the div passed by the function parameter
-				var Test = divExtension;
-				
-				// use domready to execute it after all of the dom is load
-				runt.domReady(function() {
+                }
+            });
+            
+            // Exception handling for require.js In case of an error it alerts the message. For example if gmaps could not be loaded
+            require.onError = function (err) {
+                if (err.requireType === 'timeout') {
+                    alert("error: "+err);
+                } else {
+                    throw err;
+                }   
+            };
+            
+            // execute the real code to draw a map with the datamaps.js library
+            // https://github.com/markmarkoh/datamaps/blob/master/README.md#getting-started
+            require(["runtime"], function(runt) {
+                // set the div passed by the function parameter
+                var Test = divExtension;
+                
+                // use domready to execute it after all of the dom is load
+                runt.domReady(function() {
 
                     var scene = new THREE.Scene();
                     var camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.1, 10000 );
@@ -154,79 +154,79 @@
                     //render();
                     renderer.render(scene,camera);
 
-					
-				// 	//+++ragha+++ this is where my code goes!
-				// 	var curx, cury, px, py, accx, accy;
+                    
+                //  //+++ragha+++ this is where my code goes!
+                //  var curx, cury, px, py, accx, accy;
 
-				// 	var width = 960,
-    // 					height = 700;
+                //  var width = 960,
+    //                  height = 700;
 
-				// 	var projection = runt.D3.geo.orthographic()
-    // 					.scale(350)
-    // 					.translate([width / 2, height / 2])
-    // 					.clipAngle(90);
+                //  var projection = runt.D3.geo.orthographic()
+    //                  .scale(350)
+    //                  .translate([width / 2, height / 2])
+    //                  .clipAngle(90);
 
-				// 	var path = runt.D3.geo.path()
-    // 					.projection(projection);
+                //  var path = runt.D3.geo.path()
+    //                  .projection(projection);
 
-				// 	var λ = runt.D3.scale.linear()
-				// 	    .domain([0, width])
-				// 	    .range([-180, 180]);
+                //  var λ = runt.D3.scale.linear()
+                //      .domain([0, width])
+                //      .range([-180, 180]);
 
-				// 	var φ = runt.D3.scale.linear()
-				// 	    .domain([0, height])
-				// 	    .range([90, -90]);
+                //  var φ = runt.D3.scale.linear()
+                //      .domain([0, height])
+                //      .range([90, -90]);
 
-				// 	//var svg = d3.select("body").append("svg")
-				// 	//    .attr("width", width)
-				// 	//    .attr("height", height);
+                //  //var svg = d3.select("body").append("svg")
+                //  //    .attr("width", width)
+                //  //    .attr("height", height);
 
-				// 	vis.on("mousemove", function() {
-				// 	  //
-				// 	    px = curx;
-				// 	    py = cury;
-				// 	  //}
-				// 	  var p = runt.D3.mouse(this);
+                //  vis.on("mousemove", function() {
+                //    //
+                //      px = curx;
+                //      py = cury;
+                //    //}
+                //    var p = runt.D3.mouse(this);
 
-				// 	  curx = λ(p[0]);
-				// 	  cury = φ(p[1]);
-				// 	  projection.rotate([λ(p[0]), φ(p[1])]);
-				// 	  vis.selectAll("path").attr("d", path);
+                //    curx = λ(p[0]);
+                //    cury = φ(p[1]);
+                //    projection.rotate([λ(p[0]), φ(p[1])]);
+                //    vis.selectAll("path").attr("d", path);
 
-				// 	  if(px != undefined && py != undefined){
-				// 	    accx = px - curx;
-				// 	    accy = py - cury;
-				// 	  }
+                //    if(px != undefined && py != undefined){
+                //      accx = px - curx;
+                //      accy = py - cury;
+                //    }
 
-				// 	  //console.log(curx, cury);
-				// 	}); 
+                //    //console.log(curx, cury);
+                //  }); 
 
-				// 	//d3.json("world-110m.json", function(error, world) {
+                //  //d3.json("world-110m.json", function(error, world) {
 
-				// 		  var backgroundCircle = vis.append("circle")
-				// 		            .attr("cx", width / 2)
-				// 		            .attr("cy", height / 2)
-				// 		            .attr("r", projection.scale())
-				// 		            .attr("class", "sea")
+                //        var backgroundCircle = vis.append("circle")
+                //                  .attr("cx", width / 2)
+                //                  .attr("cy", height / 2)
+                //                  .attr("r", projection.scale())
+                //                  .attr("class", "sea")
     //                                 .attr("fill", "#0000EE");
                                     
-				// 		            //.attr("fill", "rgb(10,10,255)");
+                //                  //.attr("fill", "rgb(10,10,255)");
 
 
-				// 		   vis.append("path")
-				// 			      .datum(runt.topojson.feature(mapdata, mapdata.objects.land))
-				// 			      .attr("class", "land")
-				// 			      .attr("d", path)
-				// 			      .attr("fill", "#03EE03"); 
+                //         vis.append("path")
+                //                .datum(runt.topojson.feature(mapdata, mapdata.objects.land))
+                //                .attr("class", "land")
+                //                .attr("d", path)
+                //                .attr("fill", "#03EE03"); 
 
-				// 		        //}
-				// }); //my code end
+                //              //}
+                 }); //my code end
 
-			}); //domready end
-		} catch (Exception) {
-			alert("Error: " + Exception)
-		}
-	}
+            }); //domready end
+        } catch (Exception) {
+            alert("Error: " + Exception)
+        }
+    }
     /*------------------------------------------------------------------------*/
 
     /*
@@ -435,30 +435,30 @@
          * function of drawing chart
          */
         moduleFunc.render = function(selection) {
-		//MASC
-		// read used div in the render function to be able to pass it to the paint function. (datamaps need a div and not a svg
-		var divExtension = $(selection.node().parentNode.parentNode).offsetParent()[0];
-		
-		//add xml ns for root svg element, so the image element can be exported to canvas
-		$(selection.node().parentNode.parentNode).attr("xmlns:xlink", "http://www.w3.org/1999/xlink");
+        //MASC
+        // read used div in the render function to be able to pass it to the paint function. (datamaps need a div and not a svg
+        var divExtension = $(selection.node().parentNode.parentNode).offsetParent()[0];
+        
+        //add xml ns for root svg element, so the image element can be exported to canvas
+        $(selection.node().parentNode.parentNode).attr("xmlns:xlink", "http://www.w3.org/1999/xlink");
 
-		//save instance variables to local variables because *this* is not referenced to instance in selection.each
-		var _data = this._data, _width = this._width, _height = this._height, _colorPalette = this._colorPalette, _properties = this._properties, _dispatch = this._dispatch;
-		_dispatch.startToInit();
-		selection.each(function() {
-			//prepare canvas with width and height of div container
-			d3.select(this).selectAll('g.vis').remove();
-			var vis = d3.select(this).append('g').attr('class', 'vis').attr('width', _width).attr('height', _height);
+        //save instance variables to local variables because *this* is not referenced to instance in selection.each
+        var _data = this._data, _width = this._width, _height = this._height, _colorPalette = this._colorPalette, _properties = this._properties, _dispatch = this._dispatch;
+        _dispatch.startToInit();
+        selection.each(function() {
+            //prepare canvas with width and height of div container
+            d3.select(this).selectAll('g.vis').remove();
+            var vis = d3.select(this).append('g').attr('class', 'vis').attr('width', _width).attr('height', _height);
 
-			//is not used anymore - could be commented
-			//render.call(this, _data, vis, _width, _height, _colorPalette, _properties, _dispatch);
-			//MASC 
-			// call paint instead of render ;)
-			paint(divExtension, vis, _data); //, _width, _height);
-		});
-		_dispatch.initialized({
-			name : "initialized"
-		});
+            //is not used anymore - could be commented
+            //render.call(this, _data, vis, _width, _height, _colorPalette, _properties, _dispatch);
+            //MASC 
+            // call paint instead of render ;)
+            paint(divExtension, vis, _data); //, _width, _height);
+        });
+        _dispatch.initialized({
+            name : "initialized"
+        });
         };
 
         /*
@@ -516,9 +516,9 @@
                 "aaIndex": 1
             };
             _util.mapping.dses.push("Sourcename, Lat, Long, Targetname, Lat, Long");
-	    // MASC: I don't get it why i can only use two dimensions ? If i want to use more i can'T drag'n'drop dimension 
-	    
-	    /*var ds3 = {
+        // MASC: I don't get it why i can only use two dimensions ? If i want to use more i can'T drag'n'drop dimension 
+        
+        /*var ds3 = {
                 "id": "camelotitlabgmapmodule.DS2",
                 "name": "Source Latitude",
                 "type": "Dimension",
@@ -527,7 +527,7 @@
                 "aaIndex": 3
             };
             _util.mapping.dses.push("Source Latitude");
-	    var ds3 = {
+        var ds3 = {
                 "id": "camelotitlabgmapmodule.DS3",
                 "name": "Source Longitude",
                 "type": "Dimension",
@@ -536,7 +536,7 @@
                 "aaIndex": 4
             };
             _util.mapping.dses.push("Source Longitude");
-	    var ds2 = {
+        var ds2 = {
                 "id": "camelotitlabgmapmodule.DS4",
                 "name": "Target",
                 "type": "Dimension",
@@ -545,8 +545,8 @@
                 "aaIndex": 2
             };
             _util.mapping.dses.push("Target");
-	    /*
-	    var ds5 = {
+        /*
+        var ds5 = {
                 "id": "camelotitlabgmapmodule.DS5",
                 "name": "Target Latitude",
                 "type": "Dimension",
@@ -555,7 +555,7 @@
                 "aaIndex": 5
             };
             _util.mapping.dses.push("Target Latitude");
-	    var ds6 = {
+        var ds6 = {
                 "id": "camelotitlabgmapmodule.DS6",
                 "name": "Target Longitude",
                 "type": "Dimension",
@@ -564,10 +564,10 @@
                 "aaIndex": 6
             };
             _util.mapping.dses.push("Target Longitude");*/
-	    
-	    //MASC: How do i have to make entries her to get more dimension ?
-	    // Why can i drop more than 6 dimensions if i define a max of 6 ?
-	    
+        
+        //MASC: How do i have to make entries her to get more dimension ?
+        // Why can i drop more than 6 dimensions if i define a max of 6 ?
+        
             //ms1: Margin, Quantity sold, Sales revenue
             var ms1 = {
                 "id": "globe.viz.ext.module.flight.MS1",
@@ -579,11 +579,11 @@
             };
             _util.mapping.mses.push("Keyfigure Geomap");
             element.addFeed(ds1);
-	    /*element.addFeed(ds2);
-	    element.addFeed(ds3);
-	    element.addFeed(ds4);
-	    element.addFeed(ds5);
-	    element.addFeed(ds6);*/
+        /*element.addFeed(ds2);
+        element.addFeed(ds3);
+        element.addFeed(ds4);
+        element.addFeed(ds5);
+        element.addFeed(ds6);*/
             element.addFeed(ms1);
             flow.addElement({
                 'element':element,
@@ -639,5 +639,5 @@
         /*bundle>>*/ 
 
         //register the chart so it can be created
-    })();	
+    })();   
 })();
