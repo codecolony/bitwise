@@ -11,11 +11,26 @@
 	* @param {Object} dispatch - event dispatcher
 	*/
 
-    var mystyle = ".sea { fill:#2969FF !important; }";
-    $('head').append("<style>" + mystyle + "</style>");
+    var mystyle = ".sea { fill:#4682b4 !important; }";
 
-    var str = "container";
-    $('body').append("<div id="+ str +"></div>")
+    var tooltipsytle = "div.tooltip {\
+                        position: absolute;\
+                        text-align: center;\
+                        width: 60px;\
+                        height: 28px;\
+                        padding: 2px;\
+                        font: 12px sans-serif;\
+                        background: lightsteelblue;\
+                        border: 0px;\
+                        border-radius: 8px;\
+                        pointer-events: none;\
+                        }";
+
+    $('head').append("<style>" + mystyle + tooltipsytle + "</style>");
+
+
+    // var str = "container";
+    // $('body').append("<div id="+ str +"></div>")
 
 	function render(data, vis, width, height, colorPalette, properties, dispatch) {
 		// This function is not used anymore - therefore the paint function is used.
@@ -118,11 +133,10 @@
                     var width = 960,
                         height = 500;
 
-                    var tooltip = d3.select("#container").append("div").attr("class", "tooltip hidden");
-
-                    // var zoom = d3.behavior.zoom()
-                    //     .scaleExtent([1, 9])
-                    //     .on("zoom", move);
+                    //var tooltip = vis.append("div").attr("class", "tooltip hidden");
+                    var div = d3.select("body").append("div")   
+                        .attr("class", "tooltip")               
+                        .style("opacity", 0);
 
                     var projection = runt.D3.geo.orthographic()
                         .scale(250)
@@ -134,11 +148,11 @@
 
                     var λ = runt.D3.scale.linear()
                         .domain([0, width])
-                        .range([-180, 180]);
+                        .range([-360, 360]);
 
                     var φ = runt.D3.scale.linear()
                         .domain([0, height])
-                        .range([90, -90]);
+                        .range([180, -180]);
 
                     //var svg = d3.select("body").append("svg")
                     //    .attr("width", width)
@@ -148,12 +162,38 @@
 
                     //d3.json("world-110m.json", function(error, world) {
 
+                        //drag behaviour
+                            var drag = d3.behavior.drag()
+                                .on("drag", function(d,i) {
+                                 
+                                                                     //}
+                                  var p = d3.mouse(this);
+
+                                  curx = (p[0] ) ;
+                                  cury = (p[1] ) ;
+
+                                // if(curx >360) curx = 360;
+                                // if(curx < 360) curx = -360;
+                                // if(cury >180) cury = 180;
+                                // if(cury < 180) cury = -180;
+                                 // console.log("crX--->"+curx);
+                                // console.log("cry--->"+cury);
+
+                                  projection.rotate([λ(curx), φ(cury)]);
+                                  //projection.center([curx, cury]);
+                                  vis.selectAll("path").attr("d", path);
+                                 // console.log("After crX--->"+curx)
+                                 // console.log("After cry--->"+cury)
+
+                                });
+
                     var backgroundCircle = vis.append("circle")
                                 .attr("cx", width / 2)
                                 .attr("cy", height / 2)
                                 .attr("r", projection.scale())
                                 .attr("class", "sea")
-                                .attr("id", "background");
+                                .attr("id", "background")
+                                .call(drag);
                                 //.attr("fill", "#0303EE");
                                 //.attr("fill", "rgb(150,150,200)");
                                 //.attr("fill", "rgb(100,100,200) !important;");
@@ -162,33 +202,18 @@
                     vis.append("path")
                           .datum(runt.topojson.feature(mapdata, mapdata.objects.land))
                           .attr("class", "land")
-                          .attr("d", path);
+                          .attr("d", path)
+                          .call(drag);
                           //.attr("fill", "#03EE03"); 
 
                     vis.append("path")
                           .datum(runt.topojson.feature(mapdata, mapdata.objects.countries))
                           .attr("class", "countries")
                           .attr("d", path)
-                          .attr("fill", "#33EE33")
-                          .style("stroke", "rgb(255,0,0)"); 
-
-
-                    // var route = vis.append("path")
-                    //        .datum({type: "LineString", coordinates: [[10,10], [50,50]]})
-                    //        .attr("class", "route")
-                    //        .attr("d", path)
-                    //        .style("stroke", "rgb(255,0,0)")
-                    //        .style("stroke-width", 4)
-                    //        .style("stroke-opacity", 0.8);
-                    //        //.style("fill", "none");
-
-                    // var route2 = vis.append("path")
-                    //        .datum({type: "LineString", coordinates: [[-5,20], [-80,-5]]})
-                    //        .attr("class", "route")
-                    //        .attr("d", path)
-                    //        .style("stroke", "rgb(255,0,0)")
-                    //        .style("stroke-width", 4)
-                    //        .attr("fill", "none");
+                          .attr("fill", "#f4a460")
+                          .style("stroke-width", "0.5px")
+                          .style("stroke", "rgb(255,255,255)")
+                          .call(drag); 
 
 
                     vis.on("click", function(){
@@ -222,23 +247,42 @@
                             }); 
 
                             function drawPath(x,y){
-                                vis.append("path")
+                                var route = vis.append("path")
                                    .datum({type: "LineString", coordinates: [x, y]})
                                    .attr("class", "route")
                                    .attr("d", path)
                                    .attr("text", x+","+y)
-                                   .style("stroke", "rgb(255,0,0)")
+                                   .style("stroke", "rgb(255,255,255)")
                                    .style("stroke-width", 3)
                                    .style("stroke-opacity", 0.8)
-                                   .attr("fill", "none")
-                                   .on("mousemove", function(d,i) {
-                                        tooltip.classed("hidden", false)
-                                            //.attr("style", "left:"+(mouse[0]+offsetL)+"px;top:"+(mouse[1]+offsetT)+"px")
-                                            .html(x+", "+y);
+                                   .attr("fill", "none");
+
+                                   //var tooltip = route.append("text").attr("class", "tooltip hidden");
+
+                                   route.on("mouseover", function(d) {
+                                        div.transition()
+                                        .duration(200)
+                                        .style("opacity", .9);
+                                        div .html(d3.mouse(this) + "<br/>" + d.text)
+                                        .style("left", (d3.event.pageX) + "px")
+                                        .style("top", (d3.event.pageY - 28) + "px");
+                                        })
+                                        .on("mouseout", function(d) {
+                                        div.transition()
+                                        .duration(500)
+                                        .style("opacity", 0);
                                         });
 
-                                   source = undefined;
-                                   dest = undefined;
+                                        //route.text(latlon);
+                                        //route.attr({transform: 'translate(' + latlon + ')'});
+                                        // tooltip.classed("hidden", false)
+                                        //     .text(latlon)
+                                        //     .attr({transform: 'translate(' + latlon + ')'});
+                                            
+                                        //});
+
+                               source = undefined;
+                               dest = undefined;
                             }
 
                             //geo translation on mouse click in map
@@ -255,33 +299,17 @@
                                 drawPath(source,dest);
                             });
 
-                            // function move() {
+                            //zoom testing
+                            var zoom = d3.behavior.zoom()
+                                .on("zoom",function() {
+                                vis.attr("transform","translate("+
+                                d3.event.translate.join(",")+")scale("+d3.event.scale+")");
+                                vis.selectAll("path")
+                                .attr("d", path.projection(projection));
+                                });
+                                vis.call(zoom);
 
-                            //   var t = d3.event.translate;
-                            //   var s = d3.event.scale; 
-                            //   zscale = s;
-                            //   var h = height/4;
 
-
-                            //   t[0] = Math.min(
-                            //     (width/height)  * (s - 1), 
-                            //     Math.max( width * (1 - s), t[0] )
-                            //   );
-
-                            //   t[1] = Math.min(
-                            //     h * (s - 1) + h * s, 
-                            //     Math.max(height  * (1 - s) - h * s, t[1])
-                            //   );
-
-                            //   zoom.translate(t);
-                            //   g.attr("transform", "translate(" + t + ")scale(" + s + ")");
-
-                            //   //adjust the country hover stroke width based on zoom level
-                            //   d3.selectAll(".country").style("stroke-width", 1.5 / s);
-
-                            // }
-                       // }); 
-                                //}
                 }); //my code end
 
             }); //domready end
