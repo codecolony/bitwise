@@ -16,8 +16,8 @@
     var tooltipsytle = "div.tooltip {\
                         position: absolute;\
                         text-align: center;\
-                        width: 60px;\
-                        height: 28px;\
+                        width: 200px;\
+                        height: 60px;\
                         padding: 2px;\
                         font: 12px sans-serif;\
                         background: lightsteelblue;\
@@ -41,6 +41,7 @@
             return;
         }
 
+        
         var dsName = _util.mapping.dses[0], //use first dimension set as data source of x axis
         dims = fdata.meta[dsName] || [], msName = _util.mapping.mses[0], //use first measure set as data source of y axis
         measure = fdata.meta[msName][0];
@@ -52,6 +53,8 @@
             return [mems.join(" / "), val];
         });
         
+        //console.log("fdata var" + fdata);
+
         // Exceptionhandling - just in case
         try {
             // Minimize all svg elements to get the full canvas
@@ -67,26 +70,31 @@
                     'jquery': 'jquery',
                     //////'d3': '../bundles/schwarzm/viz/ext/geoworld/d3.v3', // when used in Extension
                     //////'d3': '../sap/bi/bundles/schwarzm/viz/ext/geoworld/d3.v3',
-                    //'D3': '../sap/bi/bundles/globe/viz/ext/flight/d3.v3.min', // when used in myExtension
-                    'D3': '../globe/viz/ext/flight/d3.v3.min',
-                    //'topojson': '../sap/bi/bundles/globe/viz/ext/flight/topojson.v1.min',
-                    'topojson': '../globe/viz/ext/flight/topojson.v1.min',
-                    //'datamaps': '../sap/bi/bundles/globe/viz/ext/flight/world-110m',
-                    'datamaps': '../globe/viz/ext/flight/world-110m',
+                    'D3': '../sap/bi/bundles/globe/viz/ext/flight/d3.v3.min', // when used in myExtension
+                    //'D3': '../globe/viz/ext/flight/d3.v3.min',
+                    'topojson': '../sap/bi/bundles/globe/viz/ext/flight/topojson.v1.min',
+                    //'topojson': '../globe/viz/ext/flight/topojson.v1.min',
+                    'datamaps': '../sap/bi/bundles/globe/viz/ext/flight/world-110m',
+                    //'datamaps': '../globe/viz/ext/flight/world-110m',
                     /////'datamaps': '../sap/bi/bundles/globe/viz/ext/flight/datamaps_rw.min',
-                    'domReady': '../globe/viz/ext/flight/domReady',
-                    //'domReady': '../sap/bi/bundles/globe/viz/ext/flight/domReady',
+                    //'domReady': '../globe/viz/ext/flight/domReady',
+                    'domReady': '../sap/bi/bundles/globe/viz/ext/flight/domReady',
+                    //'rotate': '../globe/viz/ext/flight/d3.geo.zoom',
+                    //'rotate': '../sap/bi/bundles/globe/viz/ext/flight/d3.geo.zoom',
                 },
                 shim: {
                     D3: {
                         exports: 'D3'
                     },
+                    // rotate: {
+                    //     exports: 'rotate'
+                    // },
                     topojson: {
                         deps: ['D3'],
                         exports: 'topojson'
                     },
                     datamaps: {
-                        deps: ['D3', 'topojson'],
+                        deps: ['D3', 'topojson'], //, 'rotate'],
                     },
                 }
             });
@@ -98,6 +106,7 @@
                 var topojson = require('topojson');
                 var Datamap = require('datamaps');
                 var domReady = require('domReady');
+                //var rotate = require('rotate');
                 // return the required objects - can be used when module is used inside a require function
                 return {
                     topojson: topojson,
@@ -105,6 +114,7 @@
                     domReady: domReady,
                     $:$,
                     D3:D3
+                    //rotate:rotate
                 }
             });
             
@@ -133,8 +143,11 @@
                     var width = 960,
                         height = 500;
 
-                    //var tooltip = vis.append("div").attr("class", "tooltip hidden");
-                    var div = d3.select("body").append("div")   
+                        //var data = fdata;
+                        //console.log("data var" + data);
+
+                    //tooltips!
+                    var div = runt.D3.select("body").append("div")   
                         .attr("class", "tooltip")               
                         .style("opacity", 0);
 
@@ -154,57 +167,33 @@
                         .domain([0, height])
                         .range([180, -180]);
 
-                    //var svg = d3.select("body").append("svg")
-                    //    .attr("width", width)
-                    //    .attr("height", height);
+                    //drag behaviour
+                    var drag = d3.behavior.drag()
+                        .on("drag", function(d,i) {
+                         
+                          var p = d3.mouse(this);
 
-                    
+                          curx = (p[0] ) ;
+                          cury = (p[1] ) ;
 
-                    //d3.json("world-110m.json", function(error, world) {
-
-                        //drag behaviour
-                            var drag = d3.behavior.drag()
-                                .on("drag", function(d,i) {
-                                 
-                                                                     //}
-                                  var p = d3.mouse(this);
-
-                                  curx = (p[0] ) ;
-                                  cury = (p[1] ) ;
-
-                                // if(curx >360) curx = 360;
-                                // if(curx < 360) curx = -360;
-                                // if(cury >180) cury = 180;
-                                // if(cury < 180) cury = -180;
-                                 // console.log("crX--->"+curx);
-                                // console.log("cry--->"+cury);
-
-                                  projection.rotate([λ(curx), φ(cury)]);
-                                  //projection.center([curx, cury]);
-                                  vis.selectAll("path").attr("d", path);
-                                 // console.log("After crX--->"+curx)
-                                 // console.log("After cry--->"+cury)
-
-                                });
+                          projection.rotate([λ(curx), φ(cury)]);
+                          projection.center([0, 0]);
+                          vis.selectAll("path").attr("d", path);
+                        });
 
                     var backgroundCircle = vis.append("circle")
-                                .attr("cx", width / 2)
-                                .attr("cy", height / 2)
-                                .attr("r", projection.scale())
-                                .attr("class", "sea")
-                                .attr("id", "background")
-                                .call(drag);
-                                //.attr("fill", "#0303EE");
-                                //.attr("fill", "rgb(150,150,200)");
-                                //.attr("fill", "rgb(100,100,200) !important;");
+                            .attr("cx", width / 2)
+                            .attr("cy", height / 2)
+                            .attr("r", projection.scale())
+                            .attr("class", "sea")
+                            .attr("id", "background")
+                            .call(drag);
 
-
-                    vis.append("path")
+                    var land = vis.append("path")
                           .datum(runt.topojson.feature(mapdata, mapdata.objects.land))
                           .attr("class", "land")
                           .attr("d", path)
                           .call(drag);
-                          //.attr("fill", "#03EE03"); 
 
                     vis.append("path")
                           .datum(runt.topojson.feature(mapdata, mapdata.objects.countries))
@@ -216,37 +205,104 @@
                           .call(drag); 
 
 
-                    vis.on("click", function(){
-                            //vis.on("mousemove", function() {
-                              //
-                                px = curx;
-                                py = cury;
-                              //}
-                              //console.log(d3.event.target);
-                              var p = d3.mouse(this);
+                    //get data from backend
+                    //"Date, Operator, FROM, FROM_LONGITUDE, FROM_LATITUDE, TO, TO_LONGITUDE, TO_LATITUDE",
+                    var flights = [];
+                    var nDim = 0; 
+                    for (var datasets in fdata) {
+                        // Convert Lat and Long into . and use them
+                        // access rowdata of dataset
+                        var Dim1 = fdata[datasets][0];
+                        var Dim1Split = Dim1.split(" / ");
+                        // read and clean lat and Long values - define a default for no good values
+                        var     flightDate =  Dim1Split[0], 
+                            operator =  Dim1Split[1],
+                            fromName =  Dim1Split[2], 
+                            fromLong = (Dim1Split[3]==undefined || Dim1Split[3]=="NA") ? "": Dim1Split[3],
+                            fromLat = (Dim1Split[4]==undefined || Dim1Split[4]=="NA") ? "": Dim1Split[4],
+                            to = Dim1Split[5],
+                            toLong = (Dim1Split[6]==undefined || Dim1Split[6]=="NA") ? "": Dim1Split[6],
+                            toLat = (Dim1Split[7]==undefined || Dim1Split[7]=="NA") ? "": Dim1Split[7];
+                           
+                           flights[nDim] = {
+                            date: flightDate, fname: operator, from: fromName, fromLong: fromLong, fromLat: fromLat,
+                            to:to, toLong:toLong, toLat:toLat
+                            };
+
+                            var x = [flights[nDim].fromLong, flights[nDim].fromLat];
+                            var y = [flights[nDim].toLong, flights[nDim].toLat];
+
+                            drawPath(x, y, flights[nDim].date, flights[nDim].fname, flights[nDim].from, flights[nDim].to);
+                            drawCity(x);
+                            drawCity(y);
+
+                            // vis.append("path")
+                            //             .datum({type: "LineString", coordinates: [(flights[nDim].fromLong,
+                            //                 flights[nDim].fromLat),
+                            //                 (flights[nDim].toLong, flights[nDim].toLat)]
+                            //             })
+                            //         .attr("class", "route")
+                            //        .attr("d", path)
+                            //        //.attr("text", x+","+y)
+                            //        .style("stroke", "rgb(255,255,255)")
+                            //        .style("stroke-width", 3)
+                            //        .style("stroke-opacity", 0.8)
+                            //        .attr("fill", "none");
+
+                        nDim += 1;
+                    }
+
+                    console.log(flights);
+                    // vis.on("click", function(){
+                    //         //vis.on("mousemove", function() {
+                    //           //
+                    //             px = curx;
+                    //             py = cury;
+                    //           //}
+                    //           //console.log(d3.event.target);
+                    //           var p = d3.mouse(this);
 
 
-                              curx = (p[0] + ox) % 180;
-                              cury = (p[1] + oy) % 90;
-                              projection.rotate([curx, cury]);
-                              vis.selectAll("path").attr("d", path);
+                    //           curx = (p[0] + ox) % 180;
+                    //           cury = (p[1] + oy) % 90;
+                    //           projection.rotate([curx, cury]);
+                    //           vis.selectAll("path").attr("d", path);
 
-                              if(px != undefined && py != undefined){
-                                accx = px - curx;
-                                accy = py - cury;
-                              }
+                    //           if(px != undefined && py != undefined){
+                    //             accx = px - curx;
+                    //             accy = py - cury;
+                    //           }
 
-                              //console.log(curx, cury);
-                            }); 
+                    //           //console.log(curx, cury);
+                    //         }); 
 
-                            vis.on("mouseout", function() {
+                    //         vis.on("mouseout", function() {
 
-                                ox =  curx;
-                                oy = cury;
+                    //             ox =  curx;
+                    //             oy = cury;
 
-                            }); 
+                    //         }); 
+                
+                    // var routes = vis.selectAll("path")
+                    //                 .data(flights)
+                    //                 .enter()
+                    //                 .append("path")
+                    //                     .data({type: "Line", coordinates: function(d){
+                    //                         console.log("data -->" +d);
+                    //                         if(d.fromLong == "NA" || d.fromLat == "NA" || d.toLong == "NA" || d.toLat == "NA")
+                    //                             return;
+                    //                         return [(d.fromLong,d.fromLat),(d.toLong, d.toLat)];
+                    //                     }})
+                    //                 .attr("class", "route")
+                    //                .attr("d", path)
+                    //                //.attr("text", x+","+y)
+                    //                .style("stroke", "rgb(255,255,255)")
+                    //                .style("stroke-width", 3)
+                    //                .style("stroke-opacity", 0.8)
+                    //                .attr("fill", "none");
+    
 
-                            function drawPath(x,y){
+                            function drawPath(x,y, date, fname, from, to){
                                 var route = vis.append("path")
                                    .datum({type: "LineString", coordinates: [x, y]})
                                    .attr("class", "route")
@@ -263,9 +319,15 @@
                                         div.transition()
                                         .duration(200)
                                         .style("opacity", .9);
-                                        div .html(d3.mouse(this) + "<br/>" + d.text)
+
+                                        div .html("Date: "+ date + "<br/>" + "Flight Type: "+ fname + "<br/>"+ "From: "+from+ "<br/>" + "To: "+ to)
                                         .style("left", (d3.event.pageX) + "px")
                                         .style("top", (d3.event.pageY - 28) + "px");
+
+                                        // div .html(d3.mouse(this) + "<br/>" + d.text)
+                                        // .style("left", (d3.event.pageX) + "px")
+                                        // .style("top", (d3.event.pageY - 28) + "px");
+
                                         })
                                         .on("mouseout", function(d) {
                                         div.transition()
@@ -285,19 +347,61 @@
                                dest = undefined;
                             }
 
+                            function drawCity(x){
+
+                                var cir = vis.append("path")
+                                   .datum({type: "Point", coordinates: x})
+                                   .attr("class", "city")
+                                   .attr("d", path)
+                                   .style("fill", "red")
+                                   .style("stroke", "rgb(0,0,0)")
+                                   .style("stroke-width", 3);
+
+                                   // //var tooltip = route.append("text").attr("class", "tooltip hidden");
+
+                                   // route.on("mouseover", function(d) {
+                                   //      div.transition()
+                                   //      .duration(200)
+                                   //      .style("opacity", .9);
+                                   //      div .html(d3.mouse(this) + "<br/>" + d.text)
+                                   //      .style("left", (d3.event.pageX) + "px")
+                                   //      .style("top", (d3.event.pageY - 28) + "px");
+                                   //      })
+                                   //      .on("mouseout", function(d) {
+                                   //      div.transition()
+                                   //      .duration(500)
+                                   //      .style("opacity", 0);
+                                   //      });
+
+                                        //route.text(latlon);
+                                        //route.attr({transform: 'translate(' + latlon + ')'});
+                                        // tooltip.classed("hidden", false)
+                                        //     .text(latlon)
+                                        //     .attr({transform: 'translate(' + latlon + ')'});
+                                            
+                                        //});
+
+                               // source = undefined;
+                               // dest = undefined;
+                            }
+
                             //geo translation on mouse click in map
-                            vis.on("click", function click() {
-                              var latlon = projection.invert(d3.mouse(this));
-                              console.log(latlon);
+                            // vis.on("click", function click() {
+                            //     var clickloc = d3.mouse(this);
+                            //   var latlon = projection.invert(clickloc);
+                            //   console.log(latlon);
 
-                              if(source == undefined)
-                                source = latlon;
-                              else if(dest == undefined)
-                                dest = latlon;
-
-                              if(source != undefined && dest != undefined)
-                                drawPath(source,dest);
-                            });
+                            //   if(source == undefined){
+                            //     source = latlon;
+                            //     drawCity(source);
+                            // }
+                            //   else if(dest == undefined){
+                            //     dest = latlon;
+                            //     drawCity(dest);
+                            // }
+                            //   if(source != undefined && dest != undefined)
+                            //     drawPath(source,dest);
+                            // });
 
                             //zoom testing
                             var zoom = d3.behavior.zoom()
@@ -306,8 +410,15 @@
                                 d3.event.translate.join(",")+")scale("+d3.event.scale+")");
                                 vis.selectAll("path")
                                 .attr("d", path.projection(projection));
+                                //console.log(d3.event.scale);
                                 });
+
+                                //restrict zoom
+                                zoom.scaleExtent([0.8, 1.2]);
+                                //zoom.center([width / 2, height / 2]);
                                 vis.call(zoom);
+                            //var zoom = runt.rotate.d3.geo.zoom;
+                            //vis.call(d3.geo.zoom);
 
 
                 }); //my code end
@@ -585,16 +696,16 @@
                 'propertyCategory':'title',
                 'place':'top'
             });
-            var legendElement  = sap.viz.extapi.Flow.createElement({
-                id : 'sap.viz.chart.elements.ColorLegend',
-                name : 'Legend',
-                dimensionIndex: [1],
-            });
-            flow.addElement({
-                'element':legendElement,
-                'propertyCategory':'legend',
-                'place':'right'
-            });
+            // var legendElement  = sap.viz.extapi.Flow.createElement({
+            //     id : 'sap.viz.chart.elements.ColorLegend',
+            //     name : 'Legend',
+            //     dimensionIndex: [1],
+            // });
+            // flow.addElement({
+            //     'element':legendElement,
+            //     'propertyCategory':'legend',
+            //     'place':'right'
+            // });
             var element  = sap.viz.extapi.Flow.createElement({
                 id : 'globe.viz.ext.module.flight',
                 name : 'Flight Module',
@@ -604,13 +715,13 @@
             //ds1: City, Year
             var ds1 = {
                 "id": "globe.viz.ext.module.flight.DS1",
-                "name": "Sourcename, Lat, Long, Targetname, Lat, Long",
+                "name": "Date, Operator, FROM, FROM_LONGITUDE, FROM_LATITUDE, TO, TO_LONGITUDE, TO_LATITUDE",
                 "type": "Dimension",
                 "min": 0,
-                "max": 6,
+                "max": 8,
                 "aaIndex": 1
             };
-            _util.mapping.dses.push("Sourcename, Lat, Long, Targetname, Lat, Long");
+            _util.mapping.dses.push("Date, Operator, FROM, FROM_LONGITUDE, FROM_LATITUDE, TO, TO_LONGITUDE, TO_LATITUDE");
 	    // MASC: I don't get it why i can only use two dimensions ? If i want to use more i can'T drag'n'drop dimension 
 	    
 	    /*var ds3 = {
@@ -666,13 +777,13 @@
             //ms1: Margin, Quantity sold, Sales revenue
             var ms1 = {
                 "id": "globe.viz.ext.module.flight.MS1",
-                "name": "Keyfigure Geomap",
+                "name": "Keyfigure Flight",
                 "type": "Measure",
                 "min": 0,
-                "max": 1,
+                "max": 3,
                 "mgIndex": 1
             };
-            _util.mapping.mses.push("Keyfigure Geomap");
+            _util.mapping.mses.push("Keyfigure Flight");
             element.addFeed(ds1);
 	    /*element.addFeed(ds2);
 	    element.addFeed(ds3);
