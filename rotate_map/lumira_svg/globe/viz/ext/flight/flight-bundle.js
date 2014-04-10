@@ -13,7 +13,7 @@
 
     var mystyle = ".sea { fill:#4682b4 !important; }";
 
-    var tooltipsytle = "div.tooltip {\
+    var tooltipsytle = "div.tooltipsss {\
                         position: absolute;\
                         text-align: center;\
                         width: 200px;\
@@ -70,15 +70,15 @@
                     'jquery': 'jquery',
                     //////'d3': '../bundles/schwarzm/viz/ext/geoworld/d3.v3', // when used in Extension
                     //////'d3': '../sap/bi/bundles/schwarzm/viz/ext/geoworld/d3.v3',
-                    'D3': '../sap/bi/bundles/globe/viz/ext/flight/d3.v3.min', // when used in myExtension
-                    //'D3': '../globe/viz/ext/flight/d3.v3.min',
-                    'topojson': '../sap/bi/bundles/globe/viz/ext/flight/topojson.v1.min',
-                    //'topojson': '../globe/viz/ext/flight/topojson.v1.min',
-                    'datamaps': '../sap/bi/bundles/globe/viz/ext/flight/world-110m',
-                    //'datamaps': '../globe/viz/ext/flight/world-110m',
+                    //'D3': '../sap/bi/bundles/globe/viz/ext/flight/d3.v3.min', // when used in myExtension
+                    'D3': '../globe/viz/ext/flight/d3.v3.min',
+                    //'topojson': '../sap/bi/bundles/globe/viz/ext/flight/topojson.v1.min',
+                    'topojson': '../globe/viz/ext/flight/topojson.v1.min',
+                    //'datamaps': '../sap/bi/bundles/globe/viz/ext/flight/world-110m',
+                    'datamaps': '../globe/viz/ext/flight/world-110m',
                     /////'datamaps': '../sap/bi/bundles/globe/viz/ext/flight/datamaps_rw.min',
-                    //'domReady': '../globe/viz/ext/flight/domReady',
-                    'domReady': '../sap/bi/bundles/globe/viz/ext/flight/domReady',
+                    'domReady': '../globe/viz/ext/flight/domReady',
+                    //'domReady': '../sap/bi/bundles/globe/viz/ext/flight/domReady',
                     //'rotate': '../globe/viz/ext/flight/d3.geo.zoom',
                     //'rotate': '../sap/bi/bundles/globe/viz/ext/flight/d3.geo.zoom',
                 },
@@ -140,19 +140,19 @@
                     var curx, cury, px, py, accx, accy, ox = 0, oy = 0;
                     var source, dest;
 
-                    var width = 960,
-                        height = 500;
+                    // var width = 960,
+                    //     height = 550;
 
                         //var data = fdata;
                         //console.log("data var" + data);
 
                     //tooltips!
                     var div = runt.D3.select("body").append("div")   
-                        .attr("class", "tooltip")               
+                        .attr("class", "tooltipsss")               
                         .style("opacity", 0);
 
                     var projection = runt.D3.geo.orthographic()
-                        .scale(250)
+                        .scale(200)
                         .translate([width / 2, height / 2])
                         .clipAngle(90);
 
@@ -170,7 +170,7 @@
                     //drag behaviour
                     var drag = d3.behavior.drag()
                         .on("drag", function(d,i) {
-                         
+
                           var p = d3.mouse(this);
 
                           curx = (p[0] ) ;
@@ -178,7 +178,13 @@
 
                           projection.rotate([λ(curx), φ(cury)]);
                           projection.center([0, 0]);
-                          vis.selectAll("path").attr("d", path);
+                          vis.selectAll(".countries").attr("d", path);
+                          vis.selectAll(".land").attr("d", path);
+                          vis.selectAll(".route").attr("d", path);
+                          vis.selectAll(".city").attr("d", path);
+                          //vis.selectAll(":not(.arc)").attr("d", path); 
+                          //showDonut();
+                          //vis.selectAll("arc").attr("d", path);
                         });
 
                     var backgroundCircle = vis.append("circle")
@@ -210,12 +216,11 @@
                     var flights = [];
                     var nDim = 0; 
                     for (var datasets in fdata) {
-                        // Convert Lat and Long into . and use them
                         // access rowdata of dataset
                         var Dim1 = fdata[datasets][0];
                         var Dim1Split = Dim1.split(" / ");
-                        // read and clean lat and Long values - define a default for no good values
-                        var     flightDate =  Dim1Split[0], 
+
+                        var flightDate =  Dim1Split[0], 
                             operator =  Dim1Split[1],
                             fromName =  Dim1Split[2], 
                             fromLong = (Dim1Split[3]==undefined || Dim1Split[3]=="NA") ? "": Dim1Split[3],
@@ -253,6 +258,7 @@
                     }
 
                     console.log(flights);
+                    showDonut();
                     // vis.on("click", function(){
                     //         //vis.on("mousemove", function() {
                     //           //
@@ -320,31 +326,17 @@
                                         .duration(200)
                                         .style("opacity", .9);
 
-                                        div .html("Date: "+ date + "<br/>" + "Flight Type: "+ fname + "<br/>"+ "From: "+from+ "<br/>" + "To: "+ to)
+                                        div.html("Date: "+ date + "<br/>" + "Flight Type: "+ fname + "<br/>"+ "From: "+from+ "<br/>" + "To: "+ to)
                                         .style("left", (d3.event.pageX) + "px")
                                         .style("top", (d3.event.pageY - 28) + "px");
 
-                                        // div .html(d3.mouse(this) + "<br/>" + d.text)
-                                        // .style("left", (d3.event.pageX) + "px")
-                                        // .style("top", (d3.event.pageY - 28) + "px");
-
-                                        })
+                                       })
                                         .on("mouseout", function(d) {
                                         div.transition()
                                         .duration(500)
                                         .style("opacity", 0);
                                         });
 
-                                        //route.text(latlon);
-                                        //route.attr({transform: 'translate(' + latlon + ')'});
-                                        // tooltip.classed("hidden", false)
-                                        //     .text(latlon)
-                                        //     .attr({transform: 'translate(' + latlon + ')'});
-                                            
-                                        //});
-
-                               source = undefined;
-                               dest = undefined;
                             }
 
                             function drawCity(x){
@@ -357,70 +349,85 @@
                                    .style("stroke", "rgb(0,0,0)")
                                    .style("stroke-width", 3);
 
-                                   // //var tooltip = route.append("text").attr("class", "tooltip hidden");
-
-                                   // route.on("mouseover", function(d) {
-                                   //      div.transition()
-                                   //      .duration(200)
-                                   //      .style("opacity", .9);
-                                   //      div .html(d3.mouse(this) + "<br/>" + d.text)
-                                   //      .style("left", (d3.event.pageX) + "px")
-                                   //      .style("top", (d3.event.pageY - 28) + "px");
-                                   //      })
-                                   //      .on("mouseout", function(d) {
-                                   //      div.transition()
-                                   //      .duration(500)
-                                   //      .style("opacity", 0);
-                                   //      });
-
-                                        //route.text(latlon);
-                                        //route.attr({transform: 'translate(' + latlon + ')'});
-                                        // tooltip.classed("hidden", false)
-                                        //     .text(latlon)
-                                        //     .attr({transform: 'translate(' + latlon + ')'});
-                                            
-                                        //});
-
-                               // source = undefined;
-                               // dest = undefined;
                             }
-
-                            //geo translation on mouse click in map
-                            // vis.on("click", function click() {
-                            //     var clickloc = d3.mouse(this);
-                            //   var latlon = projection.invert(clickloc);
-                            //   console.log(latlon);
-
-                            //   if(source == undefined){
-                            //     source = latlon;
-                            //     drawCity(source);
-                            // }
-                            //   else if(dest == undefined){
-                            //     dest = latlon;
-                            //     drawCity(dest);
-                            // }
-                            //   if(source != undefined && dest != undefined)
-                            //     drawPath(source,dest);
-                            // });
 
                             //zoom testing
                             var zoom = d3.behavior.zoom()
                                 .on("zoom",function() {
                                 vis.attr("transform","translate("+
                                 d3.event.translate.join(",")+")scale("+d3.event.scale+")");
-                                vis.selectAll("path")
+                                vis.selectAll(".sea .countries .land path")
                                 .attr("d", path.projection(projection));
                                 //console.log(d3.event.scale);
                                 });
 
-                                //restrict zoom
-                                zoom.scaleExtent([0.8, 1.2]);
-                                //zoom.center([width / 2, height / 2]);
-                                vis.call(zoom);
+                            //restrict zoom
+                            zoom.scaleExtent([0.8, 1.2]);
+                            //zoom.center([width / 2, height / 2]);
+                            vis.call(zoom);
                             //var zoom = runt.rotate.d3.geo.zoom;
                             //vis.call(d3.geo.zoom);
 
+                            //eating donut time
+                            function showDonut(){
 
+                                var dwidth = width + 100;
+                                var dheight = height + 100;
+
+                                var radius = Math.min(dwidth, dheight) / 2;
+
+                                var ddata = [
+                                    {dname: "<5", dvalue: "2704659"},
+                                    {dname: "5-13", dvalue: "4499890"},
+                                    {dname: "14-17", dvalue: "2159981"},
+                                    {dname: "18-24", dvalue: "3853788"},
+                                    {dname: "25-44", dvalue: "14106543"},
+                                    {dname: "45-64", dvalue: "8819342"},
+                                    {dname: "≥65", dvalue: "612463"},
+                                    ];
+
+                                var color = d3.scale.ordinal()
+                                    .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
+
+                                var arc = d3.svg.arc()
+                                    .outerRadius(radius - 10)
+                                    .innerRadius(radius - 50);
+
+                                var pie = d3.layout.pie()
+                                    .sort(null)
+                                    .value(function(d) { return d.dvalue; });
+
+                                // var don = d3.select("body").append("svg")
+                                //     .attr("width", dwidth)
+                                //     .attr("height", dheight)
+                                //   .append("g")
+                                //     .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+
+                              var g = vis.selectAll(".arc")
+                                  .data(pie(ddata))
+                                .enter().append("g")
+                                  .attr("class", "arc")
+                                  .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+                                  //.on("click", function(d){ alert(d);});
+                                  //.style("pointer-events", "none");
+
+                              g.append("path")
+                                  .attr("d", arc)
+                                  //.style("pointer-events", "none")
+                                  //.on("click", function(){ alert('hello!');})
+                                  .on("click", function(d){ alert(d.data.dvalue);})
+                                  //.on("drag", function(d){})
+                                  .style("fill", function(d) { return color(d.data.dvalue); });
+
+                              g.append("text")
+                                  .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
+                                  .attr("dy", ".35em")
+                                  .on("click", function(d){ alert(d.data.dvalue);})
+                                  .style("text-anchor", "middle")
+                                  .text(function(d) { return d.data.dvalue; });
+
+                            };
                 }); //my code end
 
             }); //domready end
