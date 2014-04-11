@@ -138,18 +138,18 @@
                     
                     //+++ragha+++ this is where my code goes!
                     var curx, cury, px, py, accx, accy, ox = 0, oy = 0;
-                    var source, dest;
+                    var source, dest, option = "none";
 
                     // var width = 960,
                     //     height = 550;
-
-                        //var data = fdata;
-                        //console.log("data var" + data);
 
                     //tooltips!
                     var div = runt.D3.select("body").append("div")   
                         .attr("class", "tooltipsss")               
                         .style("opacity", 0);
+
+                    //button options
+                    showMenu();
 
                     var projection = runt.D3.geo.orthographic()
                         .scale(200)
@@ -257,177 +257,313 @@
                         nDim += 1;
                     }
 
-                    console.log(flights);
-                    showDonut();
-                    // vis.on("click", function(){
-                    //         //vis.on("mousemove", function() {
-                    //           //
-                    //             px = curx;
-                    //             py = cury;
-                    //           //}
-                    //           //console.log(d3.event.target);
-                    //           var p = d3.mouse(this);
+                    //console.log(flights);
 
+                    function showRing(opt){
 
-                    //           curx = (p[0] + ox) % 180;
-                    //           cury = (p[1] + oy) % 90;
-                    //           projection.rotate([curx, cury]);
-                    //           vis.selectAll("path").attr("d", path);
+                        if(opt == 1){
+                            var ddata  = [];
+                            //JSONArray ddata = new JSONArray();
 
-                    //           if(px != undefined && py != undefined){
-                    //             accx = px - curx;
-                    //             accy = py - cury;
-                    //           }
+                            for(fl in flights){
 
-                    //           //console.log(curx, cury);
-                    //         }); 
+                                //console.log(flights[fl].date);
+                                var datesplit = flights[fl].date.split("/");
+                                var found = 0;
+                                for(da in ddata){
+                                    if(ddata[da].dname == [datesplit[2]]){
+                                        ddata[da].dvalue += 1;
+                                        found = 1;
+                                    }
+                                }
 
-                    //         vis.on("mouseout", function() {
-
-                    //             ox =  curx;
-                    //             oy = cury;
-
-                    //         }); 
-                
-                    // var routes = vis.selectAll("path")
-                    //                 .data(flights)
-                    //                 .enter()
-                    //                 .append("path")
-                    //                     .data({type: "Line", coordinates: function(d){
-                    //                         console.log("data -->" +d);
-                    //                         if(d.fromLong == "NA" || d.fromLat == "NA" || d.toLong == "NA" || d.toLat == "NA")
-                    //                             return;
-                    //                         return [(d.fromLong,d.fromLat),(d.toLong, d.toLat)];
-                    //                     }})
-                    //                 .attr("class", "route")
-                    //                .attr("d", path)
-                    //                //.attr("text", x+","+y)
-                    //                .style("stroke", "rgb(255,255,255)")
-                    //                .style("stroke-width", 3)
-                    //                .style("stroke-opacity", 0.8)
-                    //                .attr("fill", "none");
-    
-
-                            function drawPath(x,y, date, fname, from, to){
-                                var route = vis.append("path")
-                                   .datum({type: "LineString", coordinates: [x, y]})
-                                   .attr("class", "route")
-                                   .attr("d", path)
-                                   .attr("text", x+","+y)
-                                   .style("stroke", "rgb(255,255,255)")
-                                   .style("stroke-width", 3)
-                                   .style("stroke-opacity", 0.8)
-                                   .attr("fill", "none");
-
-                                   //var tooltip = route.append("text").attr("class", "tooltip hidden");
-
-                                   route.on("mouseover", function(d) {
-                                        div.transition()
-                                        .duration(200)
-                                        .style("opacity", .9);
-
-                                        div.html("Date: "+ date + "<br/>" + "Flight Type: "+ fname + "<br/>"+ "From: "+from+ "<br/>" + "To: "+ to)
-                                        .style("left", (d3.event.pageX) + "px")
-                                        .style("top", (d3.event.pageY - 28) + "px");
-
-                                       })
-                                        .on("mouseout", function(d) {
-                                        div.transition()
-                                        .duration(500)
-                                        .style("opacity", 0);
-                                        });
-
+                                //new object
+                                if(found == 0){
+                                    if(datesplit[2] != "")
+                                    ddata.push({'dname': datesplit[2], 'dvalue': 1});
+                                }
                             }
 
-                            function drawCity(x){
+                            console.log(ddata);
+                            showDonut(ddata);
+                        }
+                        else if(opt == 2){
+                            var ddata  = [];
+                            //JSONArray ddata = new JSONArray();
 
-                                var cir = vis.append("path")
-                                   .datum({type: "Point", coordinates: x})
-                                   .attr("class", "city")
-                                   .attr("d", path)
-                                   .style("fill", "red")
-                                   .style("stroke", "rgb(0,0,0)")
-                                   .style("stroke-width", 3);
+                            for(fl in flights){
 
+                                //console.log(flights[fl].date);
+                                var ftype = flights[fl].fname;
+                                var found = 0;
+                                for(da in ddata){
+                                    if(ddata[da].dname == ftype){
+                                        ddata[da].dvalue += 1;
+                                        found = 1;
+                                    }
+                                }
+
+                                //new object
+                                if(found == 0){
+                                    if(ftype != "")
+                                    ddata.push({'dname': ftype, 'dvalue': 1});
+                                }
                             }
 
-                            //zoom testing
-                            var zoom = d3.behavior.zoom()
-                                .on("zoom",function() {
-                                vis.attr("transform","translate("+
-                                d3.event.translate.join(",")+")scale("+d3.event.scale+")");
-                                vis.selectAll(".sea .countries .land path")
-                                .attr("d", path.projection(projection));
-                                //console.log(d3.event.scale);
+                            console.log(ddata);
+                            showDonut(ddata);
+                        }
+                        else{
+                            //var ddata = [];
+                            showDonut();
+                        }
+                    }
+
+                    function showMenu(){
+
+                        //by date
+                     var opt = vis
+                      .append("rect")
+                      .attr("id","opt1")
+                      .attr("x", 0)
+                      .attr("y", 0 )
+                      .attr("width", 200)
+                      .attr("height", "20")
+                      .on("click", function(){option = 1; showRing(option);})
+                      .on("mouseover",function(){d3.select(this).style("fill", "lightsteelblue");})
+                      .on("mouseout",function(){d3.select(this).style("fill", "lavender");})
+                      .style("fill","lavender")
+                      .style("stroke","blue");
+
+                      vis.append("text")
+                        .attr("x", 0)
+                        .attr("y", 0)
+                        .attr("dy", ".99em")
+                        .attr("dx", "4px")
+                        .on("click", function(){option = 1; showRing(option);})
+                        .on("mouseover",function(){vis.select("#opt1").style("fill", "lightsteelblue");})
+                        .on("mouseout",function(){vis.select("#opt1").style("fill", "lavender");})
+                        .style("font-size","15px")
+                        .text("Year-wise data");
+
+                        //by operator type
+                        vis
+                      .append("rect")
+                      .attr("id","opt2")
+                      .attr("x", 0)
+                      .attr("y", 30 )
+                      .attr("width", 200)
+                      .attr("height", "20")
+                      .on("click", function(){option = 2; showRing(option);})
+                      .on("mouseover",function(){d3.select(this).style("fill", "lightsteelblue");})
+                      .on("mouseout",function(){d3.select(this).style("fill", "lavender");})
+                      .style("fill","lavender")
+                      .style("stroke","blue");
+
+                      vis.append("text")
+                        .attr("x", 0)
+                        .attr("y", 30)
+                        .attr("dy", ".99em")
+                        .attr("dx", "4px")
+                        .on("click", function(){option = 2; showRing(option);})
+                        .on("mouseover",function(){vis.select("#opt2").style("fill", "lightsteelblue");})
+                        .on("mouseout",function(){vis.select("#opt2").style("fill", "lavender");})
+                        .style("font-size","15px")
+                        .text("Operator-wise data");
+
+                        //Disable chart
+                        vis
+                      .append("rect")
+                      .attr("id","opt3")
+                      .attr("x", 0)
+                      .attr("y", 60 )
+                      .attr("width", 200)
+                      .attr("height", "20")
+                      .on("click", function(){option = 9; showRing(option);})
+                      .on("mouseover",function(){d3.select(this).style("fill", "lightsteelblue");})
+                      .on("mouseout",function(){d3.select(this).style("fill", "lavender");})
+                      .style("fill","lavender")
+                      .style("stroke","blue");
+
+                      vis.append("text")
+                        .attr("x", 0)
+                        .attr("y", 60)
+                        .attr("dy", ".99em")
+                        .attr("dx", "4px")
+                        .on("click", function(){option = 9; showRing(option);})
+                        .on("mouseover",function(){vis.select("#opt3").style("fill", "lightsteelblue");})
+                        .on("mouseout",function(){vis.select("#opt3").style("fill", "lavender");})
+                        .style("font-size","15px")
+                        .text("Disable Chart");
+                    }
+
+                    function repaintRoutes(clr, info){
+                        //how to?
+                        // var routs = vis.selectAll(".route").each(function(d,i){
+
+                        //     console.log(d);
+                        // });
+                        var routs = vis.selectAll(".route");
+                        var i = 0;
+                        for(var j = 0; j < routs[0].length; j++){
+                            //if(routs[0])
+                            console.log(routs.length);
+                            //$(routs[rout][0]).attr("text");
+                            if (option == 1)
+                            {
+                                //console.log(routs[rout][0]);
+                                if($(routs[0][i]).attr("text").split(',')[0].split('/')[2] == info){
+                                    //$(routs[0][i]).style("stroke",clr);
+                                    $(routs[0][i]).css("stroke", clr);
+                                }
+                                else{
+                                    $(routs[0][i]).css("stroke", "white");
+                                }
+                            }
+                            else if (option == 2)
+                            {
+                                if($(routs[0][i]).attr("text").split(',')[1] == info){
+                                    $(routs[0][i]).css("stroke", clr);
+                                }
+                                else{
+                                    $(routs[0][i]).css("stroke", "white");
+                                }
+                            }
+                            else{
+                                    $(routs[0][i]).css("stroke", "white");
+                                }
+
+                            i++;
+                            //j++;
+                        }
+                    }
+
+                    function drawPath(x,y, date, fname, from, to){
+                        var route = vis.append("path")
+                           .datum({type: "LineString", coordinates: [x, y]})
+                           .attr("class", "route")
+                           .attr("d", path)
+                           //.attr("text", x+","+y)
+                           .attr("text", date+","+fname)
+                           .style("stroke", "rgb(255,255,255)")
+                           .style("stroke-width", 3)
+                           .style("stroke-opacity", 0.8)
+                           .attr("fill", "none");
+
+                           //var tooltip = route.append("text").attr("class", "tooltip hidden");
+
+                           route.on("mouseover", function(d) {
+                                div.transition()
+                                .duration(200)
+                                .style("opacity", .9);
+
+                                div.html("Date: "+ date + "<br/>" + "Flight Type: "+ fname + "<br/>"+ "From: "+from+ "<br/>" + "To: "+ to)
+                                .style("left", (d3.event.pageX) + "px")
+                                .style("top", (d3.event.pageY - 28) + "px");
+
+                               })
+                                .on("mouseout", function(d) {
+                                div.transition()
+                                .duration(500)
+                                .style("opacity", 0);
                                 });
 
-                            //restrict zoom
-                            zoom.scaleExtent([0.8, 1.2]);
-                            //zoom.center([width / 2, height / 2]);
-                            vis.call(zoom);
-                            //var zoom = runt.rotate.d3.geo.zoom;
-                            //vis.call(d3.geo.zoom);
+                    }
 
-                            //eating donut time
-                            function showDonut(){
+                    function drawCity(x){
 
-                                var dwidth = width + 100;
-                                var dheight = height + 100;
+                        var cir = vis.append("path")
+                           .datum({type: "Point", coordinates: x})
+                           .attr("class", "city")
+                           .attr("d", path)
+                           .style("fill", "red")
+                           .style("stroke", "rgb(0,0,0)")
+                           .style("stroke-width", 3);
 
-                                var radius = Math.min(dwidth, dheight) / 2;
+                    }
 
-                                var ddata = [
-                                    {dname: "<5", dvalue: "2704659"},
-                                    {dname: "5-13", dvalue: "4499890"},
-                                    {dname: "14-17", dvalue: "2159981"},
-                                    {dname: "18-24", dvalue: "3853788"},
-                                    {dname: "25-44", dvalue: "14106543"},
-                                    {dname: "45-64", dvalue: "8819342"},
-                                    {dname: "≥65", dvalue: "612463"},
-                                    ];
+                    //zoom testing
+                    var zoom = d3.behavior.zoom()
+                        .on("zoom",function() {
+                        vis.attr("transform","translate("+
+                        d3.event.translate.join(",")+")scale("+d3.event.scale+")");
+                        vis.selectAll(".sea .countries .land path")
+                        .attr("d", path.projection(projection));
+                        //console.log(d3.event.scale);
+                        });
 
-                                var color = d3.scale.ordinal()
-                                    .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
+                    //restrict zoom
+                    zoom.scaleExtent([0.8, 1.2]);
+                    //zoom.center([width / 2, height / 2]);
+                    vis.call(zoom);
+                    //var zoom = runt.rotate.d3.geo.zoom;
+                    //vis.call(d3.geo.zoom);
 
-                                var arc = d3.svg.arc()
-                                    .outerRadius(radius - 10)
-                                    .innerRadius(radius - 50);
+                    //eating donut time
+                    function showDonut(ddata){
 
-                                var pie = d3.layout.pie()
-                                    .sort(null)
-                                    .value(function(d) { return d.dvalue; });
+                        if (!ddata){
+                            vis.selectAll(".arc")
+                            .transition().duration(400).style("opacity", 0);
+                            repaintRoutes("white", undefined);
+                            //vis.selectAll(".arc").remove();
+                            return;
+                        }
+                        vis.selectAll(".arc").remove();
+                        var dwidth = width + 100;
+                        var dheight = height + 100;
 
-                                // var don = d3.select("body").append("svg")
-                                //     .attr("width", dwidth)
-                                //     .attr("height", dheight)
-                                //   .append("g")
-                                //     .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+                        var radius = Math.min(dwidth, dheight) / 2;
 
 
-                              var g = vis.selectAll(".arc")
-                                  .data(pie(ddata))
-                                .enter().append("g")
-                                  .attr("class", "arc")
-                                  .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
-                                  //.on("click", function(d){ alert(d);});
-                                  //.style("pointer-events", "none");
+                        var color = d3.scale.ordinal()
+                            .range(["#7fff00", "#dc143c", "#00008b", "#ff8c00", "#ff1493", "#d0743c", "#ff8c00"]);
 
-                              g.append("path")
-                                  .attr("d", arc)
-                                  //.style("pointer-events", "none")
-                                  //.on("click", function(){ alert('hello!');})
-                                  .on("click", function(d){ alert(d.data.dvalue);})
-                                  //.on("drag", function(d){})
-                                  .style("fill", function(d) { return color(d.data.dvalue); });
+                        var arc = d3.svg.arc()
+                            .outerRadius(radius - 10)
+                            .innerRadius(radius - 50);
 
-                              g.append("text")
-                                  .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
-                                  .attr("dy", ".35em")
-                                  .on("click", function(d){ alert(d.data.dvalue);})
-                                  .style("text-anchor", "middle")
-                                  .text(function(d) { return d.data.dvalue; });
+                        var pie = d3.layout.pie()
+                            .sort(null)
+                            .value(function(d) { return d.dvalue; });
 
-                            };
+                        // var don = d3.select("body").append("svg")
+                        //     .attr("width", dwidth)
+                        //     .attr("height", dheight)
+                        //   .append("g")
+                        //     .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+
+                      var g = vis.selectAll(".arc")
+                          .data(pie(ddata))
+                        .enter().
+                        append("g")
+                          .attr("class", "arc")
+                          .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+                          //.on("click", function(d){ alert(d);});
+                          //.style("pointer-events", "none");
+
+                      g.append("path")
+                          .attr("d", arc)
+                          //.on("click", function(){ alert('hello!');})
+                          .on("click", function(d){ 
+                            //alert(d.data.dvalue);
+                            repaintRoutes(color(d.data.dvalue), d.data.dname);
+                        })
+                          //.on("drag", function(d){})
+                          .transition().duration(250)
+                          .style("fill", function(d) { return color(d.data.dvalue); });
+
+                      g.append("text")
+                          .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
+                          .attr("dy", ".35em")
+                          .on("click", function(d){ alert(d.data.dvalue);})
+                          .transition().duration(330)
+                          .style("text-anchor", "middle")
+                          .style("font-weight", "bold")
+                          .text(function(d) { return d.data.dname + ":" +d.data.dvalue; });
+
+                    };
                 }); //my code end
 
             }); //domready end
