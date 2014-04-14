@@ -10,10 +10,6 @@
 	* @param {Object} properties - properties of chart
 	* @param {Object} dispatch - event dispatcher
 	*/
-
-    var can = "canvas { width: 100%; height: 100% }";
-    $('head').append("<style>" + can + "</style>");
-
 	function render(data, vis, width, height, colorPalette, properties, dispatch) {
 		// This function is not used anymore - therefore the paint function is used.
 	}
@@ -52,17 +48,15 @@
 					'jquery': 'jquery',
 					//'d3': '../bundles/schwarzm/viz/ext/geoworld/d3.v3', // when used in Extension
 					//'d3': '../sap/bi/bundles/schwarzm/viz/ext/geoworld/d3.v3',
-					//'D3': '../sap/bi/bundles/globe/viz/ext/flight/d3.v3.min', // when used in myExtension
-                    'D3': '../globe/viz/ext/flight/d3.v3.min',
-                    //'topojson': '../sap/bi/bundles/globe/viz/ext/flight/topojson.v1.min',
-					'topojson': '../globe/viz/ext/flight/topojson.v1.min',
-                    //'datamaps': '../sap/bi/bundles/globe/viz/ext/flight/world-110m',
-					'datamaps': '../globe/viz/ext/flight/world-110m',
+					'D3': '../sap/bi/bundles/globe/viz/ext/flight/d3.v3.min', // when used in myExtension
+                    //'D3': '../globe/viz/ext/flight/d3.v3.min',
+                    'topojson': '../sap/bi/bundles/globe/viz/ext/flight/topojson.v1.min',
+					//'topojson': '../globe/viz/ext/flight/topojson.v1.min',
+                    'datamaps': '../sap/bi/bundles/globe/viz/ext/flight/world-110m',
+					//'datamaps': '../globe/viz/ext/flight/world-110m',
 					//'datamaps': '../sap/bi/bundles/globe/viz/ext/flight/datamaps_rw.min',
-					'domReady': '../globe/viz/ext/flight/domReady',
-					//'domReady': '../sap/bi/bundles/globe/viz/ext/flight/domReady',
-
-                    'threejs' : 'https://rawgithub.com/mrdoob/three.js/master/build/three.js'
+					//'domReady': '../globe/viz/ext/flight/domReady',
+					'domReady': '../sap/bi/bundles/globe/viz/ext/flight/domReady',
 				},
 				shim: {
 					D3: {
@@ -75,9 +69,6 @@
 					datamaps: {
 						deps: ['D3', 'topojson'],
 					},
-                    threejs: {
-                        exports: 'threejs'
-                    },
 				}
 			});
 
@@ -88,15 +79,13 @@
 				var topojson = require('topojson');
 				var Datamap = require('datamaps');
 				var domReady = require('domReady');
-                var Threejs = require('threejs');
 				// return the required objects - can be used when module is used inside a require function
 				return {
 					topojson: topojson,
 					Datamap: Datamap,
 					domReady: domReady,
 					$:$,
-					D3:D3,
-                    Threejs:Threejs
+					D3:D3
 				}
 			});
 			
@@ -117,110 +106,73 @@
 				
 				// use domready to execute it after all of the dom is load
 				runt.domReady(function() {
-
-                    var scene = new THREE.Scene();
-                    var camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.1, 10000 );
-                    var renderer = new THREE.WebGLRenderer();
-                    renderer.setSize( window.innerWidth, window.innerHeight );
-                    document.body.appendChild( renderer.domElement );
-
-                    var geometry = new THREE.CubeGeometry(100,100,100); 
-                    var material = new THREE.MeshBasicMaterial( { color:  0x1ec876 } );
-                    var cube = new THREE.Mesh( geometry, material ); 
-                    cube.rotation.y = Math.PI * 45 / 180;
-                    scene.add( cube );
-                    camera.position.z = 400;
-                    camera.position.y = 160;
-                    scene.add( camera );  
-                    camera.lookAt(cube.position);
-
-                    var skyboxGeometry = new THREE.CubeGeometry( 10000, 10000, 10000 );
-                    var skyboxMaterial = new THREE.MeshBasicMaterial({ color: 0x0000FF, side : THREE.BackSide });
-                    var skybox = new THREE.Mesh( skyboxGeometry, skyboxMaterial );
-                    scene.add(skybox);  
-
-                    var pointLight = new THREE.PointLight(0xffffff);
-
-                    THREE.P
-                    pointLight.position.set(0, 300, 200);
-
-                    scene.add(pointLight);
-                    
-                    //function render() { 
-                    //             requestAnimationFrame(render);
-                    //             renderer.render(scene, camera); 
-                    //             } 
-    
-                    //render();
-                    renderer.render(scene,camera);
-
 					
-				// 	//+++ragha+++ this is where my code goes!
-				// 	var curx, cury, px, py, accx, accy;
+					//+++ragha+++ this is where my code goes!
+					var curx, cury, px, py, accx, accy;
 
-				// 	var width = 960,
-    // 					height = 700;
+					var width = 960,
+    					height = 700;
 
-				// 	var projection = runt.D3.geo.orthographic()
-    // 					.scale(350)
-    // 					.translate([width / 2, height / 2])
-    // 					.clipAngle(90);
+					var projection = runt.D3.geo.orthographic()
+    					.scale(350)
+    					.translate([width / 2, height / 2])
+    					.clipAngle(90);
 
-				// 	var path = runt.D3.geo.path()
-    // 					.projection(projection);
+					var path = runt.D3.geo.path()
+    					.projection(projection);
 
-				// 	var λ = runt.D3.scale.linear()
-				// 	    .domain([0, width])
-				// 	    .range([-180, 180]);
+					var λ = runt.D3.scale.linear()
+					    .domain([0, width])
+					    .range([-180, 180]);
 
-				// 	var φ = runt.D3.scale.linear()
-				// 	    .domain([0, height])
-				// 	    .range([90, -90]);
+					var φ = runt.D3.scale.linear()
+					    .domain([0, height])
+					    .range([90, -90]);
 
-				// 	//var svg = d3.select("body").append("svg")
-				// 	//    .attr("width", width)
-				// 	//    .attr("height", height);
+					//var svg = d3.select("body").append("svg")
+					//    .attr("width", width)
+					//    .attr("height", height);
 
-				// 	vis.on("mousemove", function() {
-				// 	  //
-				// 	    px = curx;
-				// 	    py = cury;
-				// 	  //}
-				// 	  var p = runt.D3.mouse(this);
+					vis.on("mousemove", function() {
+					  //
+					    px = curx;
+					    py = cury;
+					  //}
+					  var p = runt.D3.mouse(this);
 
-				// 	  curx = λ(p[0]);
-				// 	  cury = φ(p[1]);
-				// 	  projection.rotate([λ(p[0]), φ(p[1])]);
-				// 	  vis.selectAll("path").attr("d", path);
+					  curx = λ(p[0]);
+					  cury = φ(p[1]);
+					  projection.rotate([λ(p[0]), φ(p[1])]);
+					  vis.selectAll("path").attr("d", path);
 
-				// 	  if(px != undefined && py != undefined){
-				// 	    accx = px - curx;
-				// 	    accy = py - cury;
-				// 	  }
+					  if(px != undefined && py != undefined){
+					    accx = px - curx;
+					    accy = py - cury;
+					  }
 
-				// 	  //console.log(curx, cury);
-				// 	}); 
+					  //console.log(curx, cury);
+					}); 
 
-				// 	//d3.json("world-110m.json", function(error, world) {
+					//d3.json("world-110m.json", function(error, world) {
 
-				// 		  var backgroundCircle = vis.append("circle")
-				// 		            .attr("cx", width / 2)
-				// 		            .attr("cy", height / 2)
-				// 		            .attr("r", projection.scale())
-				// 		            .attr("class", "sea")
-    //                                 .attr("fill", "#0000EE");
+						  var backgroundCircle = vis.append("circle")
+						            .attr("cx", width / 2)
+						            .attr("cy", height / 2)
+						            .attr("r", projection.scale())
+						            .attr("class", "sea")
+                                    .attr("fill", "#0000EE");
                                     
-				// 		            //.attr("fill", "rgb(10,10,255)");
+						            //.attr("fill", "rgb(10,10,255)");
 
 
-				// 		   vis.append("path")
-				// 			      .datum(runt.topojson.feature(mapdata, mapdata.objects.land))
-				// 			      .attr("class", "land")
-				// 			      .attr("d", path)
-				// 			      .attr("fill", "#03EE03"); 
+						   vis.append("path")
+							      .datum(runt.topojson.feature(mapdata, mapdata.objects.land))
+							      .attr("class", "land")
+							      .attr("d", path)
+							      .attr("fill", "#03EE03"); 
 
-				// 		        //}
-				// }); //my code end
+						        //}
+				}); //my code end
 
 			}); //domready end
 		} catch (Exception) {

@@ -3,7 +3,7 @@
     <head>
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-        <title>Hello World Extension</title>
+        <title>Flight Extension</title>
         <!-- <<deps -->
         <script type="text/javascript" src="../../../libs/require.js"></script>
         <script type="text/javascript" src="../../../libs/d3.v2.js"></script>
@@ -27,10 +27,10 @@
                     
                     title : {
                         visible : true,
-                        text : "Chart Title",
+                        text : "Flight Crash Data Analysis",
                         alignment : 'center',
                     }, 
-                    'Geoworld Module': {
+                    'Flight Module': {
                         borderColor: "none"
                     },
                     
@@ -83,51 +83,77 @@
                             "index": 1,
                             "data": [{
                                 "type": "Dimension",
-                                "name": "Plant",
-                                "values": ["Aichi Factory", "Aircon"]
+                                "name": "Date",
+                                "values": ["6/1/2009", "7/1/2006"]
                             }, {
                                 "type": "Dimension",
-                                "name": "Plant Latitue",
-                                "values": ["34,97", "39,77"]
+                                "name": "Operator",
+                                "values": ["Air France", "JAL"]
                             }, {
                                 "type": "Dimension",
-                                "name": "Plant Longitude",
-                                "values": ["137,18", "-86,15"]
+                                "name": "FROM",
+                                "values": ["Rio de Janerio", "Guangzhou"]
                             },{
                                 "type": "Dimension",
-                                "name": "Region",
-                                "values": ["Asia Pacific", "North America"]
+                                "name": "FROM_LONGITUDE",
+                                "values": ["-43.2007101", "113.264435"]
                             }, {
                                 "type": "Dimension",
-                                "name": "Region Latitue",
-                                "values": ["49,84", "-14,6"]
+                                "name": "FROM_LATITUDE",
+                                "values": ["-22.9133954", "23.129163"]
                             }, {
                                 "type": "Dimension",
-                                "name": "Region Longitude",
-                                "values": ["105,82", "-59,06"]
+                                "name": "TO",
+                                "values": ["Paris", " Tokyo"]
+                            }, {
+                                "type": "Dimension",
+                                "name": "TO_LONGITUDE",
+                                "values": ["2.3522219", "139.6917064"]
+                            }, {
+                                "type": "Dimension",
+                                "name": "TO_LATITUDE",
+                                "values": ["48.856614", "35.6894875"]
+                            }, {
+                                "type": "Dimension",
+                                "name": "CRASH_LOC",
+                                "values": ["xyz", "pqr"]
+                            }, {
+                                "type": "Dimension",
+                                "name": "REASON",
+                                "values": ["1", "2"]
+                            }, {
+                                "type": "Dimension",
+                                "name": "Fatalities",
+                                "values": ["100", "23"]
                             }]
                         }],
                         "measureValuesGroup": [{
                             "index": 1,
                             "data": [{
                                 "type": "Measure",
-                                "name": "Margin",
+                                "name": "FROM_LONGITUDE",
                                 "values": [
-                                    [1676.7, 3097.9]
+                                    [228, 2]
                                 ]
-                            }/*, {
+                            }, {
                                 "type": "Measure",
-                                "name": "Quantity sold",
+                                "name": "FROM_LATITUDE",
                                 "values": [
                                     [21, 52]
                                 ]
                             }, {
                                 "type": "Measure",
-                                "name": "Sales revenue",
+                                "name": "TO_LONGITUDE",
                                 "values": [
                                     [3930, 9861.9]
                                 ]
-                            }*/]
+                            }, {
+                                "type": "Measure",
+                                "name": "TO_LATITUDE",
+                                "values": [
+                                    [3930, 9861.9]
+                                ]
+                            }]
                         }]
                     };
                 var ds = new sap.viz.api.data.CrosstableDataset(); 

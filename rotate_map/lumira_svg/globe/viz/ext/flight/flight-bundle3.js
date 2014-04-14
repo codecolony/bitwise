@@ -11,7 +11,7 @@
 	* @param {Object} dispatch - event dispatcher
 	*/
 
-    var mystyle = ".sea { fill:#0303EE !important; }";
+    var mystyle = ".sea { fill:#5959EE !important; }";
     $('head').append("<style>" + mystyle + "</style>");
 
 	function render(data, vis, width, height, colorPalette, properties, dispatch) {
@@ -109,7 +109,7 @@
                 runt.domReady(function() {
                     
                     //+++ragha+++ this is where my code goes!
-                    var curx, cury, px, py, accx, accy;
+                    var curx, cury, px, py, accx, accy, ox = 0, oy = 0;
 
                     var width = 960,
                         height = 500;
@@ -124,11 +124,11 @@
 
                     var λ = runt.D3.scale.linear()
                         .domain([0, width])
-                        .range([-360, 360]);
+                        .range([-180, 180]);
 
                     var φ = runt.D3.scale.linear()
                         .domain([0, height])
-                        .range([180, -180]);
+                        .range([90, -90]);
 
                     //var svg = d3.select("body").append("svg")
                     //    .attr("width", width)
@@ -143,17 +143,24 @@
                                     .attr("cy", height / 2)
                                     .attr("r", projection.scale())
                                     .attr("class", "sea")
-                                    .attr("id", "background")
+                                    .attr("id", "background");
                                     //.attr("fill", "#0303EE");
-                                    
-                                    .attr("fill", "rgb(100,100,255) !important;");
+                                    //.attr("fill", "rgb(150,150,200)");
+                                    //.attr("fill", "rgb(100,100,200) !important;");
 
 
                            vis.append("path")
                                   .datum(runt.topojson.feature(mapdata, mapdata.objects.land))
                                   .attr("class", "land")
+                                  .attr("d", path);
+                                  //.attr("fill", "#03EE03"); 
+
+                            vis.append("path")
+                                  .datum(runt.topojson.feature(mapdata, mapdata.objects.countries))
+                                  .attr("class", "countries")
                                   .attr("d", path)
-                                  .attr("fill", "#03EE03"); 
+                                  .attr("fill", "#33EE33")
+                                  .style("stroke", "rgb(255,0,0)"); 
 
 
                         var route = vis.append("path")
@@ -173,7 +180,7 @@
                            .style("stroke-width", 4)
                            .attr("fill", "none");
 
-                    vis.on("mousedown", function(){
+                    //vis.on("mousedown", function(){
                             vis.on("mousemove", function() {
                               //
                                 px = curx;
@@ -196,22 +203,25 @@
                               //console.log(curx, cury);
                             }); 
 
-                            /*vis.on("mouseout", function() {
-                                var reduction = 50;
+                            vis.on("mouseout", function() {
 
-                                while(reduction > 0) {
-                                    if (curx < 0) {curx = curx - 0.01;} else {curx = curx + 0.01;}
+                                ox =  curx;
+                                oy = cury;
+                                // var reduction = 50;
 
-                                    //curx = curx + 0.05*curx;
-                                    //cury = cury + 0.05*cury;
-                                    if (cury < 0) {cury = cury - 0.01;} else {cury = cury + 0.01;}
-                                    reduction = reduction - 1;
-                                    projection.rotate([λ(curx), φ(cury)]);
-                                    vis.selectAll("path").attr("d", path);
-                                }
+                                // while(reduction > 0) {
+                                //     if (curx < 0) {curx = curx - 0.01;} else {curx = curx + 0.01;}
+
+                                //     //curx = curx + 0.05*curx;
+                                //     //cury = cury + 0.05*cury;
+                                //     if (cury < 0) {cury = cury - 0.01;} else {cury = cury + 0.01;}
+                                //     reduction = reduction - 1;
+                                //     projection.rotate([λ(curx), φ(cury)]);
+                                //     vis.selectAll("path").attr("d", path);
+                                // }
                                 //console.log(λ, φ);
-                            }); */
-                        });
+                            }); 
+                       // }); 
                                 //}
                 }); //my code end
 

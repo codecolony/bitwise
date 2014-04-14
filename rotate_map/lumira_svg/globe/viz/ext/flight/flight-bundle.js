@@ -16,8 +16,23 @@
     var tooltipsytle = "div.tooltipsss {\
                         position: absolute;\
                         text-align: center;\
-                        width: 200px;\
-                        height: 105px;\
+                        width: 250px;\
+                        height: 117px;\
+                        padding: 2px;\
+                        font: 12px sans-serif;\
+                        background: lightsteelblue;\
+                        border: 0px;\
+                        border-radius: 8px;\
+                        pointer-events: none;\
+                        }";
+
+    $('head').append("<style>" + mystyle + tooltipsytle + "</style>");
+
+    tooltipsytle = "div.donuttipsss {\
+                        position: absolute;\
+                        text-align: center;\
+                        width: 100px;\
+                        height: 30px;\
                         padding: 2px;\
                         font: 12px sans-serif;\
                         background: lightsteelblue;\
@@ -70,15 +85,14 @@
                     'jquery': 'jquery',
                     //////'d3': '../bundles/schwarzm/viz/ext/geoworld/d3.v3', // when used in Extension
                     //////'d3': '../sap/bi/bundles/schwarzm/viz/ext/geoworld/d3.v3',
-                    'D3': '../sap/bi/bundles/globe/viz/ext/flight/d3.v3.min', // when used in myExtension
-                    //'D3': '../globe/viz/ext/flight/d3.v3.min',
-                    'topojson': '../sap/bi/bundles/globe/viz/ext/flight/topojson.v1.min',
-                    //'topojson': '../globe/viz/ext/flight/topojson.v1.min',
-                    'datamaps': '../sap/bi/bundles/globe/viz/ext/flight/world-110m',
-                    //'datamaps': '../globe/viz/ext/flight/world-110m',
-                    /////'datamaps': '../sap/bi/bundles/globe/viz/ext/flight/datamaps_rw.min',
-                    //'domReady': '../globe/viz/ext/flight/domReady',
-                    'domReady': '../sap/bi/bundles/globe/viz/ext/flight/domReady',
+                    // 'D3': '../sap/bi/bundles/globe/viz/ext/flight/d3.v3.min', // when used in myExtension
+                    // 'topojson': '../sap/bi/bundles/globe/viz/ext/flight/topojson.v1.min',
+                    // 'datamaps': '../sap/bi/bundles/globe/viz/ext/flight/world-110m',
+                    // 'domReady': '../sap/bi/bundles/globe/viz/ext/flight/domReady',
+                    'D3': '../globe/viz/ext/flight/d3.v3.min',
+                    'topojson': '../globe/viz/ext/flight/topojson.v1.min',
+                    'domReady': '../globe/viz/ext/flight/domReady',
+                    'datamaps': '../globe/viz/ext/flight/world-110m',
                     //'rotate': '../globe/viz/ext/flight/d3.geo.zoom',
                     //'rotate': '../sap/bi/bundles/globe/viz/ext/flight/d3.geo.zoom',
                 },
@@ -138,7 +152,7 @@
                     
                     //+++ragha+++ this is where my code goes!
                     var curx, cury, px, py, accx, accy, ox = 0, oy = 0;
-                    var source, dest, option = "none";
+                    var source, dest, option = "none", routeFlag = "all", routeCount = 0;
                     var geoRadius = 200;
 
                     // var width = 960,
@@ -147,6 +161,10 @@
                     //tooltips!
                     var div = runt.D3.select("body").append("div")   
                         .attr("class", "tooltipsss")               
+                        .style("opacity", 0);
+
+                    var div2 = runt.D3.select("body").append("div")   
+                        .attr("class", "donuttipsss")               
                         .style("opacity", 0);
 
                     //button options
@@ -158,6 +176,7 @@
                         .clipAngle(90);
 
                     var path = runt.D3.geo.path()
+                        .pointRadius(3)
                         .projection(projection);
 
                     var λ = runt.D3.scale.linear()
@@ -188,6 +207,7 @@
                           //vis.selectAll("arc").attr("d", path);
                         });
 
+                    vis.on("dblclick.zoom", null);
                     var backgroundCircle = vis.append("circle")
                             .attr("cx", width / 2)
                             .attr("cy", height / 2)
@@ -213,7 +233,7 @@
 
 
                     //get data from backend
-                    //"Date, Operator, FROM, FROM_LONGITUDE, FROM_LATITUDE, TO, TO_LONGITUDE, TO_LATITUDE",
+                    //"Date, OPERATOR_TYPE, FROM, FROM_LONGITUDE, FROM_LATITUDE, TO, TO_LONGITUDE, TO_LATITUDE, CRASH_LOC, REASON, Fatilities",
                     var flights = [];
                     var nDim = 0; 
                     for (var datasets in fdata) {
@@ -238,25 +258,30 @@
                             // 3- Engine fault
                             // 4- Sabotage
                             // 5- Fire
+                            // 0 - Others
 
                             if(reason == 1){ reason = "Pilot Error";}
                             else if(reason == 2){ reason = "Weather";}
                             else if(reason == 3){ reason = "Engine fault";}
                             else if(reason == 4){ reason = "Sabotage";}
                             else if(reason == 5){ reason = "Fire";}
+                            else {reason = "Others";}
 
                            flights[nDim] = {
                             date: flightDate, fname: operator, from: fromName, fromLong: fromLong, fromLat: fromLat,
                             to:to, toLong:toLong, toLat:toLat, crashLoc:crashLoc, reason:reason, fatilities:fatilities
                             };
 
-                            var x = [flights[nDim].fromLong, flights[nDim].fromLat];
-                            var y = [flights[nDim].toLong, flights[nDim].toLat];
+                            if(flights[nDim].fromLong != "" && flights[nDim].fromLat != "" && flights[nDim].toLong != "" && flights[nDim].toLat != ""){
+                                var x = [flights[nDim].fromLong, flights[nDim].fromLat];
+                                var y = [flights[nDim].toLong, flights[nDim].toLat];
 
-                            drawPath(x, y, flights[nDim].date, flights[nDim].fname, flights[nDim].from, flights[nDim].to, flights[nDim].crashLoc, flights[nDim].reason, flights[nDim].fatilities);
-                            drawCity(x);
-                            drawCity(y);
+                                drawPath(x, y, flights[nDim].date, flights[nDim].fname, flights[nDim].from, flights[nDim].to, flights[nDim].crashLoc, flights[nDim].reason, flights[nDim].fatilities);
+                                drawCity(x, "first");
+                                drawCity(y, "second");
 
+                                routeCount ++;
+                            }
                         nDim += 1;
                     }
 
@@ -343,26 +368,31 @@
                             showDonut(ddata);
                         }
                         else if(opt == 4){ //by fatilities
-                            var ddata  = [];
-                            //JSONArray ddata = new JSONArray();
+                            var ddata  = [{'dname':'0 Fatalities', 'dvalue': 0},
+                            {'dname':'1-10', 'dvalue': 0},
+                            {'dname':'11-50', 'dvalue': 0},
+                            {'dname':'51-100', 'dvalue': 0},
+                            {'dname':'101-200', 'dvalue': 0},
+                            {'dname':'> 200', 'dvalue': 0}];
 
+                            var idx = 0;
+ 
                             for(fl in flights){
+                                if(flights[fl].fatilities == 0)
+                                    idx = 0;
+                                else if(flights[fl].fatilities > 0 && flights[fl].fatilities <= 10)
+                                    idx = 1;
+                                else if(flights[fl].fatilities > 10 && flights[fl].fatilities <= 50)
+                                    idx = 2;
+                                else if(flights[fl].fatilities > 50 && flights[fl].fatilities <= 100)
+                                    idx = 3;
+                                else if(flights[fl].fatilities > 100 && flights[fl].fatilities <= 200)
+                                    idx = 4;
+                                else if(flights[fl].fatilities > 200)
+                                    idx = 5;
 
-                                // //console.log(flights[fl].date);
-                                // var ftype = flights[fl].fatilities;
-                                // var found = 0;
-                                // for(da in ddata){
-                                //     if(ddata[da].dname == ftype){
-                                //         ddata[da].dvalue += 1;
-                                //         found = 1;
-                                //     }
-                                // }
-
-                                //new object
-                                //if(found == 0){
-                                    //if(ftype != "")
-                                    ddata.push({'dname': flights[fl].date, 'dvalue': flights[fl].fatilities});
-                                //}
+                                    //ddata.push({'dname': flights[fl].date, 'dvalue': flights[fl].fatilities});
+                                ddata[idx].dvalue += 1;
                             }
 
                             console.log(ddata);
@@ -376,9 +406,11 @@
 
                     function showMenu(){
 
-                        var offsx = 50;
+                        var offsx = 0;
+
+                        var mg = vis.append("g");
                         //by date
-                     var opt = vis
+                     var opt = mg
                       .append("rect")
                       .attr("id","opt1")
                       .attr("x", 0+offsx)
@@ -391,7 +423,7 @@
                       .style("fill","lavender")
                       .style("stroke","blue");
 
-                      vis.append("text")
+                      mg.append("text")
                         .attr("x", 0+offsx)
                         .attr("y", 0)
                         .attr("dy", ".99em")
@@ -403,7 +435,7 @@
                         .text("Yearly Analysis");
 
                         //by operator type
-                        vis
+                        mg
                       .append("rect")
                       .attr("id","opt2")
                       .attr("x", 0+offsx)
@@ -416,7 +448,7 @@
                       .style("fill","lavender")
                       .style("stroke","blue");
 
-                      vis.append("text")
+                      mg.append("text")
                         .attr("x", 0+offsx)
                         .attr("y", 30)
                         .attr("dy", ".99em")
@@ -428,7 +460,7 @@
                         .text("Flight Type Analysis");
 
                         //by reason
-                        vis
+                        mg
                       .append("rect")
                       .attr("id","opt3")
                       .attr("x", 0+offsx)
@@ -441,7 +473,7 @@
                       .style("fill","lavender")
                       .style("stroke","blue");
 
-                      vis.append("text")
+                      mg.append("text")
                         .attr("x", 0+offsx)
                         .attr("y", 60)
                         .attr("dy", ".99em")
@@ -453,7 +485,7 @@
                         .text("Crash Reason Analysis");
 
                         //by fatality
-                        vis
+                        mg
                       .append("rect")
                       .attr("id","opt4")
                       .attr("x", 0+offsx)
@@ -466,7 +498,7 @@
                       .style("fill","lavender")
                       .style("stroke","blue");
 
-                      vis.append("text")
+                      mg.append("text")
                         .attr("x", 0+offsx)
                         .attr("y", 90)
                         .attr("dy", ".99em")
@@ -475,14 +507,64 @@
                         .on("mouseover",function(){vis.select("#opt4").style("fill", "lightsteelblue");})
                         .on("mouseout",function(){vis.select("#opt4").style("fill", "lavender");})
                         .style("font-size","15px")
-                        .text("Fatalities Type Analysis");
+                        .text("Fatalities Range Analysis");
 
-                        //Disable chart
-                        vis
+                        //control routes selection
+                        mg
                       .append("rect")
                       .attr("id","opt5")
                       .attr("x", 0+offsx)
                       .attr("y", 120 )
+                      .attr("width", 200)
+                      .attr("height", "20")
+                      .on("click", function(){
+                        //option = 9; 
+                        if(routeFlag == "all"){
+                                routeFlag = "selected"; 
+                            }
+                            else{
+                                routeFlag = "all";
+                                option = 8; 
+                        }
+                        mg.select("#opt5txt").text(function(){ return routeFlag=="all" ? "Show Only Selected Routes": "Show All Routes"});
+                        showRing(option);
+                        })
+                      .on("mouseover",function(){d3.select(this).style("fill", "lightsteelblue");})
+                      .on("mouseout",function(){d3.select(this).style("fill", "lavender");})
+                      .style("fill","lavender")
+                      .style("stroke","blue");
+
+                      var toggle = mg.append("text")
+                        .attr("id","opt5txt")
+                        .attr("x", 0+offsx)
+                        .attr("y", 120)
+                        .attr("dy", ".99em")
+                        .attr("dx", "4px")
+                        .on("click", function(){ 
+
+                            if(routeFlag == "all"){
+                                routeFlag = "selected"; 
+                            }
+                            else{
+                                routeFlag = "all";
+                                //option = 9; 
+                            }
+
+                            option = 8; 
+                            toggle.text(function(){ return routeFlag=="all" ? "Show Only Selected Routes": "Show All Routes"});
+                            showRing(option);
+                        })
+                        .on("mouseover",function(){vis.select("#opt5").style("fill", "lightsteelblue");})
+                        .on("mouseout",function(){vis.select("#opt5").style("fill", "lavender");})
+                        .style("font-size","15px")
+                        .text(function(){ return routeFlag=="all" ? "Show Only Selected Routes": "Show All Routes"});
+
+                        //Disable chart
+                        mg
+                      .append("rect")
+                      .attr("id","opt6")
+                      .attr("x", 0+offsx)
+                      .attr("y", 150 )
                       .attr("width", 200)
                       .attr("height", "20")
                       .on("click", function(){option = 9; showRing(option);})
@@ -491,14 +573,14 @@
                       .style("fill","lavender")
                       .style("stroke","blue");
 
-                      vis.append("text")
+                      mg.append("text")
                         .attr("x", 0+offsx)
-                        .attr("y", 120)
+                        .attr("y", 150)
                         .attr("dy", ".99em")
                         .attr("dx", "4px")
                         .on("click", function(){option = 9; showRing(option);})
-                        .on("mouseover",function(){vis.select("#opt5").style("fill", "lightsteelblue");})
-                        .on("mouseout",function(){vis.select("#opt5").style("fill", "lavender");})
+                        .on("mouseover",function(){vis.select("#opt6").style("fill", "lightsteelblue");})
+                        .on("mouseout",function(){vis.select("#opt6").style("fill", "lavender");})
                         .style("font-size","15px")
                         .text("Disable Chart");
 
@@ -516,46 +598,104 @@
                             //if(routs[0])
                             console.log(routs.length);
                             //$(routs[rout][0]).attr("text");
+                            var num = $(routs[0][i]).attr("id").substring(10);
+                            console.log(num);
                             if (option == 1) //by date
                             {
                                 //console.log(routs[rout][0]);
                                 if($(routs[0][i]).attr("text").split('|')[0].split('/')[2] == info){
                                     //$(routs[0][i]).style("stroke",clr);
                                     $(routs[0][i]).css("stroke", clr);
+                                    $(routs[0][i]).css("opacity", 0.9);
+                                    $(routs[0][i]).css("visibility","visible");
+                                    $("#cityfirst"+num).css("visibility","visible");
+                                    $("#citysecond"+num).css("visibility","visible");
                                 }
                                 else{
                                     $(routs[0][i]).css("stroke", "white");
+                                    if(routeFlag != "all"){
+                                        $(routs[0][i]).css("opacity", 0);
+                                        $(routs[0][i]).css("visibility","hidden");
+                                        $("#cityfirst"+num).css("visibility","hidden");
+                                        $("#citysecond"+num).css("visibility","hidden");
+                                    }
                                 }
                             }
                             else if (option == 2) //by flight type
                             {
                                 if($(routs[0][i]).attr("text").split('|')[1] == info){
                                     $(routs[0][i]).css("stroke", clr);
+                                    $(routs[0][i]).css("opacity", 0.9);
+                                    $(routs[0][i]).css("visibility","visible");
+                                    $("#cityfirst"+num).css("visibility","visible");
+                                    $("#citysecond"+num).css("visibility","visible");
                                 }
                                 else{
                                     $(routs[0][i]).css("stroke", "white");
+                                    if(routeFlag != "all"){
+                                        $(routs[0][i]).css("opacity", 0);
+                                        $(routs[0][i]).css("visibility","hidden");
+                                        $("#cityfirst"+num).css("visibility","hidden");
+                                        $("#citysecond"+num).css("visibility","hidden");
+                                    }
                                 }
                             }
                             else if (option == 3) //by crash reason
                             {
                                 if($(routs[0][i]).attr("text").split('|')[2] == info){
                                     $(routs[0][i]).css("stroke", clr);
+                                    $(routs[0][i]).css("opacity", 0.9);
+                                    $(routs[0][i]).css("visibility","visible");
+                                    $("#cityfirst"+num).css("visibility","visible");
+                                    $("#citysecond"+num).css("visibility","visible");
                                 }
                                 else{
                                     $(routs[0][i]).css("stroke", "white");
+                                    if(routeFlag != "all"){
+                                        $(routs[0][i]).css("opacity", 0);
+                                        $(routs[0][i]).css("visibility","hidden");
+                                        $("#cityfirst"+num).css("visibility","hidden");
+                                        $("#citysecond"+num).css("visibility","hidden");
+                                    }
                                 }
                             }
                             else if (option == 4) //by fatalities
                             {
-                                if($(routs[0][i]).attr("text").split('|')[3] == info){
+
+                                // var ddata  = [{'dname':'0 Fatalities', 'dvalue': 0},
+                                //     {'dname':'1-10', 'dvalue': 0},
+                                //     {'dname':'11-50', 'dvalue': 0},
+                                //     {'dname':'51-100', 'dvalue': 0},
+                                //     {'dname':'101-200', 'dvalue': 0},
+                                //     {'dname':'> 200', 'dvalue': 0}];
+
+                                var fata = $(routs[0][i]).attr("text").split('|')[3];
+
+                                if( (fata == 0 && info == '0 Fatalities') || (fata > 0 && fata <=10 && info == '1-10')
+                                    || (fata > 10 && fata <=50 && info == '11-50') || (fata > 50 && fata <=100 && info == '51-100')
+                                    || (fata > 100 && fata <=200 && info == '101-200') || (fata > 200 && info == '> 200')){
                                     $(routs[0][i]).css("stroke", clr);
+                                    $(routs[0][i]).css("opacity", 0.9);
+                                    $(routs[0][i]).css("visibility","visible");
+                                    $("#cityfirst"+num).css("visibility","visible");
+                                    $("#citysecond"+num).css("visibility","visible");
                                 }
                                 else{
                                     $(routs[0][i]).css("stroke", "white");
+                                    if(routeFlag != "all"){
+                                        $(routs[0][i]).css("opacity", 0);
+                                        $(routs[0][i]).css("visibility","hidden");
+                                        $("#cityfirst"+num).css("visibility","hidden");
+                                        $("#citysecond"+num).css("visibility","hidden");
+                                    }
                                 }
                             }
                             else{
                                     $(routs[0][i]).css("stroke", "white");
+                                    $(routs[0][i]).css("opacity", 0.9);
+                                    $(routs[0][i]).css("visibility","visible");
+                                    $("#cityfirst"+num).css("visibility","visible");
+                                    $("#citysecond"+num).css("visibility","visible");
                                 }
 
                             i++;
@@ -568,12 +708,17 @@
                            .datum({type: "LineString", coordinates: [x, y]})
                            .attr("class", "route")
                            .attr("d", path)
+                           .attr("id","routecount"+routeCount)
                            //.attr("text", x+","+y)
                            .attr("text", date+"|"+fname+"|"+res+"|"+ fat)
                            .style("stroke", "rgb(255,255,255)")
                            .style("stroke-width", 3)
                            .style("stroke-opacity", 0.8)
-                           .attr("fill", "none");
+                           .attr("fill", "none")
+                           .call(drag); 
+
+
+                           //route.on("drag", function(){});
 
                            //var tooltip = route.append("text").attr("class", "tooltip hidden");
 
@@ -583,7 +728,7 @@
                                 .style("opacity", .9);
 
                                 div.html("Date: "+ date + "<br/>" + "Flight Type: "+ fname + "<br/>"+ "From: "+from+ "<br/>" + "To: "+ to
-                                    + "<br/>" + "Crash Location: " + cloc + "<br/>" + "Crash Reason: " + res+ "<br/>" + "Total Fatalities: "+ fat)
+                                    + "<br/>" + "Crash Location: " + cloc + "<br/>" + "Crash Reason: " + res+ "<br/>" + "Fatalities: "+ fat)
                                 .style("left", (d3.event.pageX) + "px")
                                 .style("top", (d3.event.pageY - 28) + "px");
 
@@ -596,30 +741,55 @@
 
                     }
 
-                    function drawCity(x){
+                    function drawCity(x, tag){
 
                         var cir = vis.append("path")
                            .datum({type: "Point", coordinates: x})
                            .attr("class", "city")
+                           .attr("id","city"+tag+routeCount)
                            .attr("d", path)
                            .style("fill", "red")
                            .style("stroke", "rgb(0,0,0)")
-                           .style("stroke-width", 2);
+                           .style("stroke-width", 2)
+                           .call(drag); 
+
+                        // var cir = vis.
+                        // append("circle")
+                        //     .attr("class", "city")
+                        //    .attr("cx", function() {
+                        //            return projection([x[0], x[1]])[0];})
+                        //    .attr("cy", function() {
+                        //            return projection([x[0], x[1]])[1];})
+                        //    .attr("r", 4)
+                        //    .style("fill", "red")
+                        //    .style("stroke", "rgb(0,0,0)")
+                        //    .style("stroke-width", 2)
+                        //    .call(drag); 
 
                     }
 
                     //zoom testing
                     var zoom = d3.behavior.zoom()
+                        //.center([width / 2, height / 2])
                         .on("zoom",function() {
                         vis.attr("transform","translate("+
                         d3.event.translate.join(",")+")scale("+d3.event.scale+")");
+
+                        if (d3.event.scale > 1.3){
+                            path.pointRadius(2.5);
+                        }
+                        else{
+                            path.pointRadius(3);
+                        }
                         vis.selectAll(".sea .countries .land path")
                         .attr("d", path.projection(projection));
                         //console.log(d3.event.scale);
                         });
 
+                        ///zoom.on("dblclick.zoom", null);
+
                     //restrict zoom
-                    zoom.scaleExtent([0.8, 1.2]);
+                    zoom.scaleExtent([0.8, 1.8]);
                     //zoom.center([width / 2, height / 2]);
                     vis.call(zoom);
                     //var zoom = runt.rotate.d3.geo.zoom;
@@ -645,7 +815,7 @@
 
 
                         var color = d3.scale.ordinal()
-                            .range(["#7fff00", "#dc143c", "#ff8c00", "#00ced1", "#ff1493", "#d0743c", "#ff8c00"]);
+                            .range(["#7fff00", "#dc143c", "#9370db", "#00ced1", "#ff1493", "#d0743c", "#ff8c00"]);
 
                         var arc = d3.svg.arc()
                             .outerRadius(geoRadius+100 - 10)
@@ -654,13 +824,6 @@
                         var pie = d3.layout.pie()
                             .sort(null)
                             .value(function(d) { return d.dvalue; });
-
-                        // var don = d3.select("body").append("svg")
-                        //     .attr("width", dwidth)
-                        //     .attr("height", dheight)
-                        //   .append("g")
-                        //     .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
-
 
                       var g = vis.selectAll(".arc")
                           .data(pie(ddata))
@@ -673,9 +836,25 @@
                       g.append("path")
                           .attr("d", arc)
                           //.on("click", function(){ alert('hello!');})
+                          .on("mouseover", function(d) {
+                                div2.transition()
+                                .duration(200)
+                                .style("opacity", .9);
+
+                                div2.html(d.data.dname + "<br/>" + d.data.dvalue)
+                                .style("left", (d3.event.pageX) + "px")
+                                .style("top", (d3.event.pageY - 28) + "px");
+
+                               })
+                        .on("mouseout", function(d) {
+                        div2.transition()
+                        .duration(500)
+                        .style("opacity", 0);
+                        })
                           .on("click", function(d){ 
                             //alert(d.data.dvalue);
-                            repaintRoutes(color(d.data.dvalue), (option==4) ? d.data.dvalue : d.data.dname);
+                            //repaintRoutes(color(d.data.dvalue), (option==4) ? d.data.dvalue : d.data.dname);
+                            repaintRoutes(color(d.data.dvalue), d.data.dname);
                         })
                           //.on("drag", function(d){})
                           .transition().duration(250)
@@ -685,11 +864,17 @@
                       g.append("text")
                           .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
                           .attr("dy", ".35em")
-                          .on("click", function(d){ repaintRoutes(color(d.data.dvalue), (option==4) ? d.data.dvalue : d.data.dname);})
+                          .on("click", function(d){ 
+                            //repaintRoutes(color(d.data.dvalue), (option==4) ? d.data.dvalue : d.data.dname);
+                            repaintRoutes(color(d.data.dvalue), d.data.dname);
+                        })
                           .transition().duration(330)
                           .style("text-anchor", "middle")
                           .style("font-weight", "bold")
-                          .text(function(d) { return (option==4) ? d.data.dvalue : d.data.dname + ":" +d.data.dvalue; });
+                          .text(function(d) { 
+                            //return (option==4) ? d.data.dvalue : d.data.dname + ":" +d.data.dvalue; 
+                            return d.data.dname;
+                        });
 
                     };
                 }); //my code end
