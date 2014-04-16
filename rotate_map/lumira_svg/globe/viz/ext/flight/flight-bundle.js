@@ -85,14 +85,14 @@
                     'jquery': 'jquery',
                     //////'d3': '../bundles/schwarzm/viz/ext/geoworld/d3.v3', // when used in Extension
                     //////'d3': '../sap/bi/bundles/schwarzm/viz/ext/geoworld/d3.v3',
-                    // 'D3': '../sap/bi/bundles/globe/viz/ext/flight/d3.v3.min', // when used in myExtension
-                    // 'topojson': '../sap/bi/bundles/globe/viz/ext/flight/topojson.v1.min',
-                    // 'datamaps': '../sap/bi/bundles/globe/viz/ext/flight/world-110m',
-                    // 'domReady': '../sap/bi/bundles/globe/viz/ext/flight/domReady',
-                    'D3': '../globe/viz/ext/flight/d3.v3.min',
-                    'topojson': '../globe/viz/ext/flight/topojson.v1.min',
-                    'domReady': '../globe/viz/ext/flight/domReady',
-                    'datamaps': '../globe/viz/ext/flight/world-110m',
+                    'D3': '../sap/bi/bundles/globe/viz/ext/flight/d3.v3.min', // when used in myExtension
+                    'topojson': '../sap/bi/bundles/globe/viz/ext/flight/topojson.v1.min',
+                    'datamaps': '../sap/bi/bundles/globe/viz/ext/flight/world-110m',
+                    'domReady': '../sap/bi/bundles/globe/viz/ext/flight/domReady',
+                    // 'D3': '../globe/viz/ext/flight/d3.v3.min',
+                    // 'topojson': '../globe/viz/ext/flight/topojson.v1.min',
+                    // 'domReady': '../globe/viz/ext/flight/domReady',
+                    // 'datamaps': '../globe/viz/ext/flight/world-110m',
                     //'rotate': '../globe/viz/ext/flight/d3.geo.zoom',
                     //'rotate': '../sap/bi/bundles/globe/viz/ext/flight/d3.geo.zoom',
                 },
@@ -152,7 +152,7 @@
                     
                     //+++ragha+++ this is where my code goes!
                     var curx, cury, px, py, accx, accy, ox = 0, oy = 0;
-                    var source, dest, option = "none", routeFlag = "all", routeCount = 0;
+                    var source, dest, option = "none", routeFlag = "Show Only Selected Routes", routeCount = 0;
                     var geoRadius = 200;
 
                     // var width = 960,
@@ -187,6 +187,8 @@
                         .domain([0, height])
                         .range([180, -180]);
 
+                       
+
                     //drag behaviour
                     var drag = d3.behavior.drag()
                         .on("drag", function(d,i) {
@@ -207,7 +209,7 @@
                           //vis.selectAll("arc").attr("d", path);
                         });
 
-                    vis.on("dblclick.zoom", null);
+                    //vis.on("dblclick.zoom", null);
                     var backgroundCircle = vis.append("circle")
                             .attr("cx", width / 2)
                             .attr("cy", height / 2)
@@ -227,6 +229,7 @@
                           .attr("class", "countries")
                           .attr("d", path)
                           .attr("fill", "#f4a460")
+                          //.attr("fill", "#d3d3d3")
                           .style("stroke-width", "0.5px")
                           .style("stroke", "rgb(255,255,255)")
                           .call(drag); 
@@ -259,6 +262,10 @@
                             // 4- Sabotage
                             // 5- Fire
                             // 0 - Others
+
+                            if (operator == "Others"){
+                                operator = "Commercial";
+                            }
 
                             if(reason == 1){ reason = "Pilot Error";}
                             else if(reason == 2){ reason = "Weather";}
@@ -312,7 +319,7 @@
                                 }
                             }
 
-                            console.log(ddata);
+                            //console.log(ddata);
                             showDonut(ddata);
                         }
                         else if(opt == 2){ //by flight type
@@ -338,7 +345,7 @@
                                 }
                             }
 
-                            console.log(ddata);
+                            //console.log(ddata);
                             showDonut(ddata);
                         }
                         else if(opt == 3){ //by crash type
@@ -364,7 +371,7 @@
                                 }
                             }
 
-                            console.log(ddata);
+                            //console.log(ddata);
                             showDonut(ddata);
                         }
                         else if(opt == 4){ //by fatilities
@@ -395,7 +402,7 @@
                                 ddata[idx].dvalue += 1;
                             }
 
-                            console.log(ddata);
+                            //console.log(ddata);
                             showDonut(ddata);
                         }
                         else{
@@ -584,6 +591,90 @@
                         .style("font-size","15px")
                         .text("Disable Chart");
 
+                        //Instructions panel
+                        mg
+                      .append("rect")
+                      .attr("id","opt7")
+                      .attr("x", 0+offsx)
+                      .attr("y", 200 )
+                      .attr("width", 200)
+                      .attr("height", "230")
+                      .style("fill","lavender")
+                      .style("stroke","blue");
+
+                      mg.append("text")
+                        .attr("x", 0+offsx)
+                        .attr("y", 200)
+                        .attr("dy", ".99em")
+                        .attr("dx", "4px")
+                        .style("font-size","15px")
+                        .style("font-weight", "bold")
+                        .text("Usage Instructions:");
+
+                      mg.append("text")
+                        .attr("x", 0+offsx)
+                        .attr("y", 230)
+                        .attr("dy", ".99em")
+                        .attr("dx", "4px")
+                        .style("font-size","15px")
+                        .text("Use zoom in the middle of");
+
+                      mg.append("text")
+                        .attr("x", 0+offsx)
+                        .attr("y", 250)
+                        .attr("dy", ".99em")
+                        .attr("dx", "4px")
+                        .style("font-size","15px")
+                        .text("the globe for best results.");
+
+                      mg.append("text")
+                        .attr("x", 0+offsx)
+                        .attr("y", 280)
+                        .attr("dy", ".99em")
+                        .attr("dx", "4px")
+                        .style("font-size","15px")
+                        .text("Click and Drag on donut");
+
+                        mg.append("text")
+                        .attr("x", 0+offsx)
+                        .attr("y", 300)
+                        .attr("dy", ".99em")
+                        .attr("dx", "4px")
+                        .style("font-size","15px")
+                        .text("ring to pan the whole view.");
+
+                        mg.append("text")
+                        .attr("x", 0+offsx)
+                        .attr("y", 330)
+                        .attr("dy", ".99em")
+                        .attr("dx", "4px")
+                        .style("font-size","15px")
+                        .text("Pan works the best when");
+
+                        mg.append("text")
+                        .attr("x", 0+offsx)
+                        .attr("y", 350)
+                        .attr("dy", ".99em")
+                        .attr("dx", "4px")
+                        .style("font-size","15px")
+                        .text("the view is zoomed in.");
+
+                        mg.append("text")
+                        .attr("x", 0+offsx)
+                        .attr("y", 380)
+                        .attr("dy", ".99em")
+                        .attr("dx", "4px")
+                        .style("font-size","15px")
+                        .text("Click on 'Maximize/Restore'");
+
+                        mg.append("text")
+                        .attr("x", 0+offsx)
+                        .attr("y", 400)
+                        .attr("dy", ".99em")
+                        .attr("dx", "4px")
+                        .style("font-size","15px")
+                        .text("on top right to reset view.");
+
                     }
 
                     function repaintRoutes(clr, info){
@@ -599,14 +690,14 @@
                             console.log(routs.length);
                             //$(routs[rout][0]).attr("text");
                             var num = $(routs[0][i]).attr("id").substring(10);
-                            console.log(num);
+                            //console.log(num);
                             if (option == 1) //by date
                             {
                                 //console.log(routs[rout][0]);
                                 if($(routs[0][i]).attr("text").split('|')[0].split('/')[2] == info){
                                     //$(routs[0][i]).style("stroke",clr);
                                     $(routs[0][i]).css("stroke", clr);
-                                    $(routs[0][i]).css("opacity", 0.9);
+                                    $(routs[0][i]).css("opacity", 1);
                                     $(routs[0][i]).css("visibility","visible");
                                     $("#cityfirst"+num).css("visibility","visible");
                                     $("#citysecond"+num).css("visibility","visible");
@@ -625,7 +716,7 @@
                             {
                                 if($(routs[0][i]).attr("text").split('|')[1] == info){
                                     $(routs[0][i]).css("stroke", clr);
-                                    $(routs[0][i]).css("opacity", 0.9);
+                                    $(routs[0][i]).css("opacity", 1);
                                     $(routs[0][i]).css("visibility","visible");
                                     $("#cityfirst"+num).css("visibility","visible");
                                     $("#citysecond"+num).css("visibility","visible");
@@ -644,7 +735,7 @@
                             {
                                 if($(routs[0][i]).attr("text").split('|')[2] == info){
                                     $(routs[0][i]).css("stroke", clr);
-                                    $(routs[0][i]).css("opacity", 0.9);
+                                    $(routs[0][i]).css("opacity", 1);
                                     $(routs[0][i]).css("visibility","visible");
                                     $("#cityfirst"+num).css("visibility","visible");
                                     $("#citysecond"+num).css("visibility","visible");
@@ -675,7 +766,7 @@
                                     || (fata > 10 && fata <=50 && info == '11-50') || (fata > 50 && fata <=100 && info == '51-100')
                                     || (fata > 100 && fata <=200 && info == '101-200') || (fata > 200 && info == '> 200')){
                                     $(routs[0][i]).css("stroke", clr);
-                                    $(routs[0][i]).css("opacity", 0.9);
+                                    $(routs[0][i]).css("opacity", 1);
                                     $(routs[0][i]).css("visibility","visible");
                                     $("#cityfirst"+num).css("visibility","visible");
                                     $("#citysecond"+num).css("visibility","visible");
@@ -753,18 +844,8 @@
                            .style("stroke-width", 2)
                            .call(drag); 
 
-                        // var cir = vis.
-                        // append("circle")
-                        //     .attr("class", "city")
-                        //    .attr("cx", function() {
-                        //            return projection([x[0], x[1]])[0];})
-                        //    .attr("cy", function() {
-                        //            return projection([x[0], x[1]])[1];})
-                        //    .attr("r", 4)
-                        //    .style("fill", "red")
-                        //    .style("stroke", "rgb(0,0,0)")
-                        //    .style("stroke-width", 2)
-                        //    .call(drag); 
+                        // cir.on("mouseover", function(){$("#routecount"+routeCount).trigger("mouseover")});
+                        // cir.on("mouseout", function(){$("#routecount"+routeCount).trigger("mouseout")});
 
                     }
 
@@ -810,16 +891,23 @@
                         vis.selectAll(".arc").remove();
                         var dwidth = width + 100;
                         var dheight = height + 100;
+                        var paintClr = ["#FF21F4" ,"#FF0000", "#FBFB08", "#00FF00", "#4444FF", "#02FAFE"];
 
                         //var radius = Math.min(dwidth, dheight) / 2;
 
 
-                        var color = d3.scale.ordinal()
-                            .range(["#7fff00", "#dc143c", "#9370db", "#00ced1", "#ff1493", "#d0743c", "#ff8c00"]);
+                        // if(option == 1){
+                            var color = d3.scale.ordinal()
+                            .range(["#FF89F9" ,"#FA5151", "#F5F580", "#79F179", "#8B8BF8", "#7CEBED"]);
+                        // }
+                        // else{
+                        //     var color = d3.scale.ordinal()
+                        //         .range(["#7fff00", "#FF0133", "#02FAFE", "#FF60B5", "#FD6131", "#FFF700"]);
+                        // }
 
                         var arc = d3.svg.arc()
-                            .outerRadius(geoRadius+100 - 10)
-                            .innerRadius(geoRadius+100 - 50);
+                            .outerRadius(geoRadius+90 - 10)
+                            .innerRadius(geoRadius+90 - 50);
 
                         var pie = d3.layout.pie()
                             .sort(null)
@@ -831,8 +919,20 @@
                         append("g")
                           .attr("class", "arc")
                           .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+                          //.call(drag2);
                           //.on("click", function(d){ alert(d);});
 
+                          // var drag2 = d3.behavior.drag()
+                          //   .on("drag", function(d,i) {
+
+                          //     var p = d3.mouse(this);
+
+                          //     curx = (p[0] ) ;
+                          //     cury = (p[1] ) ;
+                          //     vis.attr("transform", "translate("+curx+","+cury+")");
+                          //   });  
+
+                          // g.call(drag2);
                       g.append("path")
                           .attr("d", arc)
                           //.on("click", function(){ alert('hello!');})
@@ -854,11 +954,11 @@
                           .on("click", function(d){ 
                             //alert(d.data.dvalue);
                             //repaintRoutes(color(d.data.dvalue), (option==4) ? d.data.dvalue : d.data.dname);
-                            repaintRoutes(color(d.data.dvalue), d.data.dname);
+                            repaintRoutes(getPaintClr(color(d.data.dvalue)), d.data.dname);
                         })
                           //.on("drag", function(d){})
                           .transition().duration(250)
-                          .style("stroke", "black")
+                          .style("stroke", "#FFFFFF")
                           .style("fill", function(d) { return color(d.data.dvalue); });
 
                       g.append("text")
@@ -866,7 +966,7 @@
                           .attr("dy", ".35em")
                           .on("click", function(d){ 
                             //repaintRoutes(color(d.data.dvalue), (option==4) ? d.data.dvalue : d.data.dname);
-                            repaintRoutes(color(d.data.dvalue), d.data.dname);
+                            repaintRoutes(getPaintClr(color(d.data.dvalue)), d.data.dname);
                         })
                           .transition().duration(330)
                           .style("text-anchor", "middle")
@@ -876,7 +976,32 @@
                             return d.data.dname;
                         });
 
+                         function getPaintClr(c){
+                            //["#FF89F9" ,"#FA5151", "#F5F580", "#79F179", "#8B8BF8", "#7CEBED"]
+                            //["#FF21F4" ,"#FF0000", "#FBFB08", "#00FF00", "#4444FF", "#02FAFE"];
+                            if(c == "#FF89F9"){
+                                return "#FF21F4";
+                            }
+                            else if(c == "#FA5151"){
+                                return "#FF0000";
+                            }
+                            else if(c == "#F5F580"){
+                                return "#FBFB08";
+                            }
+                            else if(c == "#79F179"){
+                                return "#00FF00";
+                            }
+                            else if(c == "#8B8BF8"){
+                                return "#4444FF";
+                            }
+                            else if(c == "#7CEBED"){
+                                return "#02FAFE";
+                            }
+                         }
                     };
+
+                    
+
                 }); //my code end
 
             }); //domready end
