@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+		<link type="text/css" rel="stylesheet" href="style.css"/>
+		<script type="text/javascript" src="d3/d3.js"></script>
+		<script type="text/javascript" src="d3/d3.layout.js"></script>
+		<style type="text/css">
+
+.chart {
+	display: block;
+	margin: auto;
+	margin-top: 40px;
+}
+
+text {
+	font-size: 11px;
+}
+
+rect {
+	fill: none;
+}
+
+		</style>
+	</head>
+	<body>
+		<div id="body">
+			<div id="footer">
+				System Monitoring Overview map
+				<div class="hint">Select filter</div>
+				<div><select>
+					<option value="avail">Availability</option>
+					<option value="perform">Performance</option>
+					<option value="config">Configuration</option>
+					<option value="exception">Exception</option>
+				</select></div>
+			</div>
+		</div>
+		<script type="text/javascript">
+
+var w = 1280 - 80,
+		h = 800 - 180,
+		x = d3.scale.linear().range([0, w]),
+		y = d3.scale.linear().range([0, h]),
+		color = d3.scale.category20c(),
+		root,
+		node;
+
+var categ = 'avail'; //default selection availablility category
+var reentry = false;
+// var treemap = d3.layout.treemap()
+//     .round(false)
+//     .size([w, h])
+//     .sticky(true)
+//     .value(function(d) { return d.size; });
+
+// var stack = d3.layout.stack()
+//     .offset("wiggle")
+//     .values(function(d) { return d.values; });
+
+
+
+var svg = d3.select("#body").append("div")
+		.attr("class", "chart")
+		.style("width", w + "px")
+		.style("height", h + "px")
+	.append("svg:svg")
+		.attr("width", w)
+		.attr("height", h)
+	.append("svg:g")
+		.attr("transform", "translate(.5,.5)");
+
+ init();
+
+
+
+	function init(){
+
+		
+
+		d3.json("stackdata", function(data) {
+	node = root = data;
+
+	//clean up
+		if (reentry == true){
+		//svg.remove();
+		d3.selectAll(".cell")
+	  .remove();
+	  // d3.selectAll("text")
+	  // .remove();
+	}
+
+//   // var nodes = treemap.nodes(root)
+//   //     .filter(function(d) { return !d.children; });
+
+	//   svg.selectAll("path")
+	//   .data(stack(data))
+	// .enter().append("path")
+	//   .attr("d", function(d) { return area(d.values); })
+	// .append("title")
+	//   .text(function(d) { return d.name; });
+	var indent = w/(data.length) * -1;
+
+	var cell = svg.selectAll("g")
+			.data(data)
+		.enter().append("svg:g")
+			.attr("class", "cell")
+			.attr("transform", function(d) { return "translate(" + (indent = indent + w/(data.length ) +3 ) + "," + 56 + ")"; });
+			//.on("click", function(d) { return zoom(node == d.parent ? root : d.parent); });
+
+			
+
+	cell.append("svg:rect")
+			.attr("width", w/data.length ) //function(d) { return indent = indent + 40 })
+			.attr("height", "256px") //function(d) { return d.dy - 1; })
+			.style("fill", function(d) { return getCategory(d, categ); });
+
+var indent2 = w/(data.length) * 0.5 * -1;
+	cell.append("svg:text")
+			.attr("x", function(d) { console.log(indent2); return indent2 = indent2 + w/(data.length ) ;  })
+			.attr("y", "128px") //function(d) { return d.dy / 2; })
+			.attr("dy", ".35em")
+			.attr("text-anchor", "middle")
+			.text(function(d) { return d.name; });
+			//.style("opacity", function(d) { d.w = this.getComputedTextLength(); return d.dx > d.w ? 1 : 0; });
+
+	// cell.append("svg:text")
+	//     .attr("x", function(d) { return d.dx / 2; })
+	//     .attr("y", "128px") //function(d) { return d.dy / 2; })
+	//     .attr("dy", ".35em")
+	//     .attr("text-anchor", "middle")
+	//     .text(function(d) { return d.name; })
+	//     .style("opacity", function(d) { d.w = this.getComputedTextLength(); return d.dx > d.w ? 1 : 0; });
+
+	// d3.select(window).on("click", function() { zoom(root); });
+	d3.select("select").on("change", function() {
+		reentry = true;
+	  categ = this.value 
+	  //zoom(node);
+	  init();
+	});
+
+});
+
+	} // init end
+
+function getCategory(d, cat){
+	if(cat == 'avail'){
+				if(d.avail == 1) return "green";
+				else if(d.avail == 2) return "yellow";
+				else if(d.avail == 3) return "red";
+				else if(d.avail == 0) return "grey";
+			}
+	else if(cat == 'perform'){
+				if(d.perform == 1) return "green";
+				else if(d.perform == 2) return "yellow";
+				else if(d.perform == 3) return "red";
+				else if(d.perform == 0) return "grey";
+			}
+	else if(cat == 'config'){
+				if(d.config == 1) return "green";
+				else if(d.config == 2) return "yellow";
+				else if(d.config == 3) return "red";
+				else if(d.config == 0) return "grey";
+			}
+	else if(cat == 'exception'){
+				if(d.exception == 1) return "green";
+				else if(d.exception == 2) return "yellow";
+				else if(d.exception == 3) return "red";
+				else if(d.exception == 0) return "grey";
+			}		
+		}
+// function size(d) {
+//   return d.size;
+// }
+
+// function count(d) {
+//   return 1;
+// }
+
+// function zoom(d) {
+//   var kx = w / d.dx, ky = h / d.dy;
+//   x.domain([d.x, d.x + d.dx]);
+//   y.domain([d.y, d.y + d.dy]);
+
+//   var t = svg.selectAll("g.cell").transition()
+//       .duration(d3.event.altKey ? 7500 : 750)
+//       .attr("transform", function(d) { return "translate(" + x(d.x) + "," + y(d.y) + ")"; });
+
+//   t.select("rect")
+//       .attr("width", function(d) { return kx * d.dx - 1; })
+//       .attr("height", function(d) { return ky * d.dy - 1; })
+
+//   t.select("text")
+//       .attr("x", function(d) { return kx * d.dx / 2; })
+//       .attr("y", function(d) { return ky * d.dy / 2; })
+//       .style("opacity", function(d) { return kx * d.dx > d.w ? 1 : 0; });
+
+//   node = d;
+//   d3.event.stopPropagation();
+// }
+
+		</script>
+	</body>
+</html>

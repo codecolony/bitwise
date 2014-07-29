@@ -1,0 +1,11 @@
+[
+      {"name": "SD7~ABAP", "avail": 1, "perform": 1, "config": 0, "exception": 1},
+      {"name": "SQ7~ABAP", "avail": 1, "perform": 3, "config": 1, "exception": 1},
+      {"name": "ABP~Java", "avail": 2, "perform": 1, "config": 2, "exception": 1},
+      {"name": "DP7~Java", "avail": 1, "perform": 2, "config": 3, "exception": 1},
+      {"name": "SD7~ABAP", "avail": 1, "perform": 1, "config": 0, "exception": 1},
+      {"name": "SQ7~ABAP", "avail": 1, "perform": 3, "config": 1, "exception": 1},
+      {"name": "ABP~Java", "avail": 2, "perform": 1, "config": 2, "exception": 1},
+      {"name": "DP7~Java", "avail": 1, "perform": 2, "config": 3, "exception": 1},
+      {"name": "SP7~Java", "avail": 0, "perform": 2, "config": 1, "exception": 2}
+]

@@ -1,0 +1,169 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+    <link type="text/css" rel="stylesheet" href="style.css"/>
+    <script type="text/javascript" src="d3/d3.js"></script>
+    <script type="text/javascript" src="d3/d3.layout.js"></script>
+    <style type="text/css">
+
+.chart {
+  display: block;
+  margin: auto;
+  margin-top: 40px;
+}
+
+text {
+  font-size: 11px;
+}
+
+rect {
+  fill: none;
+}
+
+    </style>
+  </head>
+  <body>
+    <div id="body">
+      <div id="footer">
+        System Monitoring Overview
+        <div class="hint">Select Category Filter</div>
+        <div><select>
+          <option value="size">Availability</option>
+          <option value="count">Performance</option>
+          <option value="count">Configuration</option>
+          <option value="count">Exception</option>
+        </select></div>
+      </div>
+    </div>
+    <script type="text/javascript">
+
+var w = 1280 - 80,
+    h = 800 - 180,
+    x = d3.scale.linear().range([0, w]),
+    y = d3.scale.linear().range([0, h]),
+    color = d3.scale.category20c(),
+    root,
+    node;
+
+var parentZoom = false;
+
+var treemap = d3.layout.treemap()
+    //.children(function(d, depth) { return depth ? null : d._children; })
+    .round(false)
+    .size([w, h])
+    .sticky(true)
+    .value(function(d) { return d.size; });
+
+var svg = d3.select("#body").append("div")
+    .attr("class", "chart")
+    .style("width", w + "px")
+    .style("height", h + "px")
+  .append("svg:svg")
+    .attr("width", w)
+    .attr("height", h)
+  .append("svg:g")
+    .attr("transform", "translate(.5,.5)");
+
+d3.json("hier_overview.json", function(data) {
+  node = root = data;
+
+  root = data.children[0]; // avail default
+
+  var nodes = treemap.nodes(root);
+      //.filter(function(d) { return !d.children; });
+
+  var cell = svg.selectAll("g")
+      .data(nodes)
+    .enter().append("svg:g")
+      .attr("class", "cell")
+      .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
+      .on("click", function(d) { 
+        if (parentZoom == false){
+          parentZoom = true;
+          return zoom(d.parent);
+        }
+        else{
+          parentZoom = false;
+          return zoom(d);
+        }
+      });
+        //turn zoom(!d.children ? d.parent : d); });
+      //.on("click", function(d) { return zoom(node == d.parent ? root : d.parent); });
+
+  cell.append("svg:rect")
+      .attr("width", function(d) { return d.dx - 2; })
+      .attr("height", function(d) { return d.dy - 2; })
+      //.style("fill", function(d) { return d.children  ? null : d.parent.name; });
+      .style("fill", function(d) { if (d.children  != null)
+                                    {  return null;}
+                                   else {
+                                    if (d.parent.name == "green"){
+                                      return "#40FF00";
+
+                                    }
+                                    else if (d.parent.name == "yellow"){
+                                      return "#FFF805";
+                                    }
+                                    else if (d.parent.name == "red"){
+                                      return '#FC0000';
+                                    }
+                                    else if (d.parent.name == "grey"){
+                                      return "#D8D8D8";
+                                    }
+                                   }  
+                               });
+
+  cell.append("svg:text")
+      .attr("x", function(d) { return d.dx / 2; })  
+      .attr("y", function(d) { return d.dy / 2; })
+      .attr("dy", ".35em")
+      .attr("text-anchor", "middle")
+      .text(function(d) { return !d.children ? d.name : null; })
+      .style("opacity", function(d) { d.w = this.getComputedTextLength(); return d.dx > d.w ? 1 : 0; });
+
+  d3.select(window).on("click", function() { parentZoom = false; zoom(root); });
+
+  d3.select("select").on("change", function() {
+    //treemap.value(this.value == "size" ? size : count).nodes(root);
+    if (this.value == "perform"){
+      treemap.value(data.children[1]);
+    }
+    zoom(node);
+  });
+});
+
+// function size(d) {
+//   return d.size;
+// }
+
+// function count(d) {
+//   return 1;
+// }
+
+function zoom(d) {
+  var kx = w / d.dx, ky = h / d.dy;
+  x.domain([d.x, d.x + d.dx]);
+  y.domain([d.y, d.y + d.dy]);
+
+  var t = svg.selectAll("g.cell").transition()
+      .duration(d3.event.altKey ? 7500 : 750)
+      .attr("transform", function(d) { return "translate(" + x(d.x) + "," + y(d.y) + ")"; });
+
+  t.select("rect")
+      .attr("width", function(d) { return kx * d.dx - 2; })
+      .attr("height", function(d) { return ky * d.dy - 2; })
+
+  t.select("text")
+      .attr("x", function(d) { return kx * d.dx / 2; })
+      .attr("y", function(d) { return ky * d.dy / 2; })
+      .style("opacity", function(d) { return kx * d.dx > d.w ? 1 : 0; });
+
+  node = d;
+  d3.event.stopPropagation();
+}
+
+    </script>
+  </body>
+</html>
