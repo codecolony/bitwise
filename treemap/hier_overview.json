@@ -10,7 +10,7 @@
         {
          "name": "grey",
          "children": [
-          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 10},
           {"name": "DP7~ABAP", "size": 1},
           {"name": "ABC~Java", "size": 1},
           {"name": "SD7~ABAP", "size": 1},
@@ -143,8 +143,6 @@
          "name": "grey",
          "children": [
           {"name": "SD7~ABAP", "size": 1},
-          {"name": "DP7~ABAP", "size": 1},
-          {"name": "ABC~Java", "size": 1},
           {"name": "SQ7~Java", "size": 1}
          ]
         }
@@ -156,10 +154,9 @@
         {
          "name": "green",
          "children": [
-          {"name": "SD7~ABAP", "size": 1},
-          {"name": "DP7~ABAP", "size": 1},
-          {"name": "ABC~Java", "size": 1},
-          {"name": "SQ7~Java", "size": 1}
+          {"name": "PPC~ABAP", "size": 1},
+          {"name": "DP7~Java", "size": 1}
+          
          ]
         }
        ]
@@ -170,10 +167,8 @@
         {
          "name": "yellow",
          "children": [
-          {"name": "SD7~ABAP", "size": 1},
-          {"name": "DP7~ABAP", "size": 1},
-          {"name": "ABC~Java", "size": 1},
-          {"name": "SQ7~Java", "size": 1}
+          {"name": "FA7~Java", "size": 1},
+          {"name": "ABC~ABAP", "size": 1}
          ]
         }
        ]
@@ -184,8 +179,327 @@
         {
          "name": "red",
          "children": [
+          {"name": "ABC~Java", "size": 1},
+          {"name": "SQ7~Java", "size": 1}
+         ]
+        }
+       ]
+      }
+      ]
+    },
+        {
+     "name": "config",
+     "children": [
+      {
+       "name": "grey",
+       "children": [
+        {
+         "name": "grey",
+         "children": [
           {"name": "SD7~ABAP", "size": 1},
-          {"name": "DP7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SQ7~Java", "size": 1}
+         ]
+        }
+       ]
+      },
+      {
+       "name": "green",
+       "children": [
+        {
+         "name": "green",
+         "children": [
+          {"name": "PPC~ABAP", "size": 1},
+          {"name": "PPC~ABAP", "size": 1},
+          {"name": "PPC~ABAP", "size": 1},
+          {"name": "PPC~ABAP", "size": 1},
+          {"name": "PPC~ABAP", "size": 1},
+          {"name": "PPC~ABAP", "size": 1},
+          {"name": "DP7~Java", "size": 1}
+          
+         ]
+        }
+       ]
+      },
+      {
+       "name": "yellow",
+       "children": [
+        {
+         "name": "yellow",
+         "children": [
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "ABC~ABAP", "size": 1}
+         ]
+        }
+       ]
+      },
+      {
+       "name": "red",
+       "children": [
+        {
+         "name": "red",
+         "children": [
+          {"name": "ABC~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "FA7~Java", "size": 1},
+          {"name": "SQ7~Java", "size": 1}
+         ]
+        }
+       ]
+      }
+      ]
+    },
+        {
+     "name": "exception",
+     "children": [
+      {
+       "name": "grey",
+       "children": [
+        {
+         "name": "grey",
+         "children": [
+          {"name": "SD7~ABAP", "size": 1},
+          {"name": "SQ7~Java", "size": 1}
+         ]
+        }
+       ]
+      },
+      {
+       "name": "green",
+       "children": [
+        {
+         "name": "green",
+         "children": [
+          {"name": "PPC~ABAP", "size": 1},
+          {"name": "PPC~ABAP", "size": 1},
+          {"name": "DP7~Java", "size": 1}
+          
+         ]
+        }
+       ]
+      },
+      {
+       "name": "yellow",
+       "children": [
+        {
+         "name": "yellow",
+         "children": [
+          {"name": "ABC~ABAP", "size": 1}
+         ]
+        }
+       ]
+      },
+      {
+       "name": "red",
+       "children": [
+        {
+         "name": "red",
+         "children": [
+          {"name": "ABC~Java", "size": 1},
+          {"name": "ABC~Java", "size": 1},
           {"name": "ABC~Java", "size": 1},
           {"name": "SQ7~Java", "size": 1}
          ]
