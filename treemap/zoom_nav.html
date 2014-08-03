@@ -15,11 +15,39 @@
 }
 
 text {
-  font-size: 11px;
+  font-size: 13px;
 }
 
 rect {
   fill: none;
+}
+
+#toolt.hidden {
+  display: none;
+}
+
+#toolt p {
+  margin: 0;
+  font-family: sans-serif;
+  font-size: 16px;
+  line-height: 20px;
+}
+
+#toolt {
+  position: absolute;
+  width: 120px;
+  height: auto;
+  padding: 10px;
+  background-color: white;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  border-radius: 10px;
+  -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  -moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+  visibility: hidden;
+  z-index:2;
 }
 
     </style>
@@ -29,14 +57,28 @@ rect {
       <div id="footer">
         System Monitoring Overview
         <div class="hint">Select Category Filter</div>
-        <div><select>
+        <div><select id="catg">
           <option value="avail">Availability</option>
           <option value="perform">Performance</option>
           <option value="config">Configuration</option>
           <option value="exception">Exception</option>
         </select></div>
+        <div class="hint">Rank Filter</div>
+        <div><select id="ranking">
+          <option id="drank" value="rank" defaultSelected="true">Show Ranking</option>
+          <option value="norank">No Ranking</option>
+        </select></div>
       </div>
+      </div>
+      
     </div>
+
+    <div id="toolt" class="hidden">
+      <p><strong id="heading"></strong></p>
+      <p><span id="stat"></span></p>
+      <p><span id="rk"></span></p>
+    </div>
+
     <script type="text/javascript">
 
 var w = 1280 - 80,
@@ -50,6 +92,219 @@ var w = 1280 - 80,
 var parentZoom = false;
 var reentry = false;
 var categ = 0;
+var rankFlag = false;
+var leaf = false;
+var leafColor = "#DDDDFF";
+
+var mydata = {"d":{"results":[{"__metadata":{"id":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('0000C9EAA3AE1ED2B4FE6D5FA43E69F0')","uri":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('0000C9EAA3AE1ED2B4FE6D5FA43E69F0')","type":"Z_SYSTEM_OVERVIEW_SRV.SystemList"},"ParentContextid":"","Contextid":"0000C9EAA3AE1ED2B4FE6D5FA43E69F0","Name":"A12~ABAP","NoOfAlerts":"1","ObjectType":"T_SYSTEM","ConfigStatus":0,"Category":"","Status":"","LinkToAlerts":"","AlertsString":"","ObjectTypeIcon":"","IsProblemContextAvailable":"","ExtSystemType":"","ExceptStatus":0,"PerfStatus":0,"AvailStatus":3},{"__metadata":{"id":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('0000C9EAA3AE1ED2B4FE99A3DDA2AA7B')","uri":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('0000C9EAA3AE1ED2B4FE99A3DDA2AA7B')","type":"Z_SYSTEM_OVERVIEW_SRV.SystemList"},"ParentContextid":"","Contextid":"0000C9EAA3AE1ED2B4FE99A3DDA2AA7B","Name":"A13~ABAP","NoOfAlerts":"1","ObjectType":"T_SYSTEM","ConfigStatus":0,"Category":"","Status":"","LinkToAlerts":"","AlertsString":"","ObjectTypeIcon":"","IsProblemContextAvailable":"","ExtSystemType":"","ExceptStatus":0,"PerfStatus":0,"AvailStatus":3},{"__metadata":{"id":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51ED382AD0342A4952DDF')","uri":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51ED382AD0342A4952DDF')","type":"Z_SYSTEM_OVERVIEW_SRV.SystemList"},"ParentContextid":"","Contextid":"089E014134D51ED382AD0342A4952DDF","Name":"FT7~ABAP","NoOfAlerts":"1","ObjectType":"T_SYSTEM","ConfigStatus":0,"Category":"","Status":"","LinkToAlerts":"","AlertsString":"","ObjectTypeIcon":"","IsProblemContextAvailable":"","ExtSystemType":"","ExceptStatus":0,"PerfStatus":0,"AvailStatus":3},{"__metadata":{"id":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51EE3B6BCD5B770DDBFE6')","uri":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51EE3B6BCD5B770DDBFE6')","type":"Z_SYSTEM_OVERVIEW_SRV.SystemList"},"ParentContextid":"","Contextid":"089E014134D51EE3B6BCD5B770DDBFE6","Name":"SD7~ABAP","NoOfAlerts":"1","ObjectType":"T_SYSTEM","ConfigStatus":0,"Category":"","Status":"","LinkToAlerts":"","AlertsString":"","ObjectTypeIcon":"","IsProblemContextAvailable":"","ExtSystemType":"","ExceptStatus":0,"PerfStatus":0,"AvailStatus":3},{"__metadata":{"id":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51ED391F59631F5774993')","uri":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51ED391F59631F5774993')","type":"Z_SYSTEM_OVERVIEW_SRV.SystemList"},"ParentContextid":"","Contextid":"089E014134D51ED391F59631F5774993","Name":"SQ7~ABAP","NoOfAlerts":"1","ObjectType":"T_SYSTEM","ConfigStatus":0,"Category":"","Status":"","LinkToAlerts":"","AlertsString":"","ObjectTypeIcon":"","IsProblemContextAvailable":"","ExtSystemType":"","ExceptStatus":0,"PerfStatus":0,"AvailStatus":3},{"__metadata":{"id":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('0000C9EAA3AE1EE2B28B22120A0A85FD')","uri":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('0000C9EAA3AE1EE2B28B22120A0A85FD')","type":"Z_SYSTEM_OVERVIEW_SRV.SystemList"},"ParentContextid":"","Contextid":"0000C9EAA3AE1EE2B28B22120A0A85FD","Name":"FA7_SM~ABAP","NoOfAlerts":"18","ObjectType":"T_SYSTEM","ConfigStatus":3,"Category":"","Status":"","LinkToAlerts":"","AlertsString":"","ObjectTypeIcon":"","IsProblemContextAvailable":"","ExtSystemType":"","ExceptStatus":3,"PerfStatus":3,"AvailStatus":1},{"__metadata":{"id":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51ED382F8F9941605F044')","uri":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51ED382F8F9941605F044')","type":"Z_SYSTEM_OVERVIEW_SRV.SystemList"},"ParentContextid":"","Contextid":"089E014134D51ED382F8F9941605F044","Name":"FAJ_SM~JAVA","NoOfAlerts":"8","ObjectType":"T_SYSTEM","ConfigStatus":3,"Category":"","Status":"","LinkToAlerts":"","AlertsString":"","ObjectTypeIcon":"","IsProblemContextAvailable":"","ExtSystemType":"","ExceptStatus":3,"PerfStatus":3,"AvailStatus":1},{"__metadata":{"id":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51EE2BCD4A7A2C5C914C7')","uri":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51EE2BCD4A7A2C5C914C7')","type":"Z_SYSTEM_OVERVIEW_SRV.SystemList"},"ParentContextid":"","Contextid":"089E014134D51EE2BCD4A7A2C5C914C7","Name":"FQ7~ABAP","NoOfAlerts":"1","ObjectType":"T_SYSTEM","ConfigStatus":2,"Category":"","Status":"","LinkToAlerts":"","AlertsString":"","ObjectTypeIcon":"","IsProblemContextAvailable":"","ExtSystemType":"","ExceptStatus":0,"PerfStatus":2,"AvailStatus":0},{"__metadata":{"id":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('0000C9EAA3AE1ED2B2863E4C7B5B5760')","uri":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('0000C9EAA3AE1ED2B2863E4C7B5B5760')","type":"Z_SYSTEM_OVERVIEW_SRV.SystemList"},"ParentContextid":"","Contextid":"0000C9EAA3AE1ED2B2863E4C7B5B5760","Name":"FB7~ABAP","NoOfAlerts":"0","ObjectType":"T_SYSTEM","ConfigStatus":0,"Category":"","Status":"","LinkToAlerts":"","AlertsString":"","ObjectTypeIcon":"","IsProblemContextAvailable":"","ExtSystemType":"","ExceptStatus":0,"PerfStatus":0,"AvailStatus":1},{"__metadata":{"id":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51EE3BDD974929A574614')","uri":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51EE3BDD974929A574614')","type":"Z_SYSTEM_OVERVIEW_SRV.SystemList"},"ParentContextid":"","Contextid":"089E014134D51EE3BDD974929A574614","Name":"FA7~HANADB","NoOfAlerts":"0","ObjectType":"T_SYSTEM","ConfigStatus":0,"Category":"","Status":"","LinkToAlerts":"","AlertsString":"","ObjectTypeIcon":"","IsProblemContextAvailable":"","ExtSystemType":"","ExceptStatus":0,"PerfStatus":0,"AvailStatus":0},{"__metadata":{"id":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51EE3B5EFFF937FE6B4AD')","uri":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51EE3B5EFFF937FE6B4AD')","type":"Z_SYSTEM_OVERVIEW_SRV.SystemList"},"ParentContextid":"","Contextid":"089E014134D51EE3B5EFFF937FE6B4AD","Name":"FBT~ABAP","NoOfAlerts":"0","ObjectType":"T_SYSTEM","ConfigStatus":0,"Category":"","Status":"","LinkToAlerts":"","AlertsString":"","ObjectTypeIcon":"","IsProblemContextAvailable":"","ExtSystemType":"","ExceptStatus":0,"PerfStatus":0,"AvailStatus":0},{"__metadata":{"id":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51EE2BCD4A7C3E8B5D4C7')","uri":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51EE2BCD4A7C3E8B5D4C7')","type":"Z_SYSTEM_OVERVIEW_SRV.SystemList"},"ParentContextid":"","Contextid":"089E014134D51EE2BCD4A7C3E8B5D4C7","Name":"FQ7~HANADB","NoOfAlerts":"0","ObjectType":"T_SYSTEM","ConfigStatus":0,"Category":"","Status":"","LinkToAlerts":"","AlertsString":"","ObjectTypeIcon":"","IsProblemContextAvailable":"","ExtSystemType":"","ExceptStatus":0,"PerfStatus":0,"AvailStatus":0},{"__metadata":{"id":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51ED3B6BCFFF3EA2E203E')","uri":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51ED3B6BCFFF3EA2E203E')","type":"Z_SYSTEM_OVERVIEW_SRV.SystemList"},"ParentContextid":"","Contextid":"089E014134D51ED3B6BCFFF3EA2E203E","Name":"SD7~JAVA","NoOfAlerts":"0","ObjectType":"T_SYSTEM","ConfigStatus":0,"Category":"","Status":"","LinkToAlerts":"","AlertsString":"","ObjectTypeIcon":"","IsProblemContextAvailable":"","ExtSystemType":"","ExceptStatus":0,"PerfStatus":0,"AvailStatus":0},{"__metadata":{"id":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('0000C9EAA3AE1ED2B4FE99C7E6EDCA7B')","uri":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('0000C9EAA3AE1ED2B4FE99C7E6EDCA7B')","type":"Z_SYSTEM_OVERVIEW_SRV.SystemList"},"ParentContextid":"","Contextid":"0000C9EAA3AE1ED2B4FE99C7E6EDCA7B","Name":"A14~ABAP","NoOfAlerts":"0","ObjectType":"T_SYSTEM","ConfigStatus":0,"Category":"","Status":"","LinkToAlerts":"","AlertsString":"","ObjectTypeIcon":"","IsProblemContextAvailable":"","ExtSystemType":"","ExceptStatus":0,"PerfStatus":0,"AvailStatus":0},{"__metadata":{"id":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('0000C9EAA3AE1ED2B4FE9A1436798A7B')","uri":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('0000C9EAA3AE1ED2B4FE9A1436798A7B')","type":"Z_SYSTEM_OVERVIEW_SRV.SystemList"},"ParentContextid":"","Contextid":"0000C9EAA3AE1ED2B4FE9A1436798A7B","Name":"A24~ABAP","NoOfAlerts":"0","ObjectType":"T_SYSTEM","ConfigStatus":0,"Category":"","Status":"","LinkToAlerts":"","AlertsString":"","ObjectTypeIcon":"","IsProblemContextAvailable":"","ExtSystemType":"","ExceptStatus":0,"PerfStatus":0,"AvailStatus":0},{"__metadata":{"id":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51ED4809A9A486A6ADCB4')","uri":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51ED4809A9A486A6ADCB4')","type":"Z_SYSTEM_OVERVIEW_SRV.SystemList"},"ParentContextid":"","Contextid":"089E014134D51ED4809A9A486A6ADCB4","Name":"A31~ABAP","NoOfAlerts":"0","ObjectType":"T_SYSTEM","ConfigStatus":0,"Category":"","Status":"","LinkToAlerts":"","AlertsString":"","ObjectTypeIcon":"","IsProblemContextAvailable":"","ExtSystemType":"","ExceptStatus":0,"PerfStatus":0,"AvailStatus":0},{"__metadata":{"id":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51ED4809130A93A17CC3C')","uri":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51ED4809130A93A17CC3C')","type":"Z_SYSTEM_OVERVIEW_SRV.SystemList"},"ParentContextid":"","Contextid":"089E014134D51ED4809130A93A17CC3C","Name":"A32~ABAP","NoOfAlerts":"0","ObjectType":"T_SYSTEM","ConfigStatus":0,"Category":"","Status":"","LinkToAlerts":"","AlertsString":"","ObjectTypeIcon":"","IsProblemContextAvailable":"","ExtSystemType":"","ExceptStatus":0,"PerfStatus":0,"AvailStatus":0},{"__metadata":{"id":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51ED4809130A93A15AC3C')","uri":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51ED4809130A93A15AC3C')","type":"Z_SYSTEM_OVERVIEW_SRV.SystemList"},"ParentContextid":"","Contextid":"089E014134D51ED4809130A93A15AC3C","Name":"A32~HANADB","NoOfAlerts":"0","ObjectType":"T_SYSTEM","ConfigStatus":0,"Category":"","Status":"","LinkToAlerts":"","AlertsString":"","ObjectTypeIcon":"","IsProblemContextAvailable":"","ExtSystemType":"","ExceptStatus":0,"PerfStatus":0,"AvailStatus":0},{"__metadata":{"id":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51ED4809643439F5554FE')","uri":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51ED4809643439F5554FE')","type":"Z_SYSTEM_OVERVIEW_SRV.SystemList"},"ParentContextid":"","Contextid":"089E014134D51ED4809643439F5554FE","Name":"A33~ABAP","NoOfAlerts":"0","ObjectType":"T_SYSTEM","ConfigStatus":0,"Category":"","Status":"","LinkToAlerts":"","AlertsString":"","ObjectTypeIcon":"","IsProblemContextAvailable":"","ExtSystemType":"","ExceptStatus":0,"PerfStatus":0,"AvailStatus":0},{"__metadata":{"id":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51ED38DDF2C4CDBEE1928')","uri":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51ED38DDF2C4CDBEE1928')","type":"Z_SYSTEM_OVERVIEW_SRV.SystemList"},"ParentContextid":"","Contextid":"089E014134D51ED38DDF2C4CDBEE1928","Name":"A9P~ABAP","NoOfAlerts":"0","ObjectType":"T_SYSTEM","ConfigStatus":0,"Category":"","Status":"","LinkToAlerts":"","AlertsString":"","ObjectTypeIcon":"","IsProblemContextAvailable":"","ExtSystemType":"","ExceptStatus":0,"PerfStatus":0,"AvailStatus":0},{"__metadata":{"id":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51EE3BCA6879626F3177E')","uri":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51EE3BCA6879626F3177E')","type":"Z_SYSTEM_OVERVIEW_SRV.SystemList"},"ParentContextid":"","Contextid":"089E014134D51EE3BCA6879626F3177E","Name":"AAA~ABAP","NoOfAlerts":"0","ObjectType":"T_SYSTEM","ConfigStatus":0,"Category":"","Status":"","LinkToAlerts":"","AlertsString":"","ObjectTypeIcon":"","IsProblemContextAvailable":"","ExtSystemType":"","ExceptStatus":0,"PerfStatus":0,"AvailStatus":0},{"__metadata":{"id":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51EE3BCA6991E9566D7A0')","uri":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51EE3BCA6991E9566D7A0')","type":"Z_SYSTEM_OVERVIEW_SRV.SystemList"},"ParentContextid":"","Contextid":"089E014134D51EE3BCA6991E9566D7A0","Name":"AAA00003~ABAP","NoOfAlerts":"0","ObjectType":"T_SYSTEM","ConfigStatus":0,"Category":"","Status":"","LinkToAlerts":"","AlertsString":"","ObjectTypeIcon":"","IsProblemContextAvailable":"","ExtSystemType":"","ExceptStatus":0,"PerfStatus":0,"AvailStatus":0},{"__metadata":{"id":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('0000C9EAA3AE1EE2B98E7D147269D06E')","uri":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('0000C9EAA3AE1EE2B98E7D147269D06E')","type":"Z_SYSTEM_OVERVIEW_SRV.SystemList"},"ParentContextid":"","Contextid":"0000C9EAA3AE1EE2B98E7D147269D06E","Name":"ACC~UNSPAPP","NoOfAlerts":"0","ObjectType":"T_SYSTEM","ConfigStatus":0,"Category":"","Status":"","LinkToAlerts":"","AlertsString":"","ObjectTypeIcon":"","IsProblemContextAvailable":"","ExtSystemType":"","ExceptStatus":0,"PerfStatus":0,"AvailStatus":0},{"__metadata":{"id":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51EE3B6BBCB062ADFDE11')","uri":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51EE3B6BBCB062ADFDE11')","type":"Z_SYSTEM_OVERVIEW_SRV.SystemList"},"ParentContextid":"","Contextid":"089E014134D51EE3B6BBCB062ADFDE11","Name":"FO7~ABAP","NoOfAlerts":"0","ObjectType":"T_SYSTEM","ConfigStatus":0,"Category":"","Status":"","LinkToAlerts":"","AlertsString":"","ObjectTypeIcon":"","IsProblemContextAvailable":"","ExtSystemType":"","ExceptStatus":0,"PerfStatus":0,"AvailStatus":0},{"__metadata":{"id":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51EE2BDA86F887E4D1E8E')","uri":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51EE2BDA86F887E4D1E8E')","type":"Z_SYSTEM_OVERVIEW_SRV.SystemList"},"ParentContextid":"","Contextid":"089E014134D51EE2BDA86F887E4D1E8E","Name":"FOOBAR~BOBJ","NoOfAlerts":"0","ObjectType":"T_SYSTEM","ConfigStatus":0,"Category":"","Status":"","LinkToAlerts":"","AlertsString":"","ObjectTypeIcon":"","IsProblemContextAvailable":"","ExtSystemType":"","ExceptStatus":0,"PerfStatus":0,"AvailStatus":0},{"__metadata":{"id":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('0000C9EAA3AE1ED3A2CF216920198FA2')","uri":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('0000C9EAA3AE1ED3A2CF216920198FA2')","type":"Z_SYSTEM_OVERVIEW_SRV.SystemList"},"ParentContextid":"","Contextid":"0000C9EAA3AE1ED3A2CF216920198FA2","Name":"MAR~UNSPAPP","NoOfAlerts":"0","ObjectType":"T_SYSTEM","ConfigStatus":0,"Category":"","Status":"","LinkToAlerts":"","AlertsString":"","ObjectTypeIcon":"","IsProblemContextAvailable":"","ExtSystemType":"","ExceptStatus":0,"PerfStatus":0,"AvailStatus":0},{"__metadata":{"id":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51EE481B2E92862A599C3')","uri":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51EE481B2E92862A599C3')","type":"Z_SYSTEM_OVERVIEW_SRV.SystemList"},"ParentContextid":"","Contextid":"089E014134D51EE481B2E92862A599C3","Name":"PJ4~JAVA","NoOfAlerts":"0","ObjectType":"T_SYSTEM","ConfigStatus":0,"Category":"","Status":"","LinkToAlerts":"","AlertsString":"","ObjectTypeIcon":"","IsProblemContextAvailable":"","ExtSystemType":"","ExceptStatus":0,"PerfStatus":0,"AvailStatus":0},{"__metadata":{"id":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51EE481B2E92862A5B9C3')","uri":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51EE481B2E92862A5B9C3')","type":"Z_SYSTEM_OVERVIEW_SRV.SystemList"},"ParentContextid":"","Contextid":"089E014134D51EE481B2E92862A5B9C3","Name":"QV600002~ABAP","NoOfAlerts":"0","ObjectType":"T_SYSTEM","ConfigStatus":0,"Category":"","Status":"","LinkToAlerts":"","AlertsString":"","ObjectTypeIcon":"","IsProblemContextAvailable":"","ExtSystemType":"","ExceptStatus":0,"PerfStatus":0,"AvailStatus":0},{"__metadata":{"id":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51ED48096F791209C1637')","uri":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51ED48096F791209C1637')","type":"Z_SYSTEM_OVERVIEW_SRV.SystemList"},"ParentContextid":"","Contextid":"089E014134D51ED48096F791209C1637","Name":"S77~ABAP","NoOfAlerts":"0","ObjectType":"T_SYSTEM","ConfigStatus":0,"Category":"","Status":"","LinkToAlerts":"","AlertsString":"","ObjectTypeIcon":"","IsProblemContextAvailable":"","ExtSystemType":"","ExceptStatus":0,"PerfStatus":0,"AvailStatus":0},{"__metadata":{"id":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51EE3AEBB896CD4959963')","uri":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51EE3AEBB896CD4959963')","type":"Z_SYSTEM_OVERVIEW_SRV.SystemList"},"ParentContextid":"","Contextid":"089E014134D51EE3AEBB896CD4959963","Name":"SI7~ABAP","NoOfAlerts":"0","ObjectType":"T_SYSTEM","ConfigStatus":0,"Category":"","Status":"","LinkToAlerts":"","AlertsString":"","ObjectTypeIcon":"","IsProblemContextAvailable":"","ExtSystemType":"","ExceptStatus":0,"PerfStatus":0,"AvailStatus":0},{"__metadata":{"id":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51ED3AEBFE6F0451480D3')","uri":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51ED3AEBFE6F0451480D3')","type":"Z_SYSTEM_OVERVIEW_SRV.SystemList"},"ParentContextid":"","Contextid":"089E014134D51ED3AEBFE6F0451480D3","Name":"SI7~JAVA","NoOfAlerts":"0","ObjectType":"T_SYSTEM","ConfigStatus":0,"Category":"","Status":"","LinkToAlerts":"","AlertsString":"","ObjectTypeIcon":"","IsProblemContextAvailable":"","ExtSystemType":"","ExceptStatus":0,"PerfStatus":0,"AvailStatus":0},{"__metadata":{"id":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51ED3B6BD03D632C38040')","uri":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51ED3B6BD03D632C38040')","type":"Z_SYSTEM_OVERVIEW_SRV.SystemList"},"ParentContextid":"","Contextid":"089E014134D51ED3B6BD03D632C38040","Name":"SJ7~ABAP","NoOfAlerts":"0","ObjectType":"T_SYSTEM","ConfigStatus":0,"Category":"","Status":"","LinkToAlerts":"","AlertsString":"","ObjectTypeIcon":"","IsProblemContextAvailable":"","ExtSystemType":"","ExceptStatus":0,"PerfStatus":0,"AvailStatus":0},{"__metadata":{"id":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51ED3BDA5973E22B2A909')","uri":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51ED3BDA5973E22B2A909')","type":"Z_SYSTEM_OVERVIEW_SRV.SystemList"},"ParentContextid":"","Contextid":"089E014134D51ED3BDA5973E22B2A909","Name":"SNN~ABAP","NoOfAlerts":"0","ObjectType":"T_SYSTEM","ConfigStatus":0,"Category":"","Status":"","LinkToAlerts":"","AlertsString":"","ObjectTypeIcon":"","IsProblemContextAvailable":"","ExtSystemType":"","ExceptStatus":0,"PerfStatus":0,"AvailStatus":0},{"__metadata":{"id":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51EE3B6B73ECA9664563E')","uri":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51EE3B6B73ECA9664563E')","type":"Z_SYSTEM_OVERVIEW_SRV.SystemList"},"ParentContextid":"","Contextid":"089E014134D51EE3B6B73ECA9664563E","Name":"SO7~ABAP","NoOfAlerts":"0","ObjectType":"T_SYSTEM","ConfigStatus":0,"Category":"","Status":"","LinkToAlerts":"","AlertsString":"","ObjectTypeIcon":"","IsProblemContextAvailable":"","ExtSystemType":"","ExceptStatus":0,"PerfStatus":0,"AvailStatus":0},{"__metadata":{"id":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51ED391F7521A1D3B0CDC')","uri":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51ED391F7521A1D3B0CDC')","type":"Z_SYSTEM_OVERVIEW_SRV.SystemList"},"ParentContextid":"","Contextid":"089E014134D51ED391F7521A1D3B0CDC","Name":"SQ7~JAVA","NoOfAlerts":"0","ObjectType":"T_SYSTEM","ConfigStatus":0,"Category":"","Status":"","LinkToAlerts":"","AlertsString":"","ObjectTypeIcon":"","IsProblemContextAvailable":"","ExtSystemType":"","ExceptStatus":0,"PerfStatus":0,"AvailStatus":0},{"__metadata":{"id":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51EE3858CB5324FAF6862')","uri":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51EE3858CB5324FAF6862')","type":"Z_SYSTEM_OVERVIEW_SRV.SystemList"},"ParentContextid":"","Contextid":"089E014134D51EE3858CB5324FAF6862","Name":"ST7~ABAP","NoOfAlerts":"0","ObjectType":"T_SYSTEM","ConfigStatus":0,"Category":"","Status":"","LinkToAlerts":"","AlertsString":"","ObjectTypeIcon":"","IsProblemContextAvailable":"","ExtSystemType":"","ExceptStatus":0,"PerfStatus":0,"AvailStatus":0},{"__metadata":{"id":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51EE481B2E92862A5D9C3')","uri":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51EE481B2E92862A5D9C3')","type":"Z_SYSTEM_OVERVIEW_SRV.SystemList"},"ParentContextid":"","Contextid":"089E014134D51EE481B2E92862A5D9C3","Name":"U3S~JAVA","NoOfAlerts":"0","ObjectType":"T_SYSTEM","ConfigStatus":0,"Category":"","Status":"","LinkToAlerts":"","AlertsString":"","ObjectTypeIcon":"","IsProblemContextAvailable":"","ExtSystemType":"","ExceptStatus":0,"PerfStatus":0,"AvailStatus":0},{"__metadata":{"id":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51EE481B2E92862A5F9C3')","uri":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51EE481B2E92862A5F9C3')","type":"Z_SYSTEM_OVERVIEW_SRV.SystemList"},"ParentContextid":"","Contextid":"089E014134D51EE481B2E92862A5F9C3","Name":"U3S00002~ABAP","NoOfAlerts":"0","ObjectType":"T_SYSTEM","ConfigStatus":0,"Category":"","Status":"","LinkToAlerts":"","AlertsString":"","ObjectTypeIcon":"","IsProblemContextAvailable":"","ExtSystemType":"","ExceptStatus":0,"PerfStatus":0,"AvailStatus":0},{"__metadata":{"id":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51EE3B4BA1502A3F10586')","uri":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51EE3B4BA1502A3F10586')","type":"Z_SYSTEM_OVERVIEW_SRV.SystemList"},"ParentContextid":"","Contextid":"089E014134D51EE3B4BA1502A3F10586","Name":"UBI00001~ABAP","NoOfAlerts":"0","ObjectType":"T_SYSTEM","ConfigStatus":0,"Category":"","Status":"","LinkToAlerts":"","AlertsString":"","ObjectTypeIcon":"","IsProblemContextAvailable":"","ExtSystemType":"","ExceptStatus":0,"PerfStatus":0,"AvailStatus":0},{"__metadata":{"id":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51EE3B4BDA47D055F0C86')","uri":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51EE3B4BDA47D055F0C86')","type":"Z_SYSTEM_OVERVIEW_SRV.SystemList"},"ParentContextid":"","Contextid":"089E014134D51EE3B4BDA47D055F0C86","Name":"UBI00001~JAVA","NoOfAlerts":"0","ObjectType":"T_SYSTEM","ConfigStatus":0,"Category":"","Status":"","LinkToAlerts":"","AlertsString":"","ObjectTypeIcon":"","IsProblemContextAvailable":"","ExtSystemType":"","ExceptStatus":0,"PerfStatus":0,"AvailStatus":0},{"__metadata":{"id":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51ED3BF892DC30BD8394F')","uri":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51ED3BF892DC30BD8394F')","type":"Z_SYSTEM_OVERVIEW_SRV.SystemList"},"ParentContextid":"","Contextid":"089E014134D51ED3BF892DC30BD8394F","Name":"VXJ~JAVA","NoOfAlerts":"0","ObjectType":"T_SYSTEM","ConfigStatus":0,"Category":"","Status":"","LinkToAlerts":"","AlertsString":"","ObjectTypeIcon":"","IsProblemContextAvailable":"","ExtSystemType":"","ExceptStatus":0,"PerfStatus":0,"AvailStatus":0},{"__metadata":{"id":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51EE3BCC593915CBA700D')","uri":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51EE3BCC593915CBA700D')","type":"Z_SYSTEM_OVERVIEW_SRV.SystemList"},"ParentContextid":"","Contextid":"089E014134D51EE3BCC593915CBA700D","Name":"XI2~ABAP","NoOfAlerts":"0","ObjectType":"T_SYSTEM","ConfigStatus":0,"Category":"","Status":"","LinkToAlerts":"","AlertsString":"","ObjectTypeIcon":"","IsProblemContextAvailable":"","ExtSystemType":"","ExceptStatus":0,"PerfStatus":0,"AvailStatus":0},{"__metadata":{"id":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51EE3BCC59413788B700E')","uri":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51EE3BCC59413788B700E')","type":"Z_SYSTEM_OVERVIEW_SRV.SystemList"},"ParentContextid":"","Contextid":"089E014134D51EE3BCC59413788B700E","Name":"XI2~JAVA","NoOfAlerts":"0","ObjectType":"T_SYSTEM","ConfigStatus":0,"Category":"","Status":"","LinkToAlerts":"","AlertsString":"","ObjectTypeIcon":"","IsProblemContextAvailable":"","ExtSystemType":"","ExceptStatus":0,"PerfStatus":0,"AvailStatus":0},{"__metadata":{"id":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51ED480B8FDFCC3B9B8D8')","uri":"https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_OVERVIEW_SRV/SystemListSet('089E014134D51ED480B8FDFCC3B9B8D8')","type":"Z_SYSTEM_OVERVIEW_SRV.SystemList"},"ParentContextid":"","Contextid":"089E014134D51ED480B8FDFCC3B9B8D8","Name":"XTQ~ABAP","NoOfAlerts":"0","ObjectType":"T_SYSTEM","ConfigStatus":0,"Category":"","Status":"","LinkToAlerts":"","AlertsString":"","ObjectTypeIcon":"","IsProblemContextAvailable":"","ExtSystemType":"","ExceptStatus":0,"PerfStatus":0,"AvailStatus":0}]}};
+
+  var tData = {
+              "name": "All Systems",
+              "children": [
+              {
+                 "name": "avail",
+                 "children": [
+                  {
+                   "name": "grey",
+                   "children": [
+                    {
+                     "name": "grey",
+                     "children": [
+
+                     ]
+                    }
+                   ]
+                  },
+                  {
+                   "name": "green",
+                   "children": [
+                    {
+                     "name": "green",
+                     "children": [
+                      
+                     ]
+                    }
+                   ]
+                  },
+                  {
+                   "name": "yellow",
+                   "children": [
+                    {
+                     "name": "yellow",
+                     "children": [
+
+                     ]
+                    }
+                   ]
+                  },
+                  {
+                   "name": "red",
+                   "children": [
+                    {
+                     "name": "red",
+                     "children": [
+
+                     ]
+                    }
+                   ]
+                  }
+                  ]
+                },
+                {
+                 "name": "perform",
+                 "children": [
+                  {
+                   "name": "grey",
+                   "children": [
+                    {
+                     "name": "grey",
+                     "children": [
+
+                     ]
+                    }
+                   ]
+                  },
+                  {
+                   "name": "green",
+                   "children": [
+                    {
+                     "name": "green",
+                     "children": [
+                      
+                     ]
+                    }
+                   ]
+                  },
+                  {
+                   "name": "yellow",
+                   "children": [
+                    {
+                     "name": "yellow",
+                     "children": [
+
+                     ]
+                    }
+                   ]
+                  },
+                  {
+                   "name": "red",
+                   "children": [
+                    {
+                     "name": "red",
+                     "children": [
+
+                     ]
+                    }
+                   ]
+                  }
+                  ]
+                },
+                    {
+                 "name": "config",
+                 "children": [
+                  {
+                   "name": "grey",
+                   "children": [
+                    {
+                     "name": "grey",
+                     "children": [
+
+                     ]
+                    }
+                   ]
+                  },
+                  {
+                   "name": "green",
+                   "children": [
+                    {
+                     "name": "green",
+                     "children": [
+                      
+                     ]
+                    }
+                   ]
+                  },
+                  {
+                   "name": "yellow",
+                   "children": [
+                    {
+                     "name": "yellow",
+                     "children": [
+
+                     ]
+                    }
+                   ]
+                  },
+                  {
+                   "name": "red",
+                   "children": [
+                    {
+                     "name": "red",
+                     "children": [
+
+                     ]
+                    }
+                   ]
+                  }
+                  ]
+                },
+                    {
+                 "name": "exception",
+                 "children": [
+                  {
+                   "name": "grey",
+                   "children": [
+                    {
+                     "name": "grey",
+                     "children": [
+
+                     ]
+                    }
+                   ]
+                  },
+                  {
+                   "name": "green",
+                   "children": [
+                    {
+                     "name": "green",
+                     "children": [
+                      
+                     ]
+                    }
+                   ]
+                  },
+                  {
+                   "name": "yellow",
+                   "children": [
+                    {
+                     "name": "yellow",
+                     "children": [
+
+                     ]
+                    }
+                   ]
+                  },
+                  {
+                   "name": "red",
+                   "children": [
+                    {
+                     "name": "red",
+                     "children": [
+
+                     ]
+                    }
+                   ]
+                  }
+                  ]
+                }
+              ]
+
+            };
+ var newData;
+ var oldNode;
+ var oldColor;
+
+ newData = getTreeData(mydata);
 
 var svg = d3.select("#body").append("div")
     .attr("class", "chart")
@@ -61,33 +316,42 @@ var svg = d3.select("#body").append("div")
   .append("svg:g")
     .attr("transform", "translate(.5,.5)");
 
+    var margin = { top: 40, right: 10, bottom: 10, left: 10 };
+    var treemap;
+    //width = 960 - margin.left - margin.right,
+    //height = 500 - margin.top - margin.bottom;
+
   init();
 
   function init(){
+    oldNode = null;
+    oldColor = null;
 
-    d3.json("hier_overview.json", function(data) {
-      node = root = data;
-
+    //d3.json("hier_overview.json", function(data) {
+      //node = root = data;
+      node = root = data = newData;
         //clean up
     if (reentry == true){
         //svg.remove();
         parentZoom = false;
         d3.selectAll(".cell")
         .remove();
-        // d3.selectAll("text")
-        // .remove();
+
+        d3.select("#ranking #drank").attr('selected', 'selected');
+        //d3.select("#ranking")[0].children[0].selected = true;
+        //$("#ranking").val("rank");
       }
 
-      var treemap = d3.layout.treemap()
+      treemap = d3.layout.treemap()
     //.children(function(d, depth) { return depth ? null : d._children; })
     .round(false)
     .size([w, h])
     .sticky(true)
     .value(function(d) { return d.size; });
 
-
-
       node = root = data.children[categ]; // avail default
+
+      console.log("categ: ", node);
 
       var nodes = treemap.nodes(root);
           //.filter(function(d) { return !d.children; });
@@ -99,38 +363,86 @@ var svg = d3.select("#body").append("div")
           .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
           .on("click", function(d) { 
             if (parentZoom == false){
+              
               parentZoom = true;
-              return zoom(d.parent);
+              leaf = false;
+              zoom(d.parent, undefined, leaf);
+
+               // if(oldNode != undefined)
+               //   d3.select("#"+oldNode.childNodes[0].id).style("fill", getColor(oldColor));
+
             }
             else{
+
+              if(!d.children){
+                //this.style("fill", "#000000");
+                //console.log("painting leaf element: ", d3.select(this.children[0]));
+                console.log("painting leaf element: ", this.childNodes[0].id);
+
+                //console.log("d: ", d);
+                oldColor = d.parent.name;
+                //d3.select(this.childNodes[0]).style("fill", leafColor);
+                oldNode = this.childNodes[0].id;
+                leaf = true;
+                //d3.select(this.childNodes)[0][0].style("fill", "#FFFFFF");
+              }
+
               parentZoom = false;
-              return zoom(d);
+              zoom(d, this.childNodes[0].id, leaf);
+              oldNode = this;
+              //d3.select(this.parent).transition().style("fill", leafColor);
+              //d3.select("#"+this.childNodes[0].id).style("fill", leafColor);
+
+               //.childNodes[0].id;
             }
-          });
+          })
+          .on("mouseout", function(d) {
+                d3.select("#toolt").classed("hidden", true);
+        });
+          //.call(position);
+      //.style("background", "color");
+      //.on("mousemove", mousemove)
+      //.on("mouseout", mouseout);
             //turn zoom(!d.children ? d.parent : d); });
           //.on("click", function(d) { return zoom(node == d.parent ? root : d.parent); });
 
-      cell.append("svg:rect")
+      var idx = 0;
+      var rects = cell.append("svg:rect")
+          .attr("id", function(){ return "rect"+idx++; })
           .attr("width", function(d) { return d.dx - 1; })
           .attr("height", function(d) { return d.dy - 1; })
+          .attr("class", "boxes")
           //.style("fill", function(d) { return d.children  ? null : d.parent.name; });
           .style("fill", function(d) { if (d.children  != null)
                                         {  return null;}
                                        else {
-                                        if (d.parent.name == "green"){
-                                          return "#40FF00";
-                                        }
-                                        else if (d.parent.name == "yellow"){
-                                          return "#FFF805";
-                                        }
-                                        else if (d.parent.name == "red"){
-                                          return '#FC0000';
-                                        }
-                                        else if (d.parent.name == "grey"){
-                                          return "#D8D8D8";
-                                        }
+                                            return getColor(d.parent.name);
                                        }  
-                                   });
+                                   })
+          .on("mousemove", function(d){
+
+             mousemove(d);
+          })
+          .on("mouseover", function() {
+            //this.parentNode.appendChild(this); // workaround for bringing elements to the front (ie z-index)
+            d3.select(this)
+                //.attr("filter", "url(#outerDropShadow)")
+                .style("stroke-width", "4")
+                .style("stroke", "#000000");
+        })
+          .on("mouseout", function() {
+            d3.select(this)
+                //.attr("filter", "")
+                //.select(".background")
+                .style("stroke-width", "0.2")
+                .style("stroke", "#FFFFFF");
+                //d3.select("#toolt").classed("hidden", true);
+                //this.fireEvent("on", "mouseout", mouseout);
+                mouseout;
+        })
+
+          .call(position)
+          ;
 
       cell.append("svg:text")
           .attr("x", function(d) { return d.dx / 2; })  
@@ -140,13 +452,14 @@ var svg = d3.select("#body").append("div")
           .text(function(d) { return !d.children ? d.name : null; })
           .style("opacity", function(d) { d.w = this.getComputedTextLength(); return d.dx > d.w ? 1 : 0; });
 
-      //if (reentry == false){
+     
 
       d3.select(window).on("click", function() { 
+        d3.select("#"+oldNode.childNodes[0].id).style("fill", getColor(oldColor));
         parentZoom = false; zoom(root); 
       });
 
-      d3.select("select").on("change", function() {
+      d3.select("#catg").on("change", function() {
         //treemap.value(this.value == "size" ? size : count).nodes(root);
         // if (this.value == "perform"){
         //   treemap.value(data.children[1]);
@@ -154,31 +467,106 @@ var svg = d3.select("#body").append("div")
         // zoom(node);
 
         reentry = true;
-        categ = this.value; 
+        var tmp = this.value; 
 
-        if(categ == 'avail')
-          categ = 0;
-        else if(categ == 'perform')
-          categ = 1;
-        else if(categ == 'config')
-          categ = 2;
-        else if(categ == 'exception')
-          categ = 3;
-        //zoom(node);
-        init();
+        if(tmp == 'avail')
+          { categ = 0; init(); }
+        else if(tmp == 'perform')
+          { categ = 1; init(); }
+        else if(tmp == 'config')
+          { categ = 2; init(); }
+        else if(tmp == 'exception')
+          { categ = 3; init(); }
+
+      });
+
+      d3.select("#ranking").on("change", function() {
+        reentry = true;
+        var tmp = this.value; 
+
+        if(tmp == 'rank')
+          rankFlag = true;
+        else if(tmp == 'norank')
+          rankFlag = false;
+
+
+        treemap.value(rankFlag == true ? size : count).nodes(root);
+        console.log("Treemap: ", d3.select("#ranking"));
+
+        zoom(node);
       });
     //}
-    });
+    //});
 };
-// function size(d) {
-//   return d.size;
-// }
 
-// function count(d) {
-//   return 1;
-// }
+function size(d) {
+  return d.size;
+}
 
-function zoom(d) {
+function count(d) {
+  return 1;
+}
+
+function getColor(status){
+  if (status == "green"){
+      return "#40FF00";
+    }
+  else if (status == "yellow"){
+    return "#FFF805";
+  }
+  else if (status == "red"){
+    return '#FC0000';
+  }
+  else if (status == "grey"){
+    return "#D8D8D8";
+  }
+}
+
+var mousemove = function(d) {
+  var xPosition = d3.event.pageX + 50;
+  var yPosition = d3.event.pageY + 30;
+
+  //console.log(' in mousemove: ', xPosition, ":", yPosition);
+
+  d3.select("#toolt")
+    .style("visibility", "visible")
+    .classed("hidden", false)
+    .style("left", xPosition + "px")
+    .style("top", yPosition + "px");
+  d3.select("#toolt #heading")
+    .text(d.name);
+  d3.select("#toolt #stat")
+    .text("Status: "+ d.parent.name);
+  d3.select("#toolt #rk")
+    .text("Rank :"+ d.size);
+
+    // if (xPosition > w+400 || xPosition < 420 || yPosition < 80 || yPosition > 670){
+    //   d3.select("#toolt").style("visibility", "hidden");
+    // }
+
+  //d3.select("#toolt").classed("hidden", false);
+
+
+  //d3.select(this).transition().attr("transform","scale(1.2)")
+  //this.parentNode.appendChild(this);
+};
+
+var mouseout = function() {
+  d3.select("#toolt").classed("hidden", true);
+  d3.select("#toolt").style("visibility", "hidden");
+
+  //d3.select(this).transition().attr("transform","scale(1)")
+  //this.parentNode.appendChild(this);
+};
+
+function position() {
+  this.style("left", function(d) { return d.x + "px"; })
+      .style("top", function(d) { return d.y + "px"; })
+      .style("width", function(d) { return Math.max(0, d.dx - 2) + "px"; })
+      .style("height", function(d) { return Math.max(0, d.dy - 2) + "px"; });
+}
+
+function zoom(d, oldnode, leaf) {
   var kx = w / d.dx, ky = h / d.dy;
   x.domain([d.x, d.x + d.dx]);
   y.domain([d.y, d.y + d.dy]);
@@ -186,19 +574,126 @@ function zoom(d) {
   var t = svg.selectAll("g.cell").transition()
       .duration(d3.event.altKey ? 7500 : 750)
       .attr("transform", function(d) { return "translate(" + x(d.x) + "," + y(d.y) + ")"; });
+      //.style("fill", leafColor);
+  //var idx = 0;
 
   t.select("rect")
+      
       .attr("width", function(d) { return kx * d.dx - 1; })
       .attr("height", function(d) { return ky * d.dy - 1; })
+      .style("fill",function(d){ 
+
+        
+        // if(d.children) return; 
+        //console.log('inside zoom: ', d); 
+        if(leaf == true){
+          return leafColor;
+        }
+        else{
+          if(d.children)
+            return;
+          else
+            return getColor(d.parent.name);
+          // else
+          //   return getColor(d.name);
+
+        }
+
+        // return leaf == true ? leafColor: getColor(d.parent.name)
+      });
+      //.style("color", "#000000");
+
+
+      //d3.select(this.childNodes[0]).style("fill", leafColor);
 
   t.select("text")
       .attr("x", function(d) { return kx * d.dx / 2; })
       .attr("y", function(d) { return ky * d.dy / 2; })
+      
       .style("opacity", function(d) { return kx * d.dx > d.w ? 1 : 0; });
+
+  // if (oldnode != undefined)
+  //     d3.select("#"+oldnode.id).transition().style("fill", leafColor);
 
   node = d;
   d3.event.stopPropagation();
 }
+
+function getTreeData(sData){
+  sData = sData.d; //.results.__metadata;
+  //console.log('source data: ', sData);
+  //sData.results[0].Name;
+
+ var nam = "";
+
+  for (var key in sData.results) {
+    //console.log("looping...", sData.results[key].Name);
+    //console.log("looping...", sData.results[key].AvailStatus);
+    nam = sData.results[key].Name;
+
+    //avail
+    if(sData.results[key].AvailStatus == 0){
+          tData.children[0].children[0].children[0].children.push({"name": nam, "size": 1});
+    }
+    else if(sData.results[key].AvailStatus == 1){
+          tData.children[0].children[1].children[0].children.push({"name": nam, "size": 4});
+    }
+    else if(sData.results[key].AvailStatus == 2){
+          tData.children[0].children[2].children[0].children.push({"name": nam, "size": 4});
+    }
+    else if(sData.results[key].AvailStatus == 3){
+          tData.children[0].children[3].children[0].children.push({"name": nam, "size": 4});
+    }
+
+//tData.children[0].children[3].children[0].children
+    //perform
+    if(sData.results[key].PerfStatus == 0){
+          tData.children[1].children[0].children[0].children.push({"name": nam, "size": 1});
+    }
+    else if(sData.results[key].PerfStatus == 1){
+          tData.children[1].children[1].children[0].children.push({"name": nam, "size": 4});
+    }
+    else if(sData.results[key].PerfStatus == 2){
+          tData.children[1].children[2].children[0].children.push({"name": nam, "size": 4});
+    }
+    else if(sData.results[key].PerfStatus == 3){
+          tData.children[1].children[3].children[0].children.push({"name": nam, "size": 4});
+    }
+
+    //config
+    if(sData.results[key].ConfigStatus == 0){
+          tData.children[2].children[0].children[0].children.push({"name": nam, "size": 1});
+    }
+    else if(sData.results[key].ConfigStatus == 1){
+          tData.children[2].children[1].children[0].children.push({"name": nam, "size": 4});
+    }
+    else if(sData.results[key].ConfigStatus == 2){
+          tData.children[2].children[2].children[0].children.push({"name": nam, "size": 4});
+    }
+    else if(sData.results[key].ConfigStatus == 3){
+          tData.children[2].children[3].children[0].children.push({"name": nam, "size": 4});
+    }
+
+    //exception
+    if(sData.results[key].ExceptStatus == 0){
+          tData.children[3].children[0].children[0].children.push({"name": nam, "size": 1});
+    }
+    else if(sData.results[key].ExceptStatus == 1){
+          tData.children[3].children[1].children[0].children.push({"name": nam, "size": 4});
+    }
+    else if(sData.results[key].ExceptStatus == 2){
+          tData.children[3].children[2].children[0].children.push({"name": nam, "size": 4});
+    }
+    else if(sData.results[key].ExceptStatus == 3){
+          tData.children[3].children[3].children[0].children.push({"name": nam, "size": 4 });
+    }
+
+  }
+
+  //console.log('Target data: ', tData);
+  return tData;
+}
+ 
 
     </script>
   </body>
