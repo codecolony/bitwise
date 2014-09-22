@@ -1,0 +1,107 @@
+
+ "atoms": "
+{\"atom\":\"FQ7~ABAP\",\"size\":100, \"status\":4}
+{\"atom\":\"ldcifq7\",\"size\":30, \"status\":4}
+{\"atom\":\"FQ7~ABAP~ldcifq7_FQ7_00\",\"size\":50, \"status\":4}
+{\"atom\":\"FQ7\",\"size\":50, \"status\":4}
+{\"atom\":\"Performance\",\"size\":10, \"status\":3}
+{\"atom\":\"System response time\",\"size\":5, \"status\":3}
+{\"atom\":\"Average Dialog Response Time last hour\",\"size\":5, \"status\":1}
+{\"atom\":\"Average RFC Response Time last hour\",\"size\":5, \"status\":3}
+{\"atom\":\"Status propagated from Technical Instance\",\"size\":5, \"status\":1}
+{\"atom\":\"User Load\",\"size\":5, \"status\":1}
+{\"atom\":\"Number of concurrent named users\",\"size\":5, \"status\":1}
+{\"atom\":\"Users per application server\",\"size\":5, \"status\":1}
+{\"atom\":\"Instance name ldcifq7_FQ7_00 ABAP Client TOTAL\",\"size\":5, \"status\":1}
+{\"atom\":\"Number of Dialog Users\",\"size\":5, \"status\":1}
+{\"atom\":\"Total Number of Users\",\"size\":5, \"status\":1}
+{\"atom\":\"Number of Http Users\",\"size\":5, \"status\":1}
+{\"atom\":\"Number of RFC Users\",\"size\":5, \"status\":1}
+{\"atom\":\"Performance\",\"size\":10, \"status\":1}
+{\"atom\":\"Update Response Time\",\"size\":5, \"status\":0}
+{\"atom\":\"Update1 Response Time\",\"size\":5, \"status\":0}
+{\"atom\":\"Update2 Response Time\",\"size\":5, \"status\":0}
+{\"atom\":\"Batch Resources\",\"size\":5, \"status\":1}
+{\"atom\":\"Background Queue length\",\"size\":5, \"status\":1}
+{\"atom\":\"Background Work Processes free\",\"size\":5, \"status\":1}
+{\"atom\":\"Background Work Process utilization\",\"size\":5, \"status\":1}
+{\"atom\":\"Background Work Processes stopped\",\"size\":5, \"status\":1}
+{\"atom\":\"Spool Resources\",\"size\":5, \"status\":1}
+{\"atom\":\"Spool Work Processes Utilization\",\"size\":5, \"status\":1}
+{\"atom\":\"Spool Work Processes stopped\",\"size\":5, \"status\":1}
+{\"atom\":\"Memory\",\"size\":5, \"status\":1}
+{\"atom\":\"Heap memory used\",\"size\":5, \"status\":1}
+{\"atom\":\"Extended Memory used\",\"size\":5, \"status\":1}
+{\"atom\":\"Paging Area used\",\"size\":5, \"status\":1}
+{\"atom\":\"Roll Area used\",\"size\":5, \"status\":1}
+{\"atom\":\"Number of buffer swaps\",\"size\":5, \"status\":1}
+{\"atom\":\"Buffer name Program Key Figure Swaps\",\"size\":5, \"status\":1}
+{\"atom\":\"Buffer name CUA Key Figure Swaps\",\"size\":5, \"status\":1}
+{\"atom\":\"Buffer name Table Generic key Key Figure Swaps\",\"size\":5, \"status\":1}
+{\"atom\":\"Buffer name Table Single record Key Figure Swaps\",\"size\":5, \"status\":1}
+{\"atom\":\"Buffer name Nametab Field definition Key Figure Swaps\",\"size\":5, \"status\":1}
+{\"atom\":\"Buffer name Nametab Short Key Figure Swaps\",\"size\":5, \"status\":1}
+{\"atom\":\"Dialog Response Time\",\"size\":5, \"status\":1}
+{\"atom\":\"Dialog Response Time\",\"size\":5, \"status\":1}
+{\"atom\":\"Dialog Standardized Response Time\",\"size\":5, \"status\":1}
+{\"atom\":\"Dialog Queue Time\",\"size\":5, \"status\":1}
+{\"atom\":\"Dialog Frontend Network Time\",\"size\":5, \"status\":1}
+{\"atom\":\"Dialog Load + Generation Time\",\"size\":5, \"status\":1}
+{\"atom\":\"Dialog DB Request Time\",\"size\":5, \"status\":1}
+{\"atom\":\"Number of Dialog steps per Minute\",\"size\":5, \"status\":1}
+{\"atom\":\"Dialog Resources\",\"size\":5, \"status\":1}
+{\"atom\":\"Dialog Work Processes used\",\"size\":5, \"status\":1}
+{\"atom\":\"Number of long running Dialog Work Processes\",\"size\":5, \"status\":1}
+{\"atom\":\"Dispatcher wait queue utilization\",\"size\":5, \"status\":1}
+{\"atom\":\"Number of free Dialog Work Processes\",\"size\":5, \"status\":1}
+{\"atom\":\"Number of Dialog Work Processes in status STOPPED\",\"size\":5, \"status\":1}
+{\"atom\":\"ABAP Dialog work processes in PRIV mode\",\"size\":5, \"status\":1}
+{\"atom\":\"ABAP User Load\",\"size\":5, \"status\":1}
+{\"atom\":\"Number of Dialog Users in Client\",\"size\":5, \"status\":1}
+{\"atom\":\"ABAP Client 000\",\"size\":5, \"status\":1}
+{\"atom\":\"ABAP Client 001\",\"size\":5, \"status\":1}
+{\"atom\":\"ABAP Client 200\",\"size\":5, \"status\":1}
+{\"atom\":\"Number of RFC Users\",\"size\":5, \"status\":1}
+{\"atom\":\"Total Number of Users\",\"size\":5, \"status\":1}
+{\"atom\":\"Number of Dialog Users\",\"size\":5, \"status\":1}
+{\"atom\":\"Number of Http Users\",\"size\":5, \"status\":1}
+{\"atom\":\"Update Resources\",\"size\":5, \"status\":1}
+{\"atom\":\"Update2 Queue Utilization\",\"size\":5, \"status\":1}
+{\"atom\":\"Update1 Work Processes stopped\",\"size\":5, \"status\":1}
+{\"atom\":\"Update2 Work Processes stopped\",\"size\":5, \"status\":1}
+{\"atom\":\"Update1 Queue Utilization\",\"size\":5, \"status\":1}
+{\"atom\":\"ICM Resources\",\"size\":5, \"status\":1}
+{\"atom\":\"ICM Request Queue Usage\",\"size\":5, \"status\":1}
+{\"atom\":\"ICM Thread Usage\",\"size\":5, \"status\":1}
+{\"atom\":\"ICM Connection Usage\",\"size\":5, \"status\":1}
+{\"atom\":\"Number of ICM Threads\",\"size\":5, \"status\":1}
+{\"atom\":\"Number of ICM Connections\",\"size\":5, \"status\":1}
+{\"atom\":\"Number of ICM requests in Queue\",\"size\":5, \"status\":1}
+{\"atom\":\"Gateway Resources\",\"size\":5, \"status\":1}
+{\"atom\":\"Gateway communication usage\",\"size\":5, \"status\":1}
+{\"atom\":\"Remote Gateways usage\",\"size\":5, \"status\":1}
+{\"atom\":\"Gateway client usage\",\"size\":5, \"status\":1}
+{\"atom\":\"Gateway connection usage\",\"size\":5, \"status\":1}
+",
+
+ "links": "
+{\"source\":0 ,\"target\":2 ,\"bond\":1}
+{\"source\":0 ,\"target\":3 ,\"bond\":1}
+{\"source\":2 ,\"target\":1 ,\"bond\":1}
+{\"source\":0 ,\"target\":4 ,\"bond\":1}
+{\"source\":4 ,\"target\":5 ,\"bond\":1}
+{\"source\":4 ,\"target\":8 ,\"bond\":1}
+{\"source\":4 ,\"target\":9 ,\"bond\":1}
+{\"source\":2 ,\"target\":17 ,\"bond\":1}
+{\"source\":17 ,\"target\":18 ,\"bond\":1}
+{\"source\":17 ,\"target\":21 ,\"bond\":1}
+{\"source\":17 ,\"target\":26 ,\"bond\":1}
+{\"source\":17 ,\"target\":29 ,\"bond\":1}
+{\"source\":17 ,\"target\":41 ,\"bond\":1}
+{\"source\":17 ,\"target\":49 ,\"bond\":1}
+{\"source\":17 ,\"target\":56 ,\"bond\":1}
+{\"source\":17 ,\"target\":65 ,\"bond\":1}
+{\"source\":17 ,\"target\":70 ,\"bond\":1}
+{\"source\":17 ,\"target\":77 ,\"bond\":1}
+",
+        

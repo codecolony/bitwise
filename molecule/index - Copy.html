@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+.link line {
+  stroke: #696969;
+}
+
+.link line.separator {
+  stroke: #fff;
+  stroke-width: 2px;
+}
+
+.node circle {
+  stroke: #000;
+  stroke-width: 1.5px;
+}
+
+.node text {
+  font: 12px sans-serif;
+  pointer-events: none;
+}
+
+#drop
+{
+    position:absolute;
+    left:20px;
+    top:20px;
+    z-index:2;
+}
+
+</style>
+<body>
+<div id="drop">
+    <form method="POST" action="">
+      <select name="cars" required="required" onchange='OnChange(this.form.cars);'>
+      <option value="0" selected="selected">Availability</option>
+      <option value="1">Performance</option>
+      <option value="2">Configuration</option>
+      <option value="3">Exception</option>
+      </select>
+    </form>
+</div>
+<!-- <script src="http://d3js.org/d3.v2.min.js?2.9.6"></script> -->
+<script src="js/d3.v2.min.js"></script>
+<script>
+var option_selected = -1;
+var json_file;
+
+function OnChange(dropdown)
+{
+    var myindex  = dropdown.selectedIndex;
+    option_selected = myindex;
+    init();
+    //return true;
+};
+
+if (option_selected == -1){
+  option_selected = 0;
+  init();
+}
+
+
+
+var svg;
+var force;
+var width;
+var height;
+var color;
+var radius;
+
+function init(){
+d3.select("svg")
+       .remove();
+
+   width = 1160;
+    height = 800;
+
+ color = d3.scale.category20();
+
+ radius = d3.scale.sqrt()
+    .range([0, 6]);
+
+ svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+ force = d3.layout.force()
+    .size([width, height])
+    .charge(-400)
+    .linkDistance(function(d) { return radius(d.source.size) + radius(d.target.size) + 20; });
+
+if (option_selected == 0) { json_file = "details_avail.json"; }
+else if (option_selected == 1) { json_file = "details.json"; }
+else if (option_selected == 3) { json_file = "details_except.json"; }
+else if (option_selected == 2) { json_file = "details_config.json"; }
+
+d3.json(json_file, function(graph) {
+
+  //do the data manipulation here
+  graph = graph.d.results;
+  var tmpgraph = {"nodes":[],"links":[]}; //groomed graph to be used later
+
+  graph.forEach(function(d){
+    var nds=d.WorkmodeCode.split("|");
+    var nd_objs = toObject(nds);
+
+    var lnks=d.WorkmodeDescr.split("|");
+    var lnks_objs = toObject(lnks);
+
+    tmpgraph.nodes = nd_objs;
+    tmpgraph.links = lnks_objs;
+  })
+
+  graph = tmpgraph;
+
+  function toObject(arr) {
+    var rv = {};
+    var newarr = [];
+    for (var i = 0; i < arr.length; ++i)
+    {
+        rv = arr[i];
+        if (rv !== ""){
+          rv = JSON.parse(rv);
+          newarr.push(rv);
+        }
+      }
+    return newarr;
+  }
+
+  force
+      .nodes(graph.nodes)
+      .links(graph.links)
+      .on("tick", tick)
+      .start();
+
+  var link = svg.selectAll(".link")
+      .data(graph.links)
+    .enter().append("g")
+      .attr("class", "link");
+
+  link.append("line")
+      .style("stroke-width", function(d) { return (d.bond * 2 - 1) * 2 + "px"; });
+
+  link.filter(function(d) { return d.bond > 1; }).append("line")
+      .attr("class", "separator");
+
+  var node = svg.selectAll(".node")
+      .data(graph.nodes)
+    .enter().append("g")
+      .attr("class", "node")
+      .call(force.drag);
+
+  //     var tooltip = d3.select("body")
+  // .append("div")
+  // .style("position", "absolute")
+  // .style("z-index", "10")
+  // .style("visibility", "hidden")
+  // .text("a simple tooltip");
+
+  node.append("circle")
+      .attr("r", function(d) { return radius(d.size); })
+      .style("fill", function(d) { 
+          if (d.status == 0) return "grey";
+          else if (d.status == 1) return "green";
+          else if (d.status == 2) return "yellow";
+          else if (d.status == 3) return "red" ;
+          else if (d.status == 4) return "steelblue" ; }) //fill our metric status colour, just use d.status!
+      .append("svg:title")
+          .text(function(d, i) { return d.atom; });
+   
+      // .on("mouseover", function(){return tooltip.style("visibility", "visible");})
+      // .on("mousemove", function(){return tooltip.style("top", (event.pageY-10)+"px").style("left",(event.pageX+10)+"px");})
+      // .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
+
+
+  node.append("text")
+      .attr("dy", ".35em")
+      .attr("text-anchor", "middle")
+      .text(function(d) { return d.atom; });
+
+  function tick() {
+    link.selectAll("line")
+        .attr("x1", function(d) { return d.source.x; })
+        .attr("y1", function(d) { return d.source.y; })
+        .attr("x2", function(d) { return d.target.x; })
+        .attr("y2", function(d) { return d.target.y; });
+
+    node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+  }
+});
+}
+</script>

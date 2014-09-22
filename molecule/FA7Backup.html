@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+.link line {
+  stroke: #696969;
+}
+
+.link line.separator {
+  stroke: #fff;
+  stroke-width: 2px;
+}
+
+.node circle {
+  stroke: #000;
+  stroke-width: 1.5px;
+}
+
+.node text {
+  font: 12px sans-serif;
+  pointer-events: none;
+}
+
+#drop #drop2
+{
+    position:absolute;
+    left:20px;
+    top:20px;
+    z-index:2;
+    float: left;
+}
+
+.container {
+  float: left;
+}
+
+#toolhier {
+  position: absolute;
+  width: auto;
+  height: 60px;
+  padding: 5px;
+  line-height: 50%;
+  background-color: rgba(198, 236, 248, 0.9);
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  /*border-radius: 10px;*/
+  -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  -moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+  visibility: hidden;
+  z-index:2;
+}
+
+#toolem {
+  position: absolute;
+  width: auto;
+  height: 40px;
+  padding: 5px;
+  line-height: 50%;
+  background-color: rgba(198, 236, 248, 0.9);
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  /*border-radius: 10px;*/
+  -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  -moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+  visibility: hidden;
+  z-index:2;
+}
+
+</style>
+<body>
+
+<div id="drop2">
+      <form method="POST" action="" style="width: 200px;">
+        <select name="sys" required="required" onchange='OnChange2(this.form.sys);'>
+        <option value="0" selected="selected">SD7~ABAP</option>
+        <option value="1">FQ7~ABAP</option>
+        <option value="2">ZH1~HANADB</option>
+        <option value="3">A13~ABAP</option>
+        <option value="4">FA7~HANADB</option>
+        </select>
+      </form>
+</div>
+
+<div id="drop">
+    <form method="POST" action="">
+      <select name="cars" required="required" onchange='OnChange(this.form.cars);'>
+      <option value="0" selected="selected">Availability</option>
+      <option value="1">Performance</option>
+      <option value="2">Configuration</option>
+      <option value="3">Exception</option>
+      </select>
+    </form>   
+</div>
+
+<div id="toolhier" class="hidden">
+      <p><strong id="heading"></strong></p>
+      <p><span id="stat"></span></p>
+      <p><span id="rk"></span></p>
+ </div>
+ 
+ <div id="toolem" class="hidden">
+      <p><strong id="heading"></strong></p>
+      <p><span id="stat"></span></p>
+      <p><span id="rk"></span></p>
+ </div>
+
+<div class="container" id="hier"></div>
+<div class="container" id="em_tree"></div>
+<div class="container" id="met"></div>
+<!-- <script src="http://d3js.org/d3.v2.min.js?2.9.6"></script> -->
+<!-- <script src="js/d3.v3.min.js"></script> -->
+<script src="d3/d3.js"></script>
+<%--<script src="d3/d3.geom.js"></script>--%>
+
+<script>
+var option_selected = 0;
+var sys_selected = 0;
+var json_file;
+var selected_guid;
+var selected_objname;
+var allData;
+var sysName;
+var sysChange = false;
+var catChange = false;
+
+function OnChange(dropdown)
+{
+    var myindex  = dropdown.selectedIndex;
+    option_selected = myindex;
+    catChange = true;
+    init();
+    //return true;
+};
+
+function OnChange2(dropdown)
+{
+    var myindex  = dropdown.selectedIndex;
+    sys_selected = myindex;
+    sysChange = true;
+    init();
+};
+
+init();
+
+var svg1, svg2, svg3;
+var force;
+var width;
+var height;
+var color;
+var radius;
+var cate;
+var tech_tree = {"nodes":[],"links":[]}, met_tree = {"nodes":[],"links":[]};
+
+
+
+function init(){
+//d3.select("#hier svg")
+       //.remove();
+
+//if (option_selected == 0) { json_file = "sd7abapavail.json"; }
+//else if (option_selected == 1) { json_file = "details.json"; }
+//else if (option_selected == 3) { json_file = "details_except.json"; }
+//else if (option_selected == 2) { json_file = "details_config.json"; }
+
+//create the odata url
+
+if (option_selected == 0) { cate = "AVAIL"; }
+else if (option_selected == 1) { cate = "PERFORM"; }
+else if (option_selected == 3) { cate = "EXCEPTION"; }
+else if (option_selected == 2) { cate = "CONFIGURE"; }
+
+if (sys_selected == 0) { sysName = "SD7~ABAP"; }
+else if (sys_selected == 1) { sysName = "FQ7~ABAP"; }
+else if (sys_selected == 2) { sysName = "ZH1~HANADB"; }
+else if (sys_selected == 3) { sysName = "A13~ABAP"; }
+else if (sys_selected == 4) { sysName = "FA7~HANADB"; }
+
+if(selected_objname == undefined || sysChange == true){
+  selected_objname = sysName;
+  selected_guid = undefined;
+}
+
+json_file = "https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_DETAILS_SRV/SystemDetailsSet?$format=json&search="+sysName+"|"+selected_guid+"|"+cate;
+
+
+d3.json(json_file, function(graph) {
+
+  //do the data manipulation here
+  graph = graph.d.results;
+  var tmpgraph = {"nodes":[],"links":[]}; //groomed graph to be used later
+
+  graph.forEach(function(d){
+    //if(d = undefined) continue;
+    var nds=d.atoms.split("|");
+    var nd_objs = toObject(nds);
+
+    var lnks=d.links.split("|");
+    var lnks_objs = toObject(lnks);
+
+    tmpgraph.nodes = nd_objs;
+    tmpgraph.links = lnks_objs;
+  })
+
+  graph = tmpgraph;
+  tech_tree = {"nodes":[],"links":[]};
+  met_tree = {"nodes":[],"links":[]};
+
+  //separating hier skeleton from event/metric info
+  for (var i = 0; i <= graph.nodes.length - 1; i++) {
+    if(graph.nodes[i].frame == 1){
+      tech_tree.nodes.push(graph.nodes[i]);
+      //if(graph.nodes[i].obj_type == 'T_SYSTEM')
+          //selected_guid = graph.nodes[i].obj_guid;
+      //met_tree.nodes.push(null);
+    }
+    else{
+      met_tree.nodes.push(graph.nodes[i]);
+    }
+  };
+
+  for (var i = 0; i <= graph.links.length - 1; i++) {
+    if(graph.links[i].frame == 1){
+      tech_tree.links.push(graph.links[i]);
+    }
+    else{
+    //else if(graph.links[i].frame == 3){
+      met_tree.links.push(graph.links[i]);
+    }
+  };
+
+  //console.log("tech_tree", tech_tree);
+  //console.log("met_tree", met_tree);
+  //console.log(graph);
+
+  function toObject(arr) {
+    var rv = {};
+    var newarr = [];
+    for (var i = 0; i < arr.length; ++i)
+    {
+        rv = arr[i];
+        if (rv !== ""){
+          rv = JSON.parse(rv);
+          newarr.push(rv);
+        }
+      }
+    return newarr;
+  }
+
+  if(selected_guid == undefined || sysChange == true || catChange == true){
+  //call first tree painting
+  showTechTree(tech_tree, graph);
+  sysChange = false;
+  catChange = false;
+};
+allData = graph;
+  //show met tree
+  showMetTree(graph);
+
+//d3.select("#met svg").remove();
+
+});
+
+function showMetTree(data){
+
+  d3.select("#em_tree svg").remove();
+
+  if(data.nodes.length == 0){
+    //d3.select("#em_tree svg").remove();
+    return;
+  }
+
+ var   width = 800;
+ var   height = 800;
+
+ //color = d3.scale.category20();
+
+ radius = d3.scale.sqrt()
+    .range([0, 3]);
+
+ svg2 = d3.select("#em_tree").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+ force = d3.layout.force()
+    .size([width, height])
+    .charge(-800)
+    .linkDistance(function(d) { return radius(d.source.size) + radius(d.target.size) ; });
+
+ force
+      .nodes(data.nodes)
+      .links(data.links)
+      .on("tick", tick)
+      .start();
+
+      force
+      .gravity(0.4)
+      .friction(0.7);
+
+  var link = svg2.selectAll(".link")
+      .data(data.links)
+    .enter().append("g")
+      .attr("class", "link")
+      ;
+
+  link.append("line")
+      .style("stroke-width", function(d) { return (d.bond * 2 - 1) * 2 + "px"; })
+      .style('visibility', function(d){ if (d.frame != 3 ) return 'hidden';
+        else return "visible";});
+
+  //link.filter(function(d) { return d.bond > 1; }).append("line")
+      //.attr("class", "separator");
+
+  var node = svg2.selectAll(".node")
+      .data(data.nodes)
+    .enter().append("g")
+      .attr("class", "node")
+      .call(force.drag);
+      
+  svg2.append("text")
+      .attr("x", width/2 - 200)
+      .classed('data', true)
+      .attr("y", 30) // Center text
+      .attr("fill","#000")
+      .style("stroke-width", 2)
+      .style("font-weight", "bold")
+      .style("font-size","22px")
+      .style("text-anchor", "center")
+      .text("Event/Metric View: " + selected_objname);
+
+  node.append("circle")
+      .attr("r", function(d) { return radius(d.size); })
+      .on("click", function(d){
+
+        showMetric(d);
+        //console.log(d.atom, "clicked");
+      })
+      //.style("stroke", "#FFFFFF")
+      .on("mousemove", function(d){
+
+             mousemove(d);
+          })
+          .on("mouseover", function() {
+            //this.parentNode.appendChild(this); // workaround for bringing elements to the front (ie z-index)
+            d3.select(this)
+                //.attr("filter", "url(#outerDropShadow)")
+                .style("stroke-width", "3")
+                .style("stroke", "#000000");
+        })
+          .on("mouseout", function() {
+            d3.select(this)
+                //.attr("filter", "")
+                //.select(".background")
+                .style("stroke-width", "1.5")
+                //.style("stroke", "#FFFFFF");
+
+                d3.select("#toolem").classed("hidden", true)
+                .style("visibility", "hidden");
+                //this.fireEvent("on", "mouseout", mouseout);
+                //mouseout;
+        })
+
+          .call(position)
+      .style("fill", function(d) {
+          if (d.status == 0) return "lightgray";
+          else if (d.status == 1) return "chartreuse";
+          else if (d.status == 2) return "yellow";
+          else if (d.status == 3) return "red" ;
+          else if (d.status == 4) return "#4A26FB" ; }) //fill our metric status colour, just use d.status!
+      .style('visibility', function(d){ if (d.frame == 1 ) return 'hidden';
+        else return "visible";});
+      //.append("svg:title")
+          //.text(function(d, i) { return d.atom; });
+
+var mousemove = function(d) {
+  var xPosition = d3.event.pageX + 50;
+  var yPosition = d3.event.pageY;
+
+  //console.log(' in mousemove: ', xPosition, ":", yPosition);
+
+  d3.select("#toolem")
+    .style("visibility", "visible")
+    // .classed("hidden", false)
+    .style("left", xPosition + "px")
+    .style("top", yPosition + "px");
+  d3.select("#toolem #heading")
+    .text(d.atom);
+  // d3.select("#toolem #stat")
+  //   .text("Status: "+ d.parent.name);
+   d3.select("#toolhier #rk")
+     .text(d.obj_type);
+
+    // if (xPosition > w+400 || xPosition < 420 || yPosition < 80 || yPosition > 670){
+    //   d3.select("#toolt").style("visibility", "hidden");
+    // }
+
+  //d3.select("#toolem").classed("hidden", false);
+
+
+  //d3.select(this).transition().attr("transform","scale(1.2)")
+  //this.parentNode.appendChild(this);
+};
+
+var mouseout = function() {
+  d3.select("#toolem").classed("hidden", true);
+  d3.select("#toolem").style("visibility", "hidden");
+
+  //d3.select(this).transition().attr("transform","scale(1)")
+  //this.parentNode.appendChild(this);
+};
+
+function position() {
+  this.style("left", function(d) { return d.x + "px"; })
+      .style("top", function(d) { return d.y + "px"; })
+      .style("width", function(d) { return Math.max(0, d.dx - 2) + "px"; })
+      .style("height", function(d) { return Math.max(0, d.dy - 2) + "px"; });
+}
+
+  function tick() {
+
+    link.selectAll("line")
+        .attr("x1", function(d) { return d.source.x; })
+        .attr("y1", function(d) { return d.source.y; })
+        .attr("x2", function(d) { return d.target.x; })
+        .attr("y2", function(d) { return d.target.y; });
+
+    node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+  }
+
+}
+
+function showMetric(dt){
+
+ var   width = 400;
+ var   height = 800;
+ 
+ var greenT, yellowT, ttmp, val;
+      greenT = Math.random()/3;
+      yellowT = Math.random()/3;
+
+      if (greenT > yellowT){
+        ttmp = greenT;
+        greenT = yellowT;
+        yellowT = ttmp;
+  }
+
+  val = Math.random();
+ 
+ if(svg3 == undefined){
+ 
+ svg3 = d3.select("#met").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+  //d3.select("#met svg").remove();
+  
+
+  
+
+ svg3.append("text")
+      .attr("x", 10)
+      .classed('data', true)
+      .attr("y", 30) // Center text
+      .attr("fill","#000")
+      .style("stroke-width", 2)
+      .style("font-weight", "bold")
+      .style("font-size","22px")
+      .style("text-anchor", "left")
+      .text("Metric View: Simulation Data");
+
+  svg3.append("text")
+      .attr("id","metricnamebar")
+      .attr("x", 10)
+      .classed('data', true)
+      .attr("y", height/2 - 30) // Center text
+      .attr("fill","#000")
+      .style("stroke-width", 1)
+      //.style({"font-size":"18px","z-index":"999999999"})
+      .style("text-anchor", "left")
+      .style("font-weight", "bold")
+      .text(function() { return dt.atom;});
+
+  svg3.append("rect")
+        .attr("id", "redbar")
+        .attr("x", 10)
+        .attr("y", height/2)
+        .attr("width", width - 50)
+        .attr("height", 20)
+        //.transition()
+        //.duration(550)
+        .style("fill", "red");
+        
+
+  
+
+  svg3.append("rect")
+        //.transition()
+      //.duration(750)
+      .attr("id", "yellowbar")
+        .attr("x", (width - 60) * greenT + 10)
+        //.attr("x",10)
+        .attr("y", height/2)
+        .attr("width",  (width - 60) * yellowT )
+        .attr("height", 20)
+        .style("fill", "yellow")
+        ;
+svg3.append("rect")
+        //.transition()
+        //.duration(650)
+        .attr("id", "greenbar")
+        .attr("x", 10)
+        .attr("y", height/2)
+        .attr("width", (width - 60) * greenT)
+        .attr("height", 20)
+        .style("fill", "chartreuse")
+        ;
+  svg3.append("text")
+      .attr("x", 10)
+      .classed('data', true)
+      .attr("y", height/2 + 50) // Center text
+      .attr("fill","#000")
+      .style("stroke-width", 1)
+      //.style({"font-size":"18px","z-index":"999999999"})
+      .style("text-anchor", "left")
+      .text("Thresholds:");
+
+      svg3.append("text")
+      .attr("x", 10)
+      .classed('data', true)
+      .attr("y", height/2 + 80) // Center text
+      .attr("fill","#000")
+      .style("stroke-width", 1)
+      //.style({"font-size":"18px","z-index":"999999999"})
+      .style("text-anchor", "left")
+      .text("Green: 0");
+
+      //console.log(greenT*100);
+
+ svg3.append("text")
+      .attr("x", 10)
+      .attr("id","greenthresbar")
+      .classed('data', true)
+      .attr("y", height/2 + 110) // Center text
+      .attr("fill","#000")
+      .style("stroke-width", 1)
+      //.style({"font-size":"18px","z-index":"999999999"})
+      .style("text-anchor", "left")
+      .text("Yellow: "+ Math.floor(greenT*100));
+ svg3.append("text")
+      .attr("x", 10)
+      .attr("id","yellowthresbar")
+      .classed('data', true)
+      .attr("y", height/2 + 140) // Center text
+      .attr("fill","#000")
+      .style("stroke-width", 1)
+      //.style({"font-size":"18px","z-index":"999999999"})
+      .style("text-anchor", "left")
+      .text("Red: "+(Math.floor(yellowT*100)+ Math.floor(greenT*100)));
+
+ svg3.append("text")
+      .attr("x", 10)
+      .attr("id","valuethresbar")
+      .classed('data', true)
+      .attr("y", height/2 + 170) // Center text
+      .attr("fill","#000")
+      .style("stroke-width", 1)
+      //.style({"font-size":"18px","z-index":"999999999"})
+      .style("text-anchor", "left")
+      .text("Metric Value: "+(Math.floor(val*100)));
+
+ svg3.append("svg:image")
+   .attr("id","imagebar")
+   .attr('x',(width - 60) * val )
+   .attr('y',height/2 - 23)
+   .attr('width', 20)
+   .attr('height', 24)
+   .attr("xlink:href","arrow.png");
+   
+   }
+   else{
+   //animate?
+   svg3.select("#redbar")
+      .transition()
+      .duration(650)
+      .attr("width", width - 50);
+      
+   
+      
+   svg3.select("#yellowbar")
+      .transition()
+      .duration(650)
+      .attr("x", (width - 60) * greenT + 9)
+      .attr("width",  (width - 60) * yellowT)
+   svg3.select("#greenbar")
+      .transition()
+      .duration(650)
+      .attr("width", (width - 60) * greenT );   
+   svg3.select("#metricnamebar")
+      .transition()
+      .duration(650)
+      .text(dt.atom);
+      
+   svg3.select("#greenthresbar")
+      .transition()
+      .duration(650)
+      .text("Yellow: "+ Math.floor(greenT*100));
+      
+   svg3.select("#yellowthresbar")
+      .transition()
+      .duration(650)
+      .text("Red: "+(Math.floor(yellowT*100)+ Math.floor(greenT*100)));
+      
+   svg3.select("#valuethresbar")
+      .transition()
+      .duration(650)
+      .text("Metric Value: "+(Math.floor(val*100)));
+      
+   svg3.select("#imagebar")
+      .transition()
+      .duration(650)
+      .attr('x',(width - 60) * val )
+         
+   }
+
+}
+
+function showTechTree(data, metData){
+
+d3.select("#hier svg").remove();
+
+ var width = 600;
+ var height = 800;
+
+ //color = d3.scale.category20();
+
+ //data reorg algo
+ data.nodes.forEach(function(d) {
+  
+  if(d.fixed == "true"){
+    d.x = width/2 - 50;
+    d.y = 120;
+
+  }
+});
+
+ var radius = d3.scale.sqrt()
+    .range([0, 3]);
+
+ var svg = d3.select("#hier").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+    
+    svg.append("text")
+      .attr("x", width/2 - 200)
+      .classed('data', true)
+      .attr("y", 30) // Center text
+      .attr("fill","#000")
+      .style("stroke-width", 2)
+      .style("font-weight", "bold")
+      .style("font-size","22px")
+      .style("text-anchor", "center")
+      .text("Hierarchy View: All Real Data");
+
+ var force = d3.layout.force()
+    .size([width, height])
+    .charge(-3050)
+    .friction(0.5)
+    .gravity(0.4)
+    .linkDistance(60);
+    //.linkDistance(function(d) { return radius(d.source.size) + radius(d.target.size) + 15; });
+
+ force
+      .nodes(data.nodes)
+      .links(data.links)
+      .on("tick", tick);
+      //.start();
+
+var drag = force.drag()
+    .on("dragstart", dragstart);
+
+      //force.friction(0.7);
+
+  var link = svg.selectAll(".link")
+      .data(data.links)
+    .enter().append("g")
+      .attr("class", "link")
+      ;
+
+  link.append("line")
+      .style("stroke-width", function(d) { return (d.bond * 2 - 1) * 2 + "px"; });
+      // .style('visibility', function(d){ if (d.frame != 3 && !show_tech) return 'hidden';
+      //   else return "visible";});
+
+  //link.filter(function(d) { return d.bond > 1; }).append("line")
+      //.attr("class", "separator");
+
+  var node = svg.selectAll(".node")
+      .data(data.nodes)
+    .enter().append("g")
+      .attr("class", "node")
+      //.style('visibility', function(d){ return d.status == 4 && !show_tech})
+      .call(force.drag);
+
+      //node.
+      //attr("px", function(d){
+      //  if(d.mon_level == 1)
+      //    return width/2;
+      //  if(d.mon_level == 2)
+      //    return width/4;
+      //  if(d.mon_level == 3)
+      //    return (width/8) ;
+      //})
+      //.attr("py", function(d){
+      //  if(d.mon_level == 1)
+      //    return height/4;
+      //  if(d.mon_level == 2)
+      //    return height/2;
+      //  if(d.mon_level == 3)
+      //    return (height/4) * 3;
+      //})
+
+  //     var tooltip = d3.select("body")
+  // .append("div")
+  // .style("position", "absolute")
+  // .style("z-index", "10")
+  // .style("visibility", "hidden")
+  // .text("a simple tooltip");
+
+  node.append("circle")
+      //.attr("cx", function(d){ d.fixed == true ? width: d.x})
+      //.attr("cy", function(d){ d.fixed == true ? 10: d.y})
+      .attr("r", function(d) { return radius(d.size); })
+      .on("click", function(d){
+
+        //if(d.obj_type == 'T_SYSTEM')
+          selected_guid = d.obj_guid;
+          
+          selected_objname = d.atom;
+        init();
+        //showMetTree(allData);
+      })
+      .on("dblclick", dblclick)
+      .style("fill", function(d) {
+          if (d.status == 0) return "lightgray";
+          else if (d.status == 1) return "chartreuse";
+          else if (d.status == 2) return "yellow";
+          else if (d.status == 3) return "red" ;
+          else if (d.status == 4) return "#4A26FB" ; }) //fill our metric status colour, just use d.status!
+      // .style('visibility', function(d){ if (d.status == 4 && !show_tech) return 'hidden';
+      //   else return "visible";})
+      .style("stroke", "#FFFFFF")
+      .style("stroke-width", "0.5")
+      .on("mousemove", function(d){
+
+             mousemove(d);
+          })
+          .on("mouseover", function() {
+            //this.parentNode.appendChild(this); // workaround for bringing elements to the front (ie z-index)
+            d3.select(this)
+                //.attr("filter", "url(#outerDropShadow)")
+                .style("stroke-width", "4")
+                .style("stroke", "#000000");
+        })
+          .on("mouseout", function() {
+            d3.select(this)
+                //.attr("filter", "")
+                //.select(".background")
+                .style("stroke-width", "0.2")
+                .style("stroke", "#FFFFFF");
+
+                d3.select("#toolhier").classed("hidden", true)
+                .style("visibility", "hidden");
+                //this.fireEvent("on", "mouseout", mouseout);
+                //mouseout;
+        })
+          .call(position);
+
+  var mousemove = function(d) {
+  var xPosition = d3.event.pageX + 50;
+  var yPosition = d3.event.pageY;
+
+  //console.log(' in mousemove: ', xPosition, ":", yPosition);
+
+  d3.select("#toolhier")
+    .style("visibility", "visible")
+    // .classed("hidden", false)
+    .style("left", xPosition + "px")
+    .style("top", yPosition + "px");
+  d3.select("#toolhier #heading")
+    .text(d.atom);
+  // d3.select("#toolhier #stat")
+  //   .text("Status: "+ d.parent.name);
+   d3.select("#toolhier #rk")
+     .text(d.obj_type);
+
+    // if (xPosition > w+400 || xPosition < 420 || yPosition < 80 || yPosition > 670){
+    //   d3.select("#toolt").style("visibility", "hidden");
+    // }
+
+  //d3.select("#toolhier").classed("hidden", false);
+
+
+  //d3.select(this).transition().attr("transform","scale(1.2)")
+  //this.parentNode.appendChild(this);
+};
+
+var mouseout = function() {
+  d3.select("#toolhier").classed("hidden", true);
+  d3.select("#toolhier").style("visibility", "hidden");
+
+  //d3.select(this).transition().attr("transform","scale(1)")
+  //this.parentNode.appendChild(this);
+};
+
+function position() {
+  this.style("left", function(d) { return d.x + "px"; })
+      .style("top", function(d) { return d.y + "px"; })
+      .style("width", function(d) { return Math.max(0, d.dx - 2) + "px"; })
+      .style("height", function(d) { return Math.max(0, d.dy - 2) + "px"; });
+}
+
+  var tickLimit = 60000;
+  force.start();
+
+  for (var i = tickLimit; i > 0; --i)
+    force.tick();
+
+  force.stop();
+
+  function dblclick(d) {
+  d3.select(this).classed("fixed", d.fixed = false);
+}
+
+function dragstart(d) {
+  d3.select(this).classed("fixed", d.fixed = true);
+}
+
+  function tick() {
+
+    //var kx = .4 * e.alpha, ky = 1.4 * e.alpha;
+    //force.links.forEach(function(d, i) {
+    //  d.target.x += (d.source.x - d.target.x) * kx;
+    //  d.target.y += (d.source.y + 80 - d.target.y) * ky;
+   // });
+
+    link.selectAll("line")
+        .attr("x1", function(d) { return d.source.x; })
+        .attr("y1", function(d) { return d.source.y; })
+        .attr("x2", function(d) { return d.target.x; })
+        .attr("y2", function(d) { return d.target.y; });
+
+        //node.attr("cx", function(d) { return d.x; })
+        //.attr("cy", function(d) { return d.y; });
+
+    node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+  }
+
+}
+
+}
+</script>

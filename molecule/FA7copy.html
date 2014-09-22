@@ -21,39 +21,86 @@
   pointer-events: none;
 }
 
-#drop
+#drop #drop2
 {
     position:absolute;
     left:20px;
     top:20px;
     z-index:2;
+    float: left;
 }
 
-.container {
+.container  {
   float: left;
+}
+
+
+#toolhier {
+  position: absolute;
+  width: auto;
+  height: 80px;
+  padding: 5px;
+  background-color: lightblue;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  border-radius: 10px;
+  -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  -moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+  visibility: hidden;
+  z-index:2;
 }
 
 </style>
 <body>
-<div id="drop">
-    <form method="POST" action="">
-      <select name="cars" required="required" onchange='OnChange(this.form.cars);'>
-      <option value="0" selected="selected">Availability</option>
-      <option value="1">Performance</option>
-      <option value="2">Configuration</option>
-      <option value="3">Exception</option>
-      </select>
-    </form>
-</div>
+ 
+ <div id="drop2">
+      <form method="POST" action="">
+        <select name="sys" required="required" onchange='OnChange2(this.form.sys);'>
+        <option value="0" selected="selected">SD7~ABAP</option>
+        <option value="1">FQ7~ABAP</option>
+        <option value="2">ZH1~HANADB</option>
+        <option value="3">FAJ_SM~ABAP</option>
+        <option value="4">FA7~HANADB</option>
+        </select>
+      </form>
+  </div>
+  <div id="drop">
+      <form method="POST" action="">
+        <select name="cars" required="required" onchange='OnChange(this.form.cars);'>
+        <option value="0" selected="selected">Availability</option>
+        <option value="1">Performance</option>
+        <option value="2">Configuration</option>
+        <option value="3">Exception</option>
+        </select>
+      </form>
+  </div>
+
+  
+
+  <div id="toolhier" class="hidden">
+      <p><strong id="heading"></strong></p>
+      <p><span id="stat"></span></p>
+      <p><span id="rk"></span></p>
+  </div>
+
 <div class="container" id="hier"></div>
 <div class="container" id="em_tree"></div>
 <div class="container" id="met"></div>
 <!-- <script src="http://d3js.org/d3.v2.min.js?2.9.6"></script> -->
 <script src="js/d3.v3.min.js"></script>
+<!-- <script src="js/d3.js"></script> -->
+<!-- <script src="d3/d3.geom.js"></script> -->
+
 <script>
-var option_selected = -1;
+var option_selected = 0;
+var sys_selected = 0;
 var json_file;
 var selected_guid;
+var allData;
+var sysName;
+var sysChange = false;
 
 function OnChange(dropdown)
 {
@@ -63,27 +110,65 @@ function OnChange(dropdown)
     //return true;
 };
 
-if (option_selected == -1){
-  option_selected = 0;
-  init();
-}
+function OnChange2(dropdown)
+{
+    var myindex  = dropdown.selectedIndex;
+    sys_selected = myindex;
+    sysChange = true;
+    init();
+};
 
+// if (option_selected == -1){
+//   option_selected = 0;
+//   //init();
+// }
+
+// if (sys_selected == -1){
+//   sys_selected = 0;
+   init();
+// }
+
+ //init();
 var svg1, svg2, svg3;
 var force;
 var width;
 var height;
 var color;
 var radius;
+var cate;
 var tech_tree = {"nodes":[],"links":[]}, met_tree = {"nodes":[],"links":[]};
 
-function init(){
-d3.select("svg")
-       .remove();
 
-if (option_selected == 0) { json_file = "sd7abapavail.json"; }
-else if (option_selected == 1) { json_file = "details.json"; }
-else if (option_selected == 3) { json_file = "details_except.json"; }
-else if (option_selected == 2) { json_file = "details_config.json"; }
+function init(){
+// d3.select("#hier svg").selectAll("*")
+//        .remove();
+// svg.selectAll("*").remove();
+
+//if (option_selected == 0) { json_file = "sd7abapavail.json"; }
+//else if (option_selected == 1) { json_file = "details.json"; }
+//else if (option_selected == 3) { json_file = "details_except.json"; }
+//else if (option_selected == 2) { json_file = "details_config.json"; }
+
+if(selected_guid == undefined || selected_guid == "089E014134D51EE3B6BCD5B770DDBFE6")
+  json_file = "avail_tsys.json";
+else if(selected_guid == "089E014134D51EE3B6BCD64FEBF87FE6")
+  json_file = "avail_dbms.json";
+//create the odata url
+
+if (option_selected == 0) { cate = "AVAIL"; }
+else if (option_selected == 1) { cate = "PERFORM"; }
+else if (option_selected == 3) { cate = "EXCEPTION"; }
+else if (option_selected == 2) { cate = "CONFIGURE"; }
+
+if (sys_selected == 0) { sysName = "SD7~ABAP"; }
+else if (sys_selected == 1) { sysName = "FQ7~ABAP"; }
+else if (sys_selected == 2) { sysName = "ZH1~HANADB"; }
+else if (sys_selected == 3) { sysName = "FAJ_SM~ABAP"; }
+else if (sys_selected == 4) { sysName = "FA7~HANADB"; }
+
+
+//json_file = "https://ldcifa7.wdf.sap.corp:44300/sap/opu/odata/sap/Z_SYSTEM_DETAILS_SRV/SystemDetailsSet?$format=json&search=SD7~ABAP|"+selected_guid+"|"+cate;
+
 
 d3.json(json_file, function(graph) {
 
@@ -92,6 +177,7 @@ d3.json(json_file, function(graph) {
   var tmpgraph = {"nodes":[],"links":[]}; //groomed graph to be used later
 
   graph.forEach(function(d){
+    //if(d = undefined) continue;
     var nds=d.atoms.split("|");
     var nd_objs = toObject(nds);
 
@@ -103,7 +189,9 @@ d3.json(json_file, function(graph) {
   })
 
   graph = tmpgraph;
-
+  tech_tree = {"nodes":[],"links":[]}; 
+  met_tree = {"nodes":[],"links":[]};
+  
   //separating hier skeleton from event/metric info
   for (var i = 0; i <= graph.nodes.length - 1; i++) {
     if(graph.nodes[i].frame == 1){
@@ -143,33 +231,46 @@ d3.json(json_file, function(graph) {
     return newarr;
   }
 
+  if(selected_guid == undefined || sysChange == true){
   //call first tree painting
-  showTechTree(tech_tree, graph);
+    showTechTree(tech_tree, graph);
+    sysChange = false;
+  };
 
+  allData = graph;
   //show met tree
-  //showTechTree(graph, "#em_tree", svg2, false);
-  
+  showMetTree(graph);
 
-  
+//d3.select("#met svg").remove();
+
 });
 
 function showMetTree(data){
 
   d3.select("#em_tree svg").remove();
+  
+  // if(data.nodes.length == 0){
+  //   //d3.select("#em_tree svg").remove();
+  //   return;
+  // }
 
-    width = 600;
-    height = 800;
+ var   width = 600;
+ var   height = 800;
+ // var leanNodes, leanLinks;
 
- color = d3.scale.category20();
+ // leanNodes = data.nodes.filter(function(n) { return n.frame !== 1; });
+ // leanLinks = data.links.filter(function(n) { return n.frame !== 1; });
 
- radius = d3.scale.sqrt()
+ //color = d3.scale.category20();
+
+ var radius = d3.scale.sqrt()
     .range([0, 3]);
 
  svg2 = d3.select("#em_tree").append("svg")
     .attr("width", width)
     .attr("height", height);
 
- force = d3.layout.force()
+ var force = d3.layout.force()
     .size([width, height])
     .charge(-800)
     .linkDistance(function(d) { return radius(d.source.size) + radius(d.target.size) ; });
@@ -187,6 +288,7 @@ function showMetTree(data){
   var link = svg2.selectAll(".link")
       .data(data.links)
     .enter().append("g")
+    .filter(function(n) { return n.frame !== 1; })
       .attr("class", "link")
       ;
 
@@ -195,34 +297,37 @@ function showMetTree(data){
       .style('visibility', function(d){ if (d.frame != 3 ) return 'hidden';
         else return "visible";});
 
-  link.filter(function(d) { return d.bond > 1; }).append("line")
-      .attr("class", "separator");
+  //link.filter(function(d) { return d.bond > 1; }).append("line")
+      //.attr("class", "separator");
 
   var node = svg2.selectAll(".node")
       .data(data.nodes)
     .enter().append("g")
       .attr("class", "node")
+      .filter(function(n) { return n.frame !== 1; })
       .call(force.drag);
 
   node.append("circle")
       .attr("r", function(d) { return radius(d.size); })
       .on("click", function(d){
-        showMetric(d); 
+
+        showMetric(d);
         //console.log(d.atom, "clicked");
       })
-      .style("fill", function(d) { 
+      .style("fill", function(d) {
           if (d.status == 0) return "lightgray";
           else if (d.status == 1) return "chartreuse";
           else if (d.status == 2) return "yellow";
           else if (d.status == 3) return "red" ;
           else if (d.status == 4) return "#4A26FB" ; }) //fill our metric status colour, just use d.status!
-      .style('visibility', function(d){ if (d.status == 4 ) return 'hidden';
+      .style('visibility', function(d){ if (d.frame == 1 ) return 'hidden';
         else return "visible";})
       .append("svg:title")
           .text(function(d, i) { return d.atom; });
 
-  
+
   function tick() {
+
     link.selectAll("line")
         .attr("x1", function(d) { return d.source.x; })
         .attr("y1", function(d) { return d.source.y; })
@@ -267,7 +372,7 @@ function showMetric(dt){
         .attr("width", width - 50)
         .attr("height", 20)
         .style("fill", "red")
-        // .style("fill", function() { 
+        // .style("fill", function() {
         //   if (dt.status == 0) return "lightgray";
         //   else if (dt.status == 1) return "chartreuse";
         //   else if (dt.status == 2) return "yellow";
@@ -337,30 +442,53 @@ function showMetric(dt){
 }
 
 function showTechTree(data, metData){
- width = 600;
- height = 800;
 
- color = d3.scale.category20();
+  d3.select("#hier svg").remove();
 
- radius = d3.scale.sqrt()
+ var width = 600;
+ var height = 800;
+
+ //color = d3.scale.category20();
+
+ //data reorg algo
+ data.nodes.forEach(function(d) { 
+  //d.x = d.cx; d.y = d.cy; 
+  if(d.fixed == "true"){
+    d.x = width/2 - 50;
+    d.y = 120;
+
+  }
+});
+
+
+
+ var radius = d3.scale.sqrt()
     .range([0, 3]);
 
  var svg = d3.select("#hier").append("svg")
     .attr("width", width)
     .attr("height", height);
 
- force = d3.layout.force()
+ var force = d3.layout.force()
     .size([width, height])
-    .charge(-200)
-    .linkDistance(function(d) { return radius(d.source.size) + radius(d.target.size) + 15; });
+    .charge(-3050)
+    .friction(0.5)
+    .gravity(0.3)
+    .linkDistance(40);
+    // .linkDistance(function(d) { 
+    //   //console.log(d);
+    //   return radius(d.source.size) + radius(d.target.size)  ; });
+
+ var drag = force.drag()
+    .on("dragstart", dragstart);
 
  force
       .nodes(data.nodes)
       .links(data.links)
-      .on("tick", tick)
-      .start();
+      .on("tick", tick);
+      //.start();
 
-      force.friction(0.7);
+      //force.friction(0.7);
 
   var link = svg.selectAll(".link")
       .data(data.links)
@@ -373,14 +501,17 @@ function showTechTree(data, metData){
       // .style('visibility', function(d){ if (d.frame != 3 && !show_tech) return 'hidden';
       //   else return "visible";});
 
-  link.filter(function(d) { return d.bond > 1; }).append("line")
-      .attr("class", "separator");
+  //link.filter(function(d) { return d.bond > 1; }).append("line")
+      //.attr("class", "separator");
 
   var node = svg.selectAll(".node")
       .data(data.nodes)
-    .enter().append("g")
+      // .attr("x", function(d){ d.fixed == true ? width - 50: d.x})
+      // .attr("y", function(d){ d.fixed == true ? 50: d.y})
+    .enter()
+    .append("g")
+      
       .attr("class", "node")
-      .attr("fixed", function(d){ return d.atom=="FQ7~ABAP"; })
       //.style('visibility', function(d){ return d.status == 4 && !show_tech})
       .call(force.drag);
 
@@ -392,12 +523,18 @@ function showTechTree(data, metData){
   // .text("a simple tooltip");
 
   node.append("circle")
+      
       .attr("r", function(d) { return radius(d.size); })
-      .on("click", function(d){ 
+      // .attr("x", function(d){ d.fixed == "true" ? width - 50: d.x})
+      // .attr("y", function(d){ d.fixed == "true" ? 50: d.y})
+      .on("click", function(d){
         //console.log(d.atom, "clicked");
-        showMetTree(metData);
+        selected_guid = d.obj_guid;
+        init();
+        //showMetTree(allData);
       })
-      .style("fill", function(d) { 
+      .on("dblclick", dblclick)
+      .style("fill", function(d) {
           if (d.status == 0) return "lightgray";
           else if (d.status == 1) return "chartreuse";
           else if (d.status == 2) return "yellow";
@@ -405,10 +542,40 @@ function showTechTree(data, metData){
           else if (d.status == 4) return "#4A26FB" ; }) //fill our metric status colour, just use d.status!
       // .style('visibility', function(d){ if (d.status == 4 && !show_tech) return 'hidden';
       //   else return "visible";})
+      .style("stroke", "#FFFFFF")
+      .on("mousemove", function(d){
+
+             mousemove(d);
+          })
+          .on("mouseover", function() {
+            //this.parentNode.appendChild(this); // workaround for bringing elements to the front (ie z-index)
+            d3.select(this)
+                //.attr("filter", "url(#outerDropShadow)")
+                .style("stroke-width", "4")
+                .style("stroke", "#000000");
+        })
+          .on("mouseout", function() {
+            d3.select(this)
+                //.attr("filter", "")
+                //.select(".background")
+                .style("stroke-width", "0.2")
+                .style("stroke", "#FFFFFF");
+
+                d3.select("#toolhier").classed("hidden", true)
+                .style("visibility", "hidden");
+                //this.fireEvent("on", "mouseout", mouseout);
+                //mouseout;
+        })
+
+          .call(position)
       .append("svg:title")
           .text(function(d, i) { return d.atom; });
 
-  
+      // var n = nodes.length;
+      // nodes.forEach(function(d, i) {
+      //   d.x = d.y = width / n * i;
+      // });
+
       // .on("mouseover", function(){return tooltip.style("visibility", "visible");})
       // .on("mousemove", function(){return tooltip.style("top", (event.pageY-10)+"px").style("left",(event.pageX+10)+"px");})
       // .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
@@ -418,14 +585,83 @@ function showTechTree(data, metData){
   //     .attr("dy", ".35em")
   //     .attr("text-anchor", "middle")
   //     .text(function(d) { return d.atom; });
+  var mousemove = function(d) {
+  var xPosition = d3.event.pageX + 50;
+  var yPosition = d3.event.pageY + 30;
+
+  //console.log(' in mousemove: ', xPosition, ":", yPosition);
+
+  d3.select("#toolhier")
+    .style("visibility", "visible")
+    // .classed("hidden", false)
+    .style("left", xPosition + "px")
+    .style("top", yPosition + "px");
+  d3.select("#toolhier #heading")
+    .text(d.atom);
+  d3.select("#toolhier #stat")
+    .text("Guid: "+ d.obj_guid);
+  // d3.select("#toolt #rk")
+  //   .text("Rank :"+ d.size);
+
+    // if (xPosition > w+400 || xPosition < 420 || yPosition < 80 || yPosition > 670){
+    //   d3.select("#toolt").style("visibility", "hidden");
+    // }
+
+  //d3.select("#toolt").classed("hidden", false);
+
+
+  //d3.select(this).transition().attr("transform","scale(1.2)")
+  //this.parentNode.appendChild(this);
+};
+
+var mouseout = function() {
+  d3.select("#toolhier").classed("hidden", true);
+  d3.select("#toolhier").style("visibility", "hidden");
+
+  //d3.select(this).transition().attr("transform","scale(1)")
+  //this.parentNode.appendChild(this);
+};
+
+function position() {
+  this.style("left", function(d) { return d.x + "px"; })
+      .style("top", function(d) { return d.y + "px"; })
+      .style("width", function(d) { return Math.max(0, d.dx - 2) + "px"; })
+      .style("height", function(d) { return Math.max(0, d.dy - 2) + "px"; });
+}
+
+  var tickLimit = 60000;
+  force.start();
+
+  for (var i = tickLimit; i > 0; --i)
+    force.tick();
+
+  force.stop();
+
+  function dblclick(d) {
+  d3.select(this).classed("fixed", d.fixed = false);
+}
+
+function dragstart(d) {
+  d3.select(this).classed("fixed", d.fixed = true);
+}
 
   function tick() {
+  
+    //var kx = .4 * e.alpha, ky = 1.4 * e.alpha;
+    //force.links.forEach(function(d, i) {
+    //  d.target.x += (d.source.x - d.target.x) * kx;
+    //  d.target.y += (d.source.y + 80 - d.target.y) * ky;
+   // });
+    
     link.selectAll("line")
         .attr("x1", function(d) { return d.source.x; })
         .attr("y1", function(d) { return d.source.y; })
         .attr("x2", function(d) { return d.target.x; })
         .attr("y2", function(d) { return d.target.y; });
-
+        
+        node.attr("cx", function(d) { return d.x; })
+        .attr("cy", function(d) { return d.y; });
+        
     node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
   }
 
