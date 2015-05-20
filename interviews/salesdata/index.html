@@ -1,0 +1,148 @@
+<!DOCTYPE>
+<html>
+<head>
+	<h3>Sales Data</h3>
+	<script src="http://d3js.org/d3.v3.js" charset="utf-8"></script>
+	<style type="text/css">
+
+	#country{
+    width:97%;
+    height:300px;
+    border:1px solid red;
+    float:left;
+	}
+
+	#salegraph, #topsellers{
+    width:49%;
+    height:300px;
+    border:1px solid red;
+    margin-right:1px;
+    float:left;
+	}
+
+	/*.child_div_1{
+	    float:left;
+	    margin-right:5px;
+	}*/
+
+	</style>
+</head>
+<body>
+	<div id="toolbar">
+	    <form method="POST" action="">
+	      <select name="year" required="required" onchange='OnChange(this.form.year);'>
+	      <option value="0" selected="selected">Availability</option>
+	      <option value="1">Performance</option>
+	      <option value="2">Configuration</option>
+	      <option value="3">Exception</option>
+	      </select>
+	    </form>
+	</div></br>
+	<div id="country"></div>
+	<div>
+		<div id="salegraph"></div>
+		<div id="topsellers"></div>
+	</div>
+
+
+	<!-- Initialization -->
+
+
+	<!-- toolbar area -->
+	<script type="text/javascript">
+		d3.select("#toolbar").text('Net Sales');
+
+	function OnChange(dropdown)
+	{
+	    var myindex  = dropdown.selectedIndex;
+	    option_selected = myindex;
+	    //init();
+	}
+
+	function showCountries(data){
+
+		var svgCountry = d3.select("#country").append("svg")
+							.attr("width", "100%")
+    						.attr("height", "300px");
+
+    	var node = svgCountry.selectAll(".country")
+      				.data(data)
+    				.enter().append("g")
+      				.attr("class", "country");
+      
+    		node.append("circle")
+					.attr("cx", function(d,i){ return i*250+160;})
+					.attr("cy", "150")
+					.attr("r", "100")
+					.style("fill","red")
+					.style("opacity", 0.7)
+
+			//tooltips
+    		node.append("svg:title")
+          			.text(function(d, i) { return d.name; });
+
+          	//country name
+          	node.append("text")
+          			.attr("dx", function(d,i){ return i*250+130;})
+          			.attr("dy", "150")
+          			.text(function(d, i) { return d.name; })
+          			.style("stroke","black");
+
+          	//sales figure
+          	node.append("text")
+          			.attr("dx", function(d,i){ return i*250+145;})
+          			.attr("dy", "170")
+          			.text(function(d, i) { 
+          				return d.country_data.net_sales; })
+          			.style("stroke","black")
+          			.style("text-anchor","center");
+	}
+
+	function showSales(data){
+		var svgSales = d3.select("#salegraph").append("svg")
+							.attr("width", "100%")
+    						.attr("height", "300px");
+
+    			svgSales.append("rect")
+    						.attr("width", "100%")
+    						.attr("height", "100%")
+    						.style("fill","blue");
+	}
+
+	function showTopSellers(data){
+		var svgTopSellers = d3.select("#topsellers").append("svg")
+							.attr("width", "100%")
+    						.attr("height", "300px");
+
+    			svgTopSellers.append("rect")
+    						.attr("width", "100%")
+    						.attr("height", "100%")
+    						.style("fill","green");
+	}
+
+	(function init(){
+
+		d3.json("data/nets-sales.json", function(sales_data) {
+
+			console.log("loaded file: ", sales_data);
+
+			//create country data
+			showCountries(sales_data);
+
+			//show sales graph
+			showSales(sales_data);
+
+			//show top sellers
+			showTopSellers(sales_data);
+
+		});
+	})();
+	//Country Info area
+
+	//Sales Graph area
+
+	//Top Sellers area
+
+	</script>
+</body>
+</html>
