@@ -1,34 +1,36 @@
-<!DOCTYPE>
+<!DOCTYPE html>
 <html>
 <head>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta http-equiv='Content-Type' content='text/html;charset=UTF-8' />
 	<h3>Sales Data</h3>
 	<script src="http://d3js.org/d3.v3.js" charset="utf-8"></script>
 	<style type="text/css">
 
 	#country{
-    width:97%;
+    width:99%;
     height:300px;
     border:1px solid red;
     float:left;
 	}
 
 	#salegraph, #topsellers{
-    width:49%;
+    width:49.5%;
     height:300px;
     border:1px solid red;
     margin-right:1px;
     float:left;
 	}
 
-	 /*.chart {
+	 .chart {
 	  font: 10px sans-serif;
 	  background-color: steelblue;
-	  text-align: right;
-	  padding: 3px;
-	  margin: 1px;
+	  text-align: center;
+	  padding: 30px;
+	  margin: 5px;
 	  color: black;
-	  
-	}*/
+	  float: left;
+	}
 
 	</style>
 </head>
@@ -36,10 +38,10 @@
 	<div id="toolbar">
 	    <form method="POST" action="">
 	      <select name="year" required="required" onchange='OnChange(this.form.year);'>
-	      <option value="0" selected="selected">Availability</option>
-	      <option value="1">Performance</option>
-	      <option value="2">Configuration</option>
-	      <option value="3">Exception</option>
+	      <option value="0" selected="selected">Year1</option>
+	      <option value="1">Year2</option>
+	      <option value="2">Year3</option>
+	      <option value="3">Year4</option>
 	      </select>
 	    </form>
 	</div></br>
@@ -72,11 +74,14 @@
 
     		//header
     		svgCountry.append("text")
-          			//.attr("dx", 10)
+          			.attr("dx", "50%")
           			.attr("dy", 30)
           			.text(function(d, i) { return "Net Sales"; })
           			.style("stroke","black")
-          			.style("text-anchor","center")
+          			.style("text-anchor","middle")
+          			.style("margin-left", "50px")
+          			.style("font-size", "x-large")
+          			//.style("text-align","center")
           			.style("pointer-events", "none");
 
     	var node = svgCountry.selectAll(".country")
@@ -85,7 +90,7 @@
       				.attr("class", "country");
       
     		node.append("circle")
-					.attr("cx", function(d,i){ return i*250+160;})
+					.attr("cx", function(d,i){ return i*250+600;})
 					.attr("cy", "150")
 					.attr("r", "100")
 					.style("fill","red")
@@ -104,7 +109,7 @@
 
           	//country name
           	node.append("text")
-          			.attr("dx", function(d,i){ return i*250+130;})
+          			.attr("dx", function(d,i){ return i*250+580;})
           			.attr("dy", "150")
           			.text(function(d, i) { return d.name; })
           			.style("stroke","black")
@@ -112,7 +117,7 @@
 
           	//sales figure
           	node.append("text")
-          			.attr("dx", function(d,i){ return i*250+145;})
+          			.attr("dx", function(d,i){ return i*250+595;})
           			.attr("dy", "170")
           			.text(function(d, i) { return d.country_data.net_sales; })
           			.style("stroke","black")
@@ -131,11 +136,12 @@
 
     			//header
     			svgSales.append("text")
-          			//.attr("dx", 10)
+          			.attr("dx", "50%")
           			.attr("dy", 30)
           			.text(function(d, i) { return "Net Sales for "+ countryName; })
           			.style("stroke","black")
-          			.style("text-anchor","center")
+          			.style("text-anchor","middle")
+          			.style("font-size", "x-large")
           			.style("pointer-events", "none");
 
     			d3.select("#salegraph").selectAll("div")
@@ -151,13 +157,14 @@
 						    .style("height", function(d) { 
 
 						    	return d.sales.substring(0, d.sales.length - 1) + "px"; })
-						    .style("font", "14px sans-serif")
-						    .style("background-color", "steelblue")
-						    .style("text-align", "center")
-						    //.style("padding", "10px")
-						    .style("margin", "10px")
-						    .style("width", "30px")
-						    .style("float", "left")
+						    // .style("font", "14px sans-serif")
+						    // .style("background-color", "steelblue")
+						    // .style("text-align", "center")
+						    // //.style("padding", "10px")
+						    // .style("margin", "10px")
+						    // .style("width", "30px")
+						    // .style("float", "left")
+						    .style("font-size", "medium")
 						    ;
 
 	}
@@ -177,11 +184,12 @@
 
     			//header
     			svgTopSellers.append("text")
-          			//.attr("dx", 10)
+          			.attr("dx", "50%")
           			.attr("dy", 30)
           			.text(function(d, i) { return "Best-Seller Products"; })
           			.style("stroke","black")
-          			.style("text-anchor","center")
+          			.style("text-anchor","middle")
+          			.style("font-size", "x-large")
           			.style("pointer-events", "none");
 
           	   // d3.select("#topsellers").append("table")
