@@ -108,19 +108,19 @@
             "yearly_distribution": [
                 {
                     "quarter": "Q1",
-                    "sales": "20M"
+                    "sales": "10M"
                 },
                 {
                     "quarter": "Q2",
-                    "sales": "30M"
+                    "sales": "20M"
                 },
                 {
                     "quarter": "Q3",
-                    "sales": "18M"
+                    "sales": "38M"
                 },
                 {
                     "quarter": "Q4",
-                    "sales": "16M"
+                    "sales": "66M"
                 }
             ],
             "best_sellers": [

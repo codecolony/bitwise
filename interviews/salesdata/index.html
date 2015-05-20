@@ -20,9 +20,14 @@
     float:left;
 	}
 
-	/*.child_div_1{
-	    float:left;
-	    margin-right:5px;
+	 /*.chart {
+	  font: 10px sans-serif;
+	  background-color: steelblue;
+	  text-align: right;
+	  padding: 3px;
+	  margin: 1px;
+	  color: black;
+	  
 	}*/
 
 	</style>
@@ -50,7 +55,7 @@
 
 	<!-- toolbar area -->
 	<script type="text/javascript">
-		d3.select("#toolbar").text('Net Sales');
+		//d3.select("#toolbar").text('Net Sales');
 
 	function OnChange(dropdown)
 	{
@@ -65,6 +70,15 @@
 							.attr("width", "100%")
     						.attr("height", "300px");
 
+    		//header
+    		svgCountry.append("text")
+          			//.attr("dx", 10)
+          			.attr("dy", 30)
+          			.text(function(d, i) { return "Net Sales"; })
+          			.style("stroke","black")
+          			.style("text-anchor","center")
+          			.style("pointer-events", "none");
+
     	var node = svgCountry.selectAll(".country")
       				.data(data)
     				.enter().append("g")
@@ -76,48 +90,142 @@
 					.attr("r", "100")
 					.style("fill","red")
 					.style("opacity", 0.7)
+					.on("click",function(d){
+						//alert("Clicked on "+ d.name );
+						showSales(d.country_data.yearly_distribution, d.name);
+						showTopSellers(d.country_data.best_sellers);
+					});
+					
 
 			//tooltips
     		node.append("svg:title")
-          			.text(function(d, i) { return d.name; });
+          			.text(function(d, i) { return d.name; })
+          			;
 
           	//country name
           	node.append("text")
           			.attr("dx", function(d,i){ return i*250+130;})
           			.attr("dy", "150")
           			.text(function(d, i) { return d.name; })
-          			.style("stroke","black");
+          			.style("stroke","black")
+          			.style("pointer-events", "none");
 
           	//sales figure
           	node.append("text")
           			.attr("dx", function(d,i){ return i*250+145;})
           			.attr("dy", "170")
-          			.text(function(d, i) { 
-          				return d.country_data.net_sales; })
+          			.text(function(d, i) { return d.country_data.net_sales; })
           			.style("stroke","black")
-          			.style("text-anchor","center");
+          			.style("text-anchor","center")
+          			.style("pointer-events", "none");
 	}
 
-	function showSales(data){
+	function showSales(data, countryName){
+
+		d3.select("#salegraph svg").remove();
+		d3.select("#salegraph").html("");
+
 		var svgSales = d3.select("#salegraph").append("svg")
 							.attr("width", "100%")
-    						.attr("height", "300px");
+    						.attr("height", "50px");
 
-    			svgSales.append("rect")
-    						.attr("width", "100%")
-    						.attr("height", "100%")
-    						.style("fill","blue");
+    			//header
+    			svgSales.append("text")
+          			//.attr("dx", 10)
+          			.attr("dy", 30)
+          			.text(function(d, i) { return "Net Sales for "+ countryName; })
+          			.style("stroke","black")
+          			.style("text-anchor","center")
+          			.style("pointer-events", "none");
+
+    			d3.select("#salegraph").selectAll("div")
+						    .data(data)
+						  .enter().append("div")
+						  	.attr("class","chart")
+						  	//.attr("x", 10)
+						  	.attr("y", function(d){
+						  		return (250 - d.sales.substring(0, d.sales.length - 1));
+						  	})
+						  	//.attr("transform", function(d, i) { return "translate(" + i * 10 + ",300)"; })
+						  	.text(function(d) { return d.quarter; })
+						    .style("height", function(d) { 
+
+						    	return d.sales.substring(0, d.sales.length - 1) + "px"; })
+						    .style("font", "14px sans-serif")
+						    .style("background-color", "steelblue")
+						    .style("text-align", "center")
+						    //.style("padding", "10px")
+						    .style("margin", "10px")
+						    .style("width", "30px")
+						    .style("float", "left")
+						    ;
+
 	}
 
 	function showTopSellers(data){
+
+		d3.select("#topsellers svg").remove();
+		d3.select("#topsellers").html("");
+
+		//extract the property list
+		var keys = Object.keys(data[0]);
+		console.log("obj propery list "+ keys);
+
 		var svgTopSellers = d3.select("#topsellers").append("svg")
 							.attr("width", "100%")
-    						.attr("height", "300px");
+    						.attr("height", "50px");
 
-    			svgTopSellers.append("rect")
-    						.attr("width", "100%")
-    						.attr("height", "100%")
-    						.style("fill","green");
+    			//header
+    			svgTopSellers.append("text")
+          			//.attr("dx", 10)
+          			.attr("dy", 30)
+          			.text(function(d, i) { return "Best-Seller Products"; })
+          			.style("stroke","black")
+          			.style("text-anchor","center")
+          			.style("pointer-events", "none");
+
+          	   // d3.select("#topsellers").append("table")
+
+    			var table = d3.select("#topsellers").append("table")
+		            .attr("style", "margin-left: 50px"),
+			        thead = table.append("thead"),
+			        tbody = table.append("tbody");
+
+			    // append the header row
+			    thead.append("tr")
+			        .selectAll("th")
+			        .data(keys)
+			        .enter()
+			        .append("th")
+			            .text(function(column) { return column; })
+			            .style("text-anchor","left")
+			            .style("padding", "10px")
+						    .style("margin", "150px")
+						    //.style('column-gap', "80px")
+			            .style("font", "24px sans-serif");
+
+			     // create a row for each object in the data
+			    var rows = tbody.selectAll("tr")
+			        .data(data)
+			        .enter()
+			        .append("tr");
+
+			     // create a cell in each row for each column
+			    var cells = rows.selectAll("td")
+			        .data(function(row) {
+			            return keys.map(function(column) {
+			                return {column: column, value: row[column]};
+			            });
+			        })
+			        .enter()
+			        .append("td")
+			        .attr("style", "font-family: Courier") // sets the font style
+			            .html(function(d) { return d.value; })
+			            .style("text-anchor","center")
+			            .style("padding", "10px")
+			            .style('column-gap', "80px")
+						    .style("margin", "110px");
+
 	}
 
 	(function init(){
@@ -129,19 +237,8 @@
 			//create country data
 			showCountries(sales_data);
 
-			//show sales graph
-			showSales(sales_data);
-
-			//show top sellers
-			showTopSellers(sales_data);
-
 		});
 	})();
-	//Country Info area
-
-	//Sales Graph area
-
-	//Top Sellers area
 
 	</script>
 </body>
