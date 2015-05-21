@@ -72,9 +72,25 @@
 
 	function showCountries(data){
 
+		var nsales = [];
+
+		//get net sales array in numbers
+		data.forEach(function(d){
+			nsales.push(d.country_data.net_sales.substring(0, d.country_data.net_sales.length - 1));
+		});
+
+		var max_of_array = Math.max.apply(Math, nsales);
+
+		var xx = d3.scale.linear()
+    			.range([1, 5]);
+
+		//console.log(nsales);
+		
+		//d.sales.substring(0, d.sales.length - 1)
+
 		var svgCountry = d3.select("#country").append("svg")
 							.attr("width", "100%")
-    						.attr("height", "300px");
+    						.attr("height", "320px");
 
     		//header
     		svgCountry.append("text")
@@ -96,7 +112,8 @@
     		node.append("circle")
 					.attr("cx", function(d,i){ return i*250+600;})
 					.attr("cy", "180")
-					.attr("r", "100")
+					//.attr("r", "100")
+					.attr("r", function(d,i){ return xx(nsales[i])/3 ; })
 					.style("fill","red")
 					.style("opacity", 0.7)
 					.on("click",function(d){
@@ -114,7 +131,7 @@
           	//country name
           	node.append("text")
           			.attr("dx", function(d,i){ return i*250+580;})
-          			.attr("dy", "180")
+          			.attr("dy", "310")
           			.text(function(d, i) { return d.name; })
           			.style("stroke","black")
           			.style("pointer-events", "none");
